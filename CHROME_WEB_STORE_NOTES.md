@@ -82,23 +82,10 @@ The privacy policy explicitly states:
 
 ---
 
-## Alternative: Domain-Specific Version
-
-We have prepared an alternative manifest (`manifest-alternative.json`) that restricts content script injection to specific popular domains (Gmail, Google Docs, Facebook, LinkedIn, etc.).
-
-**Trade-off:**
-- ✅ Faster approval process
-- ❌ Severely limited functionality (only works on ~20 websites)
-- ❌ Poor user experience
-
-We prefer the `<all_urls>` version for full functionality, but can switch if required.
-
----
-
 ## Compliance Checklist
 
 - ✅ Privacy policy publicly accessible
-- ✅ Clear explanation of `<all_urls>` usage
+- ✅ Specific host permissions justified
 - ✅ No sensitive permissions requested
 - ✅ No data collection from websites
 - ✅ No external network requests
@@ -117,4 +104,4 @@ We prefer the `<all_urls>` version for full functionality, but can switch if req
 
 ---
 
-**Summary:** TypiPat uses `<all_urls>` purely for functional text expansion across all websites. It does not collect, monitor, or transmit any browsing data or website content. All user data stays on their device.
+**Summary:** TypiPat uses specific host permissions purely for functional text expansion on supported websites. It does not collect, monitor, or transmit any browsing data or website content. All user data stays on their device.
