@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 400px;
+      min-height: 500px;
+      max-height: 600px;
+      font-family: 'Georgia', 'Times New Roman', serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 0;
+      margin: 0;
+    }
+
+    .container {
+      background: white;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .header {
+      padding: 20px;
+      border-bottom: 2px solid #7B1FA2;
+      background: white;
+    }
+
+    .header-tagline {
+      text-align: center;
+      color: #6A1B9A;
+      font-size: 13px;
+      font-style: italic;
+      line-height: 1.6;
+      margin-bottom: 15px;
+    }
+
+    .title {
+      color: #4A148C;
+      font-size: 24px;
+      font-weight: 300;
+      letter-spacing: 2px;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    /* Search Section */
+    .search-section {
+      padding: 14px 20px 15px 20px;
+      background: white;
+      border-bottom: 1px solid #E1BEE7;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .search-container {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .search-box {
+      flex: 1;
+      padding: 10px 15px;
+      border: 2px solid #9C27B0;
+      border-radius: 20px;
+      font-size: 13px;
+      font-family: 'Georgia', serif;
+      transition: all 0.3s;
+    }
+
+    .search-box:focus {
+      outline: none;
+      border-color: #7B1FA2;
+      box-shadow: 0 0 8px rgba(123, 31, 162, 0.3);
+    }
+
+    .search-btn {
+      padding: 10px 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: transform 0.2s;
+      font-family: 'Georgia', serif;
+    }
+
+    .search-btn:hover {
+      transform: scale(1.05);
+    }
+
+    .clear-search {
+      padding: 10px 15px;
+      background: #E91E63;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 12px;
+      display: none;
+      font-family: 'Georgia', serif;
+    }
+
+    .clear-search.visible {
+      display: block;
+    }
+
+    /* Notes List */
+    .notes-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 15px 20px;
+      background: #FAFAFA;
+    }
+
+    .note-item {
+      background: white;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s;
+      border-left: 4px solid #9C27B0;
+    }
+
+    .note-item:hover {
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .note-item.hidden {
+      display: none;
+    }
+
+    .note-item.highlight {
+      background: #FFF9C4;
+      animation: highlightPulse 1.5s ease-in-out;
+    }
+
+    @keyframes highlightPulse {
+      0% {
+        background: #FFEB3B;
+      }
+
+      100% {
+        background: #FFF9C4;
+      }
+    }
+
+    .note-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+
+    .note-content {
+      flex: 1;
+    }
+
+    .note-rhythm {
+      color: #6A1B9A;
+      font-size: 16px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+      margin-bottom: 5px;
+    }
+
+    .note-label {
+      color: #666;
+      font-size: 12px;
+      font-style: italic;
+    }
+
+    .perform-btn {
+      padding: 8px 16px;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: transform 0.2s;
+      font-family: 'Georgia', serif;
+      flex-shrink: 0;
+    }
+
+    .perform-btn:hover {
+      transform: scale(1.05);
+    }
+
+    .perform-btn.copied {
+      background: #4CAF50;
+    }
+
+    /* Footer */
+    .footer {
+      padding: 15px 20px;
+      background: white;
+      border-top: 1px solid #E1BEE7;
+      position: sticky;
+      bottom: 0;
+      z-index: 10;
+    }
+
+    .footer-btn {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: transform 0.2s;
+      letter-spacing: 1px;
+      font-family: 'Georgia', serif;
+    }
+
+    .footer-btn:hover {
+      transform: scale(1.02);
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #9C27B0;
+      font-style: italic;
+      font-size: 15px;
+    }
+
+    /* Scrollbar */
+    .notes-list::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .notes-list::-webkit-scrollbar-track {
+      background: #F3E5F5;
+    }
+
+    .notes-list::-webkit-scrollbar-thumb {
+      background: #9C27B0;
+      border-radius: 4px;
+    }
+
+    .notes-list::-webkit-scrollbar-thumb:hover {
+      background: #7B1FA2;
+    }
+
+    /* Notification Toast */
+    .notification-toast {
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      background: white;
+      padding: 15px 25px;
+      border-radius: 25px;
+      box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+      z-index: 9999;
+      opacity: 0;
+      transition: all 0.3s ease-out;
+      border-left: 4px solid #9C27B0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      max-width: 320px;
+    }
+
+    .notification-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .notification-icon {
+      font-size: 20px;
+    }
+
+    .notification-message {
+      color: #424242;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .notification-toast.error {
+      border-left-color: #f44336;
+    }
+
+    .notification-toast.success {
+      border-left-color: #4CAF50;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Notification Toast -->
+  <div id="notificationToast" class="notification-toast">
+    <span class="notification-icon" id="notificationIcon">🎵</span>
+    <span class="notification-message" id="notificationMessage"></span>
+  </div>
+
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-tagline">"Orchestrate your day into Harmony."</div>
+      <div class="title">🎼 TypiPat — Motif</div>
+    </div>
+
+    <!-- Search Section -->
+    <div class="search-section">
+      <div class="search-container">
+        <input type="text" id="searchBox" class="search-box" placeholder="Search rhythm or harmony...">
+        <button id="searchBtn" class="search-btn">Cue</button>
+        <button id="clearSearch" class="clear-search">Mute</button>
+      </div>
+    </div>
+
+    <!-- Notes List -->
+    <div class="notes-list" id="notesList">
+      <div class="empty-state">Silence. No notes composed yet.</div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <button id="openOptions" class="footer-btn">Orchestra Entrata</button>
+    </div>
+  </div>
+
+  <script src="utils.js"></script>
+  <script src="storage-helper.js"></script>
+  <script src="popup.js"></script>
+</body>
+
+</html>
