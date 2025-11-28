@@ -1,0 +1,2 @@
+# TypiPat
+Text expander
