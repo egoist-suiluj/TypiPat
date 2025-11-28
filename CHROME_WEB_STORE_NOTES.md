@@ -1,52 +1,6 @@
 # Chrome Web Store Reviewer Notes
 
 ## Extension: TypiPat v1.0
-
-### Purpose
-TypiPat is a text expansion utility that helps users type faster by automatically expanding custom shortcuts into full text. For example, typing "brb" can expand to "Be right back!"
-
----
-
-## Important: `<all_urls>` Permission Justification
-
-### Why We Use `<all_urls>`
-
-TypiPat requests the `<all_urls>` permission **solely as a functional requirement** to enable text expansion on any website the user chooses to use.
-
-**Functional Necessity:**
-- Users need text expansion to work on ANY website they visit (email, social media, work tools, etc.)
-- The content script must detect typing in text fields across all websites
-- The extension must insert replacement text when users type their shortcuts
-- Restricting to specific domains would severely limit functionality and user experience
-
-### What TypiPat Does NOT Do
-
-**TypiPat does not collect or process any data from the websites users visit.**
-
-The extension does **NOT**:
-- ❌ Monitor, read, or collect website content
-- ❌ Track which websites users visit
-- ❌ Record browsing history
-- ❌ Access or store data from web pages
-- ❌ Read or collect form data (except user's own shortcuts)
-- ❌ Monitor user activity across websites
-- ❌ Send any website data to external servers
-- ❌ Collect any information about pages viewed
-- ❌ Use analytics, tracking, or telemetry
-- ❌ Make network requests to external servers
-
-### What TypiPat DOES Do
-
-The content script **only**:
-1. ✅ Listens for user typing in text input fields (input, textarea, contentEditable)
-2. ✅ Detects when user types one of their own custom shortcuts
-3. ✅ Replaces that shortcut with user-defined replacement text
-4. ✅ Processes template variables like `{date}` and `{time}` in shortcuts
-
-**All processing happens locally on the user's device. No data leaves the computer.**
-
----
-
 ## Permissions Breakdown
 
 ### Requested Permissions

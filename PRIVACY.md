@@ -41,6 +41,24 @@ TypiPat **only**:
 
 **All of this happens locally on your device. No data leaves your computer.**
 
+### ServiceNow Integration
+
+TypiPat includes specific support for ServiceNow instances (`*.service-now.com`) to ensure optimal text expansion functionality on ServiceNow platforms.
+
+**What this means for ServiceNow users:**
+- The extension can inject content scripts on any ServiceNow instance you access
+- Text shortcuts work seamlessly in ServiceNow forms, fields, and text areas
+- All shortcut expansion happens locally on your device
+
+**Important clarifications:**
+- TypiPat **only** interacts with ServiceNow pages for shortcut insertion
+- No personal, browsing, or sensitive data is collected from ServiceNow
+- No ServiceNow data is read, stored, or transmitted
+- All stored data stays local or synced via Chrome Storage only
+- No data is transmitted to external servers
+
+The ServiceNow permission is purely functional—it allows the extension to detect your typing and expand shortcuts, nothing more.
+
 ## Data Collection and Storage
 
 ### What Data We Collect
