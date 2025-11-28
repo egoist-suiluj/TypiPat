@@ -30,7 +30,8 @@
         "utils.js",
         "storage-helper.js",
         "content.js"
-      ]
+      ],
+      "run_at": "document_idle"
     }
   ]
 }

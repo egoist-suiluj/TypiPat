@@ -6,6 +6,41 @@
 
 TypiPat ("we", "our", or "the extension") is a Chrome browser extension designed to help users create and manage text shortcuts for faster typing. This privacy policy explains what data is collected, how it is used, and your rights regarding your data.
 
+## Important Clarification: Website Access and Data Collection
+
+### Why TypiPat Uses `<all_urls>` Permission
+
+TypiPat requests access to all websites (`<all_urls>`) **solely** to enable text expansion functionality on any website you choose to use. This is a **functional requirement**, not a data collection mechanism.
+
+**What this means:**
+- The extension needs to detect when you type in text fields across any website
+- It must be able to insert your custom replacement text when you type a shortcut
+- This requires the content script to run on the pages where you want to use shortcuts
+
+### What TypiPat Does NOT Do
+
+**TypiPat does not collect or process any data from the websites you visit.**
+
+Specifically, TypiPat does **NOT**:
+- Monitor, read, or collect website content
+- Track which websites you visit
+- Record your browsing history
+- Access or store data from web pages
+- Read or collect form data (except the shortcuts you explicitly type)
+- Monitor your activity across websites
+- Send any website data to external servers
+- Collect any information about the pages you view
+
+### What TypiPat DOES Do
+
+TypiPat **only**:
+1. Listens for your typing in text input fields (input, textarea, contentEditable elements)
+2. Detects when you type one of your own custom shortcuts
+3. Replaces that shortcut with your pre-defined replacement text
+4. Processes template variables like `{date}` and `{time}` in your shortcuts
+
+**All of this happens locally on your device. No data leaves your computer.**
+
 ## Data Collection and Storage
 
 ### What Data We Collect
