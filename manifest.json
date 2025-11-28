@@ -3,6 +3,7 @@
   "name": "TypiPat",
   "version": "1.0",
   "description": "Orchestrate your day into harmony. Your quiet rhythm — composing peace with every keystroke.",
+  "privacy_policy_url": "https://egoist-suiluj.github.io/TypiPat/PRIVACY.html",
   "permissions": [
     "storage"
   ],

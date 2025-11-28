@@ -1,0 +1,125 @@
+# Privacy Policy for TypiPat
+
+**Last Updated: November 28, 2024**
+
+## Introduction
+
+TypiPat ("we", "our", or "the extension") is a Chrome browser extension designed to help users create and manage text shortcuts for faster typing. This privacy policy explains what data is collected, how it is used, and your rights regarding your data.
+
+## Data Collection and Storage
+
+### What Data We Collect
+
+TypiPat collects and stores only the following user-generated content:
+
+1. **Text Shortcuts**: The shortcut keys you create (e.g., "brb", "addr")
+2. **Replacement Text**: The expanded text associated with each shortcut
+3. **Labels/Annotations**: Optional descriptive labels you assign to shortcuts
+4. **Metadata**: Timestamps used for synchronization conflict resolution
+
+### What We DO NOT Collect
+
+TypiPat does **NOT** collect, store, or transmit:
+
+- Personal information (name, email, phone number, address)
+- Browsing history or website visits
+- Passwords or credentials
+- Location data
+- Payment information
+- Any data from websites you visit
+- Analytics or usage statistics
+- Cookies or tracking data
+
+## How Data is Stored
+
+### Local Storage
+
+All your shortcuts and data are stored locally on your device using Chrome's built-in storage API (`chrome.storage.local`). This data:
+
+- Remains on your device
+- Is not transmitted to any external servers
+- Is not accessible to the extension developers
+- Is controlled entirely by you
+
+### Chrome Sync (Optional)
+
+If you have Chrome Sync enabled in your browser, your shortcuts may be synchronized across your Chrome browsers using `chrome.storage.sync`. This synchronization:
+
+- Is handled entirely by Google Chrome
+- Uses Google's secure infrastructure
+- Follows Google's privacy policies
+- Can be disabled in your Chrome settings
+- Is optional and controlled by your Chrome sync preferences
+
+**Important**: We do not have access to your synced data. All synchronization is managed by Chrome itself.
+
+## Data Usage
+
+Your data is used exclusively for:
+
+1. **Text Expansion**: Replacing shortcuts with their corresponding text as you type
+2. **Storage and Retrieval**: Saving and loading your shortcuts
+3. **Synchronization**: Syncing shortcuts across your devices (if Chrome Sync is enabled)
+
+We do not:
+
+- Share your data with third parties
+- Use your data for advertising
+- Analyze your data for any purpose
+- Transmit your data to external servers
+
+## Data Control and Rights
+
+### Your Rights
+
+You have complete control over your data:
+
+- **Access**: View all your shortcuts in the extension's options page
+- **Modify**: Edit or update any shortcut at any time
+- **Delete**: Remove individual shortcuts or clear all data
+- **Export**: Download your shortcuts as a JSON file
+- **Import**: Upload previously exported shortcuts
+
+### Data Deletion
+
+To delete your data:
+
+1. **Individual Shortcuts**: Click the "Abolish" button next to any shortcut in the options page
+2. **All Data**: Uninstall the extension from Chrome, which will remove all stored data
+3. **Export First**: Use the "Export" feature to backup your data before deletion
+
+## Third-Party Services
+
+TypiPat does not use any third-party services, analytics, or tracking tools. The extension operates entirely within your browser using only Chrome's built-in APIs.
+
+## Children's Privacy
+
+TypiPat does not knowingly collect any information from children. The extension is designed for general use and does not target children specifically.
+
+## Changes to This Privacy Policy
+
+We may update this privacy policy from time to time. Any changes will be reflected in the "Last Updated" date at the top of this document. Continued use of the extension after changes constitutes acceptance of the updated policy.
+
+## Open Source
+
+TypiPat is open source. You can review the complete source code at:
+https://github.com/egoist-suiluj/TypiPat
+
+## Contact Information
+
+If you have questions or concerns about this privacy policy or your data, please contact us:
+
+- **GitHub Issues**: https://github.com/egoist-suiluj/TypiPat/issues
+- **Repository**: https://github.com/egoist-suiluj/TypiPat
+
+## Compliance
+
+This privacy policy complies with:
+
+- Chrome Web Store Developer Program Policies
+- General Data Protection Regulation (GDPR) principles
+- California Consumer Privacy Act (CCPA) principles
+
+## Summary
+
+**In simple terms**: TypiPat only stores the text shortcuts you create, keeps them on your device, and doesn't collect any personal information or share your data with anyone.
