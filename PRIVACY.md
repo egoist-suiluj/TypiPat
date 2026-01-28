@@ -1,5 +1,55 @@
 # Privacy Policy for TypiPat
 
+**Last Updated: January 29, 2026**
+
+## Introduction
+TypiPat ("we", "our", or "the extension") is a Manifest V3 Chrome extension designed to help users orchestrate their typing through rhythmic text shortcuts and motifs. This policy explains our commitment to zero-data collection.
+
+## Important Clarification: Permissions & Privacy
+
+### Why TypiPat Uses Specific Permissions in V2.0
+* **`<all_urls>`**: Used to enable text expansion functionality across any website, including specialized support for **ServiceNow instances (`*.service-now.com`)**. This is a functional requirement to detect your custom shortcuts; we do not read, store, or transmit any data from the pages you visit.
+* **`offscreen`**: Facilitates secure clipboard operations (copy/paste) within the Manifest V3 environment.
+* **`clipboardRead` & `clipboardWrite`**: Necessary for the "Perform" feature to save or copy your motifs.
+* **`storage`**: Used to sync your motifs via Google's encrypted sync service.
+
+### What TypiPat Does NOT Do (The Zero-Server Guarantee)
+TypiPat is built on the principle of **Local-First Harmony**. Specifically, TypiPat does **NOT**:
+- Monitor, read, or collect website content or form data.
+- Track or record your browsing history or website visits.
+- **Transmit any data to external servers.** There is no "TypiPat Server"; all processes occur locally.
+- Use analytics, tracking tools, or third-party cookies.
+
+### What TypiPat DOES Do
+1. **Deep Detection:** Detects shortcuts even within Shadow DOM and modern frameworks (React, Vue, etc.).
+2. **Composer Studio:** Provides a safe, local environment to draft long-form manuscripts with real-time stats.
+3. **Local Orchestration:** Replaces shortcuts using secured DOM APIs to ensure 100% XSS security compliance.
+
+## Data Collection and Storage
+We only store what you explicitly create:
+1. **Text Shortcuts & Motifs** 2. **Labels/Annotations**
+3. **Metadata** (Timestamps for sync)
+
+**Storage:** Data is stored locally (`chrome.storage.local`) or via your optional Chrome Sync (`chrome.storage.sync`). We have zero access to this data.
+
+## Data Control and Rights
+You are the Conductor of your data. You can:
+- **Export/Import:** Backup your collection as JSON.
+- **Abolish:** Permanently delete specific notes or clear all data.
+- **Uninstall:** Removing the extension automatically deletes all locally stored data.
+
+## Open Source & Transparency
+TypiPat's entire score (source code) is available for public audit at:
+https://github.com/egoist-suiluj/TypiPat
+
+## Contact Information
+- **GitHub Issues:** https://github.com/egoist-suiluj/TypiPat/issues
+
+==========================================================================================================================================
+
+
+# Privacy Policy for TypiPat
+
 **Last Updated: November 28, 2024**
 
 ## Introduction
