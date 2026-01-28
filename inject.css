@@ -1,0 +1,78 @@
+/* TypiPat Floating UI Styles */
+
+/* Container for the Button/Icon */
+#typipat-fab-container {
+  position: fixed !important;
+  top: 25vh;
+  /* Default vertical position */
+  right: 2px;
+  /* Compact Position: 2px */
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  cursor: grab;
+  user-select: none;
+
+  /* Minimalist "Ghost Mode" */
+  opacity: 0.4;
+  transition:
+    opacity 0.3s ease,
+    transform 0.1s;
+}
+
+#typipat-fab-container:hover {
+  opacity: 1;
+  /* Full visibility on hover */
+}
+
+#typipat-fab-container:active {
+  cursor: grabbing;
+}
+
+/* The Icon Image itself */
+.typipat-fab-icon {
+  width: 85%;
+  /* 85% width as requested */
+  height: 85%;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.2));
+  transition: transform 0.2s;
+}
+
+#typipat-fab-container:hover .typipat-fab-icon {
+  transform: scale(1.1);
+}
+
+/* The Iframe Overlay - SIDE STAGE */
+#typipat-overlay {
+  position: fixed !important;
+  top: 10vh !important;
+  /* Fixed Side-Stage Position */
+  right: 0 !important;
+  /* Fixed Right Alignment */
+  width: 380px;
+  height: 550px;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  z-index: 2147483647;
+
+  /* Zero Visibility Leak Logic */
+  transform: translateX(110%);
+  /* Tighter off-screen transform */
+  visibility: hidden;
+  /* Strict concealment */
+  transition:
+    transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
+    visibility 0.3s;
+  box-shadow: -5px 0 25px rgba(0, 0, 0, 0.15);
+}
+
+#typipat-overlay.visible {
+  transform: translateX(0);
+  visibility: visible;
+}

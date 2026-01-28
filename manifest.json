@@ -1,57 +1,61 @@
 {
-    "manifest_version": 3,
-    "name": "TypiPat",
-    "version": "1.0",
-    "description": "Orchestrate your day into harmony. Your quiet rhythm — composing peace with every keystroke.",
-    "privacy_policy_url": "https://egoist-suiluj.github.io/TypiPat/PRIVACY.html",
-    "permissions": [
-        "storage"
-    ],
-    "icons": {
-        "16": "iPat.png",
-        "48": "iPat.png",
-        "128": "iPat.png"
-    },
-    "action": {
-        "default_popup": "popup.html",
-        "default_icon": {
-            "16": "iPat.png",
-            "48": "iPat.png",
-            "128": "iPat.png"
-        }
-    },
-    "options_page": "options.html",
-    "content_scripts": [
-        {
-            "matches": [
-                "https://*.service-now.com/*",
-                "*://mail.google.com/*",
-                "*://*.gmail.com/*",
-                "*://outlook.live.com/*",
-                "*://outlook.office.com/*",
-                "*://*.facebook.com/*",
-                "*://*.twitter.com/*",
-                "*://*.linkedin.com/*",
-                "*://*.reddit.com/*",
-                "*://docs.google.com/*",
-                "*://drive.google.com/*",
-                "*://*.notion.so/*",
-                "*://*.slack.com/*",
-                "*://*.discord.com/*",
-                "*://*.trello.com/*",
-                "*://*.asana.com/*",
-                "*://*.github.com/*",
-                "*://*.gitlab.com/*",
-                "*://*.stackoverflow.com/*",
-                "*://*.wikipedia.org/*",
-                "*://*.medium.com/*"
-            ],
-            "js": [
-                "utils.js",
-                "storage-helper.js",
-                "content.js"
-            ],
-            "run_at": "document_idle"
-        }
-    ]
+  "manifest_version": 3,
+  "name": "TypiPat",
+  "version": "2.0.0",
+  "description": "Orchestrate your day into harmony. Your quiet rhythm — composing peace with every keystroke.",
+  "privacy_policy_url": "https://egoist-suiluj.github.io/TypiPat/PRIVACY.html",
+  "permissions": [
+    "storage",
+    "clipboardRead",
+    "clipboardWrite",
+    "offscreen",
+    "contextMenus"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "commands": {
+    "open_options": {
+      "suggested_key": {
+        "default": "Alt+Shift+O"
+      },
+      "description": "Open Orchestra Entrata"
+    }
+  },
+  "icons": {
+    "16": "iPat.png",
+    "48": "iPat.png",
+    "128": "iPat.png"
+  },
+  "action": {
+    "default_icon": {
+      "16": "iPat.png",
+      "48": "iPat.png",
+      "128": "iPat.png"
+    }
+  },
+  "options_page": "options.html",
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["utils.js", "storage-helper.js", "content.js"],
+      "css": ["inject.css"],
+      "all_frames": true,
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "options.html",
+        "popup.html",
+        "popup.css",
+        "iPat.png",
+        "utils.js",
+        "storage-helper.js",
+        "popup.js"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }

@@ -1,1222 +1,1306 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>TypiPat: The Rhythmic Index</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-<head>
-  <meta charset="UTF-8">
-  <title>TypiPat: The Rhythmic Index</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+      input::placeholder,
+      textarea::placeholder {
+        color: #a5a5c7;
+        opacity: 1;
+      }
 
-    body {
-      font-family: 'Georgia', 'Times New Roman', serif;
-      max-width: 1200px;
-      margin: 40px auto;
-      padding: 20px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-    }
+      body {
+        font-family: "Georgia", "Times New Roman", serif;
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+      }
 
-    .container {
-      background: white;
-      padding: 40px;
-      border-radius: 15px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-    }
+      .container {
+        background: white;
+        padding: 40px;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      }
 
-    .header-tagline {
-      text-align: center;
-      color: #6A1B9A;
-      font-size: 16px;
-      font-style: italic;
-      line-height: 1.8;
-      padding: 15px 0;
-      margin-bottom: 25px;
-    }
+      .header-tagline {
+        text-align: center;
+        color: #6a1b9a;
+        font-size: 16px;
+        font-style: italic;
+        line-height: 1.8;
+        padding: 15px 0;
+        margin-bottom: 25px;
+      }
 
-    .footer-quote {
-      text-align: center;
-      color: #6A1B9A;
-      font-size: 15px;
-      font-style: italic;
-      line-height: 1.8;
-      padding: 15px 0;
-      margin-top: 30px;
-      opacity: 1;
-      transition: opacity 0.5s ease;
-    }
+      .footer-quote {
+        text-align: center;
+        color: #6a1b9a;
+        font-size: 15px;
+        font-style: italic;
+        line-height: 1.8;
+        padding: 15px 0;
+        margin-top: 30px;
+        opacity: 1;
+        transition: opacity 0.5s ease;
+      }
 
-    .footer-quote.visible {
-      opacity: 1;
-    }
+      .footer-quote.visible {
+        opacity: 1;
+      }
 
-    h1 {
-      color: #4A148C;
-      margin-top: 0;
-      font-size: 32px;
-      font-weight: 300;
-      letter-spacing: 2px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 2px solid #7B1FA2;
-      padding: 20px 0;
-      margin-bottom: 30px;
-      position: sticky;
-      top: 0;
-      background: white;
-      z-index: 100;
-    }
+      h1 {
+        color: #4a148c;
+        margin-top: 0;
+        font-size: 32px;
+        font-weight: 300;
+        letter-spacing: 2px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 2px solid #7b1fa2;
+        padding: 20px 0;
+        margin-bottom: 30px;
+        position: sticky;
+        top: 0;
+        background: white;
+        z-index: 100;
+      }
 
-    .search-container {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      max-width: 550px;
-      margin-left: auto;
-    }
+      .search-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        max-width: 550px;
+        margin-left: auto;
+      }
 
-    .search-box {
-      flex: 1;
-      padding: 12px 20px;
-      border: 2px solid #9C27B0;
-      border-radius: 25px;
-      font-size: 14px;
-      font-family: 'Georgia', serif;
-      transition: all 0.3s;
-      min-width: 300px;
-    }
+      .search-box {
+        flex: 1;
+        padding: 12px 20px;
+        border: 2px solid #9c27b0;
+        border-radius: 25px;
+        font-size: 14px;
+        font-family: "Georgia", serif;
+        transition: all 0.3s;
+        min-width: 300px;
+      }
 
-    .search-box:focus {
-      outline: none;
-      border-color: #7B1FA2;
-      box-shadow: 0 0 10px rgba(123, 31, 162, 0.3);
-    }
+      .search-box:focus {
+        outline: none;
+        border-color: #7b1fa2;
+        box-shadow: 0 0 10px rgba(123, 31, 162, 0.3);
+      }
 
-    .search-btn,
-    .clear-search {
-      padding: 12px 20px;
-      border: none;
-      border-radius: 25px;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 600;
-      transition: transform 0.2s;
-      color: white;
-    }
+      .search-btn,
+      .clear-search {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 600;
+        transition: transform 0.2s;
+        color: white;
+      }
 
-    .search-btn {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      font-size: 14px;
-      padding: 12px 25px;
-    }
+      .search-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        font-size: 14px;
+        padding: 12px 25px;
+      }
 
-    .clear-search {
-      background: #E91E63;
-      display: none;
-    }
+      .clear-search {
+        background: #e91e63;
+        display: none;
+      }
 
-    .clear-search.visible {
-      display: block;
-    }
+      .clear-search.visible {
+        display: block;
+      }
 
-    .search-btn:hover,
-    .clear-search:hover {
-      transform: scale(1.05);
-    }
+      .search-btn:hover,
+      .clear-search:hover {
+        transform: scale(1.05);
+      }
 
-    .section {
-      margin-bottom: 40px;
-      padding-bottom: 30px;
-      border-bottom: 1px solid #E1BEE7;
-    }
+      .section {
+        margin-bottom: 40px;
+        padding-bottom: 30px;
+        border-bottom: 1px solid #e1bee7;
+      }
 
-    .section:last-child {
-      border-bottom: none;
-    }
+      .section:last-child {
+        border-bottom: none;
+      }
 
-    h2 {
-      color: #6A1B9A;
-      font-size: 24px;
-      font-weight: 300;
-      margin-bottom: 20px;
-      letter-spacing: 1px;
-    }
+      h2 {
+        color: #6a1b9a;
+        font-size: 24px;
+        font-weight: 300;
+        margin-bottom: 20px;
+        letter-spacing: 1px;
+      }
 
-    .section-caption {
-      color: #9C27B0;
-      font-size: 13px;
-      font-style: italic;
-      margin-top: -15px;
-      margin-bottom: 20px;
-    }
+      .section-caption {
+        color: #9c27b0;
+        font-size: 13px;
+        font-style: italic;
+        margin-top: -15px;
+        margin-bottom: 20px;
+      }
 
-    .add-form {
-      display: grid;
-      grid-template-columns: 200px 1fr;
-      grid-template-rows: auto auto auto;
-      gap: 15px;
-      margin-bottom: 20px;
-      align-items: start;
-    }
+      .add-form {
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        grid-template-rows: auto auto auto;
+        gap: 15px;
+        margin-bottom: 20px;
+        align-items: start;
+      }
 
-    .form-label {
-      color: #6A1B9A;
-      font-size: 13px;
-      font-weight: 600;
-      margin-bottom: 5px;
-      letter-spacing: 0.5px;
-    }
+      .form-label {
+        color: #6a1b9a;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 5px;
+        letter-spacing: 0.5px;
+      }
 
-    .add-form input[type="text"] {
-      padding: 12px;
-      border: 2px solid #E1BEE7;
-      border-radius: 8px;
-      font-size: 14px;
-      font-family: 'Georgia', serif;
-      transition: border-color 0.3s;
-      width: 100%;
-      box-sizing: border-box;
-    }
+      .add-form input[type="text"] {
+        padding: 12px;
+        border: 2px solid #e1bee7;
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: "Georgia", serif;
+        transition: border-color 0.3s;
+        width: 100%;
+        box-sizing: border-box;
+      }
 
-    .add-form input[type="text"]:focus {
-      outline: none;
-      border-color: #9C27B0;
-    }
+      .add-form input[type="text"]:focus {
+        outline: none;
+        border-color: #9c27b0;
+      }
 
-    .add-form input#shortcutInput {
-      grid-column: 1;
-      grid-row: 1;
-    }
+      .add-form input#shortcutInput {
+        grid-column: 1;
+        grid-row: 1;
+      }
 
-    .add-form .label-input-wrapper {
-      grid-column: 2;
-      grid-row: 1;
-      width: 100%;
-    }
+      .add-form .label-input-wrapper {
+        grid-column: 2;
+        grid-row: 1;
+        width: 100%;
+      }
 
-    .textarea-container {
-      grid-column: 2;
-      grid-row: 2;
-      position: relative;
-    }
+      .textarea-container {
+        grid-column: 2;
+        grid-row: 2;
+        position: relative;
+      }
 
-    .add-form textarea {
-      padding: 15px 60px 15px 15px;
-      border: 2px solid #E1BEE7;
-      border-radius: 8px;
-      font-size: 15px;
-      min-height: 200px;
-      width: 100%;
-      resize: vertical;
-      line-height: 1.8;
-      white-space: pre-wrap;
-      font-family: 'Georgia', serif;
-      transition: border-color 0.3s;
-      box-sizing: border-box;
-    }
+      .add-form textarea {
+        padding: 15px 60px 15px 15px;
+        border: 2px solid #e1bee7;
+        border-radius: 8px;
+        font-size: 15px;
+        min-height: 200px;
+        width: 100%;
+        resize: vertical;
+        line-height: 1.8;
+        white-space: pre-wrap;
+        font-family: "Georgia", serif;
+        transition: border-color 0.3s;
+        box-sizing: border-box;
+      }
 
-    .add-form textarea:focus {
-      outline: none;
-      border-color: #9C27B0;
-    }
+      .add-form textarea:focus {
+        outline: none;
+        border-color: #9c27b0;
+      }
 
-    .orchestrate-btn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 42px;
-      height: 42px;
-      cursor: pointer;
-      font-size: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-      z-index: 10;
-    }
+      .orchestrate-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 42px;
+        height: 42px;
+        cursor: pointer;
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        z-index: 10;
+      }
 
-    .orchestrate-btn:hover {
-      transform: scale(1.15);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
-    }
+      .orchestrate-btn:hover {
+        transform: scale(1.15);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+      }
 
-    .add-form button#addBtn {
-      grid-column: 2;
-      grid-row: 3;
-      width: 180px;
-      padding: 12px 20px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      border-radius: 25px;
-      cursor: pointer;
-      font-size: 15px;
-      font-weight: 600;
-      justify-self: start;
-      transition: transform 0.2s;
-      letter-spacing: 1px;
-    }
+      .add-form button#addBtn {
+        grid-column: 2;
+        grid-row: 3;
+        width: 180px;
+        padding: 12px 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: 600;
+        justify-self: start;
+        transition: transform 0.2s;
+        letter-spacing: 1px;
+      }
 
-    .add-form button#addBtn:hover {
-      transform: scale(1.05);
-    }
+      .add-form button#addBtn:hover {
+        transform: scale(1.05);
+      }
 
-    .save-btn,
-    .discard-btn {
-      grid-column: 2;
-      grid-row: 3;
-      padding: 12px 20px;
-      border: none;
-      border-radius: 25px;
-      cursor: pointer;
-      font-size: 15px;
-      font-weight: 600;
-      transition: transform 0.2s;
-      letter-spacing: 1px;
-      color: white;
-    }
+      .save-btn,
+      .discard-btn {
+        grid-column: 2;
+        grid-row: 3;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: 600;
+        transition: transform 0.2s;
+        letter-spacing: 1px;
+        color: white;
+      }
 
-    .save-btn {
-      background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-      justify-self: start;
-      margin-right: 10px;
-    }
+      .save-btn {
+        background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+        justify-self: start;
+        margin-right: 10px;
+      }
 
-    .discard-btn {
-      background: linear-gradient(135deg, #f44336 0%, #da190b 100%);
-      justify-self: start;
-      margin-left: 190px;
-    }
+      .discard-btn {
+        background: linear-gradient(135deg, #f44336 0%, #da190b 100%);
+        justify-self: start;
+        margin-left: 190px;
+      }
 
-    .save-btn:hover,
-    .discard-btn:hover {
-      transform: scale(1.05);
-    }
+      .save-btn:hover,
+      .discard-btn:hover {
+        transform: scale(1.05);
+      }
 
-    .export-import-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      grid-column: 1;
-      grid-row: 2 / 4;
-      align-self: start;
-    }
+      .export-import-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        grid-column: 1;
+        grid-row: 2 / 4;
+        align-self: start;
+      }
 
-    .export-btn,
-    .import-btn {
-      padding: 12px 15px;
-      font-size: 14px;
-      border-radius: 25px;
-      cursor: pointer;
-      border: none;
-      color: white;
-      transition: transform 0.2s;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      font-family: 'Georgia', serif;
-    }
+      .export-btn,
+      .import-btn {
+        padding: 12px 15px;
+        font-size: 14px;
+        border-radius: 25px;
+        cursor: pointer;
+        border: none;
+        color: white;
+        transition: transform 0.2s;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        font-family: "Georgia", serif;
+      }
 
-    .export-btn {
-      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    }
+      .export-btn {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      }
 
-    .import-btn {
-      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    }
+      .import-btn {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      }
 
-    .export-btn:hover,
-    .import-btn:hover {
-      transform: scale(1.05);
-    }
+      .export-btn:hover,
+      .import-btn:hover {
+        transform: scale(1.05);
+      }
 
-    .shortcuts-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
+      .shortcuts-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
 
-    .shortcuts-table th {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 15px;
-      text-align: left;
-      font-weight: 600;
-      border: none;
-      letter-spacing: 1px;
-      font-size: 15px;
-    }
+      .shortcuts-table th {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+        border: none;
+        letter-spacing: 1px;
+        font-size: 15px;
+      }
 
-    .shortcuts-table th:first-child {
-      border-radius: 10px 0 0 0;
-      text-align: center;
-    }
+      .shortcuts-table th:first-child {
+        border-radius: 10px 0 0 0;
+        text-align: center;
+      }
 
-    .shortcuts-table th:last-child {
-      border-radius: 0 10px 0 0;
-      padding-left: 45px;
-    }
+      .shortcuts-table th:last-child {
+        border-radius: 0 10px 0 0;
+        padding-left: 45px;
+      }
 
-    .shortcuts-table td {
-      padding: 20px 15px;
-      border-bottom: 1px solid #E1BEE7;
-    }
+      .shortcuts-table td {
+        padding: 20px 15px;
+        border-bottom: 1px solid #e1bee7;
+      }
 
-    .shortcuts-table tr:hover {
-      background: #F3E5F5;
-    }
+      .shortcuts-table tr:hover {
+        background: #f3e5f5;
+      }
 
-    .shortcuts-table tr:last-child td {
-      border-bottom: none;
-    }
+      .shortcuts-table tr:last-child td {
+        border-bottom: none;
+      }
 
-    .shortcuts-table tr.highlight {
-      background: #FFF9C4 !important;
-      animation: highlightPulse 2s ease-in-out;
-    }
+      .shortcuts-table tr.highlight {
+        background: #fff9c4 !important;
+        animation: highlightPulse 2s ease-in-out;
+      }
 
-    /* Stronger temporary focus highlight used after edits/new entries to show the moved row.
+      /* Stronger temporary focus highlight used after edits/new entries to show the moved row.
        This is configurable via `UI_CONFIG.focusHighlightClass` and `focusHighlightDuration`. */
-    .shortcuts-table tr.flash-focus {
-      animation: flashPulse 1.8s ease-in-out;
-      background: linear-gradient(90deg, rgba(255, 249, 196, 0.95), rgba(255, 244, 200, 0.6));
-      border-left: 6px solid rgba(156, 39, 176, 0.85);
-      transition: background 0.3s ease, box-shadow 0.25s ease;
-    }
-
-    @keyframes flashPulse {
-      0% {
-        box-shadow: 0 0 0 6px rgba(156, 39, 176, 0.12) inset;
+      .shortcuts-table tr.flash-focus {
+        animation: flashPulse 1.8s ease-in-out;
+        background: linear-gradient(
+          90deg,
+          rgba(255, 249, 196, 0.95),
+          rgba(255, 244, 200, 0.6)
+        );
+        border-left: 6px solid rgba(156, 39, 176, 0.85);
+        transition:
+          background 0.3s ease,
+          box-shadow 0.25s ease;
       }
 
-      30% {
-        box-shadow: 0 0 0 10px rgba(156, 39, 176, 0.18) inset;
+      @keyframes flashPulse {
+        0% {
+          box-shadow: 0 0 0 6px rgba(156, 39, 176, 0.12) inset;
+        }
+
+        30% {
+          box-shadow: 0 0 0 10px rgba(156, 39, 176, 0.18) inset;
+        }
+
+        70% {
+          box-shadow: 0 0 0 4px rgba(156, 39, 176, 0.08) inset;
+        }
+
+        100% {
+          box-shadow: 0 0 0 0 rgba(156, 39, 176, 0) inset;
+        }
       }
 
-      70% {
-        box-shadow: 0 0 0 4px rgba(156, 39, 176, 0.08) inset;
+      @keyframes highlightPulse {
+        0% {
+          background: #ffeb3b;
+        }
+
+        100% {
+          background: #fff9c4;
+        }
       }
 
-      100% {
-        box-shadow: 0 0 0 0 rgba(156, 39, 176, 0) inset;
-      }
-    }
-
-    @keyframes highlightPulse {
-      0% {
-        background: #FFEB3B;
+      .shortcuts-table tr.hidden {
+        display: none;
       }
 
-      100% {
-        background: #FFF9C4;
-      }
-    }
-
-    .shortcuts-table tr.hidden {
-      display: none;
-    }
-
-    .shortcuts-table td:nth-child(1) {
-      font-weight: bold;
-      color: #6A1B9A;
-      font-size: 16px;
-      width: 180px;
-      letter-spacing: 0.5px;
-      vertical-align: middle;
-      text-align: center;
-    }
-
-    .shortcuts-table td:nth-child(2) {
-      white-space: pre-wrap;
-      word-break: break-word;
-      vertical-align: top;
-      padding: 20px 30px 20px 45px !important;
-    }
-
-    .label-badge {
-      display: block !important;
-      background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
-      color: #E65100;
-      padding: 6px 15px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-      margin: 0 0 15px 0 !important;
-      border-left: 4px solid #FF6F00;
-      width: fit-content;
-    }
-
-    .replacement-content {
-      font-family: 'Georgia', serif;
-      font-size: 14px;
-      font-weight: 400;
-      line-height: 1.8;
-      color: #424242;
-      margin: 0 0 10px 0 !important;
-      padding: 0 !important;
-      word-wrap: break-word;
-      overflow-wrap: break-word;
-    }
-
-    .replacement-stats {
-      display: flex;
-      gap: 20px;
-      font-size: 11px;
-      color: #9C27B0;
-      margin: 10px 0 15px 0;
-      font-weight: 600;
-      justify-content: flex-end;
-    }
-
-    .stat-item {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .button-group {
-      display: flex;
-      gap: 10px;
-      margin: 0 !important;
-      padding: 0 !important;
-      align-items: center;
-      justify-content: flex-end;
-    }
-
-    .action-btn {
-      padding: 10px 18px;
-      font-size: 13px;
-      margin: 0;
-      flex: 0 0 auto;
-      border: none;
-      border-radius: 20px;
-      cursor: pointer;
-      color: white;
-      font-weight: 600;
-      transition: transform 0.2s;
-      letter-spacing: 0.5px;
-    }
-
-    .action-btn:hover {
-      transform: scale(1.05);
-    }
-
-    .copy-btn {
-      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    }
-
-    .edit-btn {
-      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    }
-
-    .delete-btn {
-      background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-    }
-
-    .copy-btn.copied {
-      background: #4CAF50;
-    }
-
-    .status-message {
-      padding: 12px;
-      margin-top: 15px;
-      border-radius: 8px;
-      display: none;
-      font-size: 14px;
-    }
-
-    .status-message.success {
-      background: #C8E6C9;
-      color: #2E7D32;
-      border-left: 4px solid #4CAF50;
-    }
-
-    .status-message.error {
-      background: #FFCDD2;
-      color: #C62828;
-      border-left: 4px solid #F44336;
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 60px;
-      color: #9C27B0;
-      font-style: italic;
-      font-size: 16px;
-    }
-
-    #importFile {
-      display: none;
-    }
-
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.6);
-      z-index: 9999;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .modal-overlay.active {
-      display: flex;
-    }
-
-    .modal-content {
-      background: white;
-      padding: 35px;
-      border-radius: 15px;
-      max-width: 500px;
-      box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
-      animation: modalSlideIn 0.3s ease-out;
-    }
-
-    @keyframes modalSlideIn {
-      from {
-        transform: translateY(-50px);
-        opacity: 0;
+      .shortcuts-table td:nth-child(1) {
+        font-weight: bold;
+        color: #6a1b9a;
+        font-size: 16px;
+        width: 180px;
+        letter-spacing: 0.5px;
+        vertical-align: middle;
+        text-align: center;
       }
 
-      to {
-        transform: translateY(0);
-        opacity: 1;
-      }
-    }
-
-    .modal-title {
-      color: #6A1B9A;
-      font-size: 22px;
-      font-weight: 600;
-      margin-bottom: 20px;
-      text-align: center;
-      letter-spacing: 1px;
-    }
-
-    .modal-message {
-      color: #424242;
-      font-size: 15px;
-      line-height: 1.8;
-      margin-bottom: 25px;
-      text-align: center;
-    }
-
-    .modal-detail {
-      background: linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%);
-      padding: 15px;
-      border-radius: 8px;
-      margin-bottom: 25px;
-      border-left: 4px solid #9C27B0;
-    }
-
-    .modal-detail-label {
-      color: #6A1B9A;
-      font-size: 12px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 5px;
-    }
-
-    .modal-detail-value {
-      color: #424242;
-      font-size: 15px;
-      font-weight: 500;
-      word-wrap: break-word;
-    }
-
-    .modal-buttons {
-      display: flex;
-      gap: 15px;
-      justify-content: center;
-    }
-
-    .modal-btn {
-      padding: 12px 30px;
-      border: none;
-      border-radius: 25px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.2s;
-      letter-spacing: 0.5px;
-    }
-
-    .modal-btn:hover {
-      transform: scale(1.05);
-    }
-
-    .modal-btn-confirm {
-      background: linear-gradient(135deg, #f44336 0%, #da190b 100%);
-      color: white;
-    }
-
-    .modal-btn-cancel {
-      background: linear-gradient(135deg, #9E9E9E 0%, #757575 100%);
-      color: white;
-    }
-
-    /* COMPOSER MODAL */
-    .composer-modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.75);
-      z-index: 10000;
-      justify-content: center;
-      align-items: center;
-      animation: fadeIn 0.3s ease;
-    }
-
-    .composer-modal.active {
-      display: flex;
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
+      .shortcuts-table td:nth-child(2) {
+        white-space: pre-wrap;
+        word-break: break-word;
+        vertical-align: top;
+        padding: 20px 30px 20px 45px !important;
       }
 
-      to {
-        opacity: 1;
-      }
-    }
-
-    .composer-content {
-      background: white;
-      width: 85%;
-      height: 75%;
-      max-height: 90vh;
-      border-radius: 15px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-      display: flex;
-      flex-direction: column;
-      animation: scaleIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-      position: relative;
-      overflow: hidden;
-      border: 3px solid #9C27B0;
-    }
-
-    @keyframes scaleIn {
-      from {
-        transform: scale(0.7);
-        opacity: 0;
+      .label-badge {
+        display: block !important;
+        background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+        color: #e65100;
+        padding: 6px 15px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        margin: 0 0 15px 0 !important;
+        border-left: 4px solid #ff6f00;
+        width: fit-content;
       }
 
-      to {
-        transform: scale(1);
-        opacity: 1;
+      .replacement-content {
+        font-family: "Georgia", serif;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 1.8;
+        color: #424242;
+        margin: 0 0 10px 0 !important;
+        padding: 0 !important;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
       }
-    }
 
-    .composer-body::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-image: repeating-linear-gradient(transparent, transparent 48px,
+      .replacement-stats {
+        display: flex;
+        gap: 20px;
+        font-size: 11px;
+        color: #9c27b0;
+        margin: 10px 0 15px 0;
+        font-weight: 600;
+        justify-content: flex-end;
+      }
+
+      .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 10px;
+        margin: 0 !important;
+        padding: 0 !important;
+        align-items: center;
+        justify-content: flex-end;
+      }
+
+      .action-btn {
+        padding: 10px 18px;
+        font-size: 13px;
+        margin: 0;
+        flex: 0 0 auto;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        color: white;
+        font-weight: 600;
+        transition: transform 0.2s;
+        letter-spacing: 0.5px;
+      }
+
+      .action-btn:hover {
+        transform: scale(1.05);
+      }
+
+      .copy-btn {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      }
+
+      .edit-btn {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      }
+
+      .delete-btn {
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+      }
+
+      .copy-btn.copied {
+        background: #4caf50;
+      }
+
+      .status-message {
+        padding: 12px;
+        margin-top: 15px;
+        border-radius: 8px;
+        display: none;
+        font-size: 14px;
+      }
+
+      .status-message.success {
+        background: #c8e6c9;
+        color: #2e7d32;
+        border-left: 4px solid #4caf50;
+      }
+
+      .status-message.error {
+        background: #ffcdd2;
+        color: #c62828;
+        border-left: 4px solid #f44336;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 60px;
+        color: #9c27b0;
+        font-style: italic;
+        font-size: 16px;
+      }
+
+      #importFile {
+        display: none;
+      }
+
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .modal-overlay.active {
+        display: flex;
+      }
+
+      .modal-content {
+        background: white;
+        padding: 35px;
+        border-radius: 15px;
+        max-width: 500px;
+        box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+        animation: modalSlideIn 0.3s ease-out;
+      }
+
+      @keyframes modalSlideIn {
+        from {
+          transform: translateY(-50px);
+          opacity: 0;
+        }
+
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      .modal-title {
+        color: #6a1b9a;
+        font-size: 22px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        text-align: center;
+        letter-spacing: 1px;
+      }
+
+      .modal-message {
+        color: #424242;
+        font-size: 15px;
+        line-height: 1.8;
+        margin-bottom: 25px;
+        text-align: center;
+      }
+
+      .modal-detail {
+        background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        border-left: 4px solid #9c27b0;
+      }
+
+      .modal-detail-label {
+        color: #6a1b9a;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 5px;
+      }
+
+      .modal-detail-value {
+        color: #424242;
+        font-size: 15px;
+        font-weight: 500;
+        word-wrap: break-word;
+      }
+
+      .modal-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+      }
+
+      .modal-btn {
+        padding: 12px 30px;
+        border: none;
+        border-radius: 25px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s;
+        letter-spacing: 0.5px;
+      }
+
+      .modal-btn:hover {
+        transform: scale(1.05);
+      }
+
+      .modal-btn-confirm {
+        background: linear-gradient(135deg, #f44336 0%, #da190b 100%);
+        color: white;
+      }
+
+      .modal-btn-cancel {
+        background: linear-gradient(135deg, #9e9e9e 0%, #757575 100%);
+        color: white;
+      }
+
+      /* COMPOSER MODAL */
+      .composer-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.75);
+        z-index: 10000;
+        justify-content: center;
+        align-items: center;
+        animation: fadeIn 0.3s ease;
+      }
+
+      .composer-modal.active {
+        display: flex;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+
+        to {
+          opacity: 1;
+        }
+      }
+
+      .composer-content {
+        background: white;
+        width: 85%;
+        height: 75%;
+        max-height: 90vh;
+        border-radius: 15px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        display: flex;
+        flex-direction: column;
+        animation: scaleIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        position: relative;
+        overflow: hidden;
+        border: 3px solid #9c27b0;
+      }
+
+      @keyframes scaleIn {
+        from {
+          transform: scale(0.7);
+          opacity: 0;
+        }
+
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      .composer-body::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: repeating-linear-gradient(
+          transparent,
+          transparent 48px,
           rgba(156, 39, 176, 0.04) 48px,
-          rgba(156, 39, 176, 0.04) 49px);
-      pointer-events: none;
-      z-index: 0;
-    }
+          rgba(156, 39, 176, 0.04) 49px
+        );
+        pointer-events: none;
+        z-index: 0;
+      }
 
-    .composer-header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 20px 30px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-shrink: 0;
-    }
+      .composer-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-shrink: 0;
+      }
 
-    .composer-title {
-      font-size: 24px;
-      font-weight: 300;
-      letter-spacing: 2px;
-    }
+      .composer-title {
+        font-size: 24px;
+        font-weight: 300;
+        letter-spacing: 2px;
+      }
 
-    .composer-close {
-      background: rgba(255, 255, 255, 0.2);
-      border: none;
-      color: white;
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      cursor: pointer;
-      font-size: 20px;
-      transition: all 0.3s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+      .composer-close {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 20px;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
 
-    .composer-close:hover {
-      background: rgba(255, 255, 255, 0.3);
-      transform: rotate(90deg);
-    }
+      .composer-close:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: rotate(90deg);
+      }
 
-    .composer-body {
-      flex: 1;
-      padding: 25px 30px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      overflow-y: auto;
-      position: relative;
-    }
+      .composer-body {
+        flex: 1;
+        padding: 25px 30px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        overflow-y: auto;
+        position: relative;
+      }
 
-    .composer-field {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      position: relative;
-      z-index: 1;
-    }
+      .composer-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        position: relative;
+        z-index: 1;
+      }
 
-    .composer-label {
-      color: #6A1B9A;
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-    }
+      .composer-label {
+        color: #6a1b9a;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+      }
 
-    .composer-input {
-      padding: 10px 15px;
-      border: 2px solid #E1BEE7;
-      border-radius: 8px;
-      font-size: 14px;
-      font-family: 'Georgia', serif;
-      transition: all 0.3s;
-      background: white;
-    }
+      .composer-input {
+        padding: 10px 15px;
+        border: 2px solid #e1bee7;
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: "Georgia", serif;
+        transition: all 0.3s;
+        background: white;
+      }
 
-    .composer-input:focus {
-      outline: none;
-      border-color: #9C27B0;
-      box-shadow: 0 0 10px rgba(156, 39, 176, 0.2);
-    }
+      .composer-input:focus {
+        outline: none;
+        border-color: #9c27b0;
+        box-shadow: 0 0 10px rgba(156, 39, 176, 0.2);
+      }
 
-    .composer-textarea-wrapper {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      z-index: 1;
-    }
+      .composer-textarea-wrapper {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        z-index: 1;
+      }
 
-    .composer-textarea {
-      flex: 1;
-      padding: 15px;
-      border: 2px solid #E1BEE7;
-      border-radius: 8px;
-      font-size: 15px;
-      width: 100%;
-      resize: none;
-      line-height: 1.8;
-      white-space: pre-wrap;
-      font-family: 'Georgia', serif;
-      transition: all 0.3s;
-      background: white;
-      min-height: 500px;
-    }
+      .composer-textarea {
+        flex: 1;
+        padding: 15px;
+        border: 2px solid #e1bee7;
+        border-radius: 8px;
+        font-size: 15px;
+        width: 100%;
+        resize: none;
+        line-height: 1.8;
+        white-space: pre-wrap;
+        font-family: "Georgia", serif;
+        transition: all 0.3s;
+        background: white;
+        min-height: 500px;
+      }
 
-    .composer-textarea:focus {
-      outline: none;
-      border-color: #9C27B0;
-      box-shadow: 0 0 15px rgba(156, 39, 176, 0.15);
-    }
+      .composer-textarea:focus {
+        outline: none;
+        border-color: #9c27b0;
+        box-shadow: 0 0 15px rgba(156, 39, 176, 0.15);
+      }
 
-    .composer-row {
-      display: flex;
-      gap: 15px;
-      align-items: flex-start;
-    }
+      .composer-row {
+        display: flex;
+        gap: 15px;
+        align-items: flex-start;
+      }
 
-    .composer-row .composer-field {
-      flex: 1;
-    }
+      .composer-row .composer-field {
+        flex: 1;
+      }
 
-    .composer-row #composerKeyField {
-      flex: 0 0 200px;
-      max-width: 200px;
-    }
+      .composer-row #composerKeyField {
+        flex: 0 0 200px;
+        max-width: 200px;
+      }
 
-    .find-replace {
-      display: flex;
-      gap: 15px;
-      margin-bottom: 15px;
-      align-items: center;
-      position: relative;
-      z-index: 1;
-    }
+      .find-replace {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 15px;
+        align-items: center;
+        position: relative;
+        z-index: 1;
+      }
 
-    .find-replace input {
-      flex: 1;
-      min-width: 150px;
-      padding: 10px 15px;
-      border: 2px solid #E1BEE7;
-      border-radius: 8px;
-      font-size: 14px;
-      font-family: 'Georgia', serif;
-      transition: all 0.3s;
-      background: white;
-    }
+      .find-replace input {
+        flex: 1;
+        min-width: 150px;
+        padding: 10px 15px;
+        border: 2px solid #e1bee7;
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: "Georgia", serif;
+        transition: all 0.3s;
+        background: white;
+      }
 
-    .find-replace input:focus {
-      outline: none;
-      border-color: #9C27B0;
-      box-shadow: 0 0 10px rgba(156, 39, 176, 0.2);
-    }
+      .find-replace input:focus {
+        outline: none;
+        border-color: #9c27b0;
+        box-shadow: 0 0 10px rgba(156, 39, 176, 0.2);
+      }
 
-    .find-replace-btn {
-      padding: 10px 20px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-      transition: transform 0.2s;
-      white-space: nowrap;
-    }
+      .find-replace-btn {
+        padding: 10px 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        transition: transform 0.2s;
+        white-space: nowrap;
+      }
 
-    .find-replace-btn:hover {
-      transform: scale(1.05);
-    }
+      .find-replace-btn:hover {
+        transform: scale(1.05);
+      }
 
-    .composer-stats {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px 15px;
-      background: linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%);
-      border-radius: 8px;
-      font-size: 12px;
-      color: #6A1B9A;
-      font-weight: 600;
-      position: relative;
-      z-index: 1;
-    }
+      .composer-stats {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 15px;
+        background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+        border-radius: 8px;
+        font-size: 12px;
+        color: #6a1b9a;
+        font-weight: 600;
+        position: relative;
+        z-index: 1;
+      }
 
-    .composer-stats-left,
-    .composer-stats-right {
-      display: flex;
-      gap: 20px;
-    }
+      .composer-stats-left,
+      .composer-stats-right {
+        display: flex;
+        gap: 20px;
+      }
 
-    .stat-label {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
+      .stat-label {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
 
-    .composer-footer {
-      padding: 18px 30px;
-      background: white;
-      border-top: 2px solid #E1BEE7;
-      display: flex;
-      justify-content: flex-end;
-      gap: 12px;
-      flex-shrink: 0;
-    }
+      .composer-footer {
+        padding: 18px 30px;
+        background: white;
+        border-top: 2px solid #e1bee7;
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        flex-shrink: 0;
+      }
 
-    .composer-btn {
-      padding: 12px 28px;
-      border: none;
-      border-radius: 25px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.2s;
-      letter-spacing: 1px;
-    }
+      .composer-btn {
+        padding: 12px 28px;
+        border: none;
+        border-radius: 25px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s;
+        letter-spacing: 1px;
+      }
 
-    .composer-btn:hover {
-      transform: scale(1.05);
-    }
+      .composer-btn:hover {
+        transform: scale(1.05);
+      }
 
-    .composer-btn-save {
-      background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-      color: white;
-    }
+      .composer-btn-save {
+        background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+        color: white;
+      }
 
-    .composer-btn-cancel {
-      background: linear-gradient(135deg, #f44336 0%, #da190b 100%);
-      color: white;
-    }
+      .composer-btn-cancel {
+        background: linear-gradient(135deg, #f44336 0%, #da190b 100%);
+        color: white;
+      }
 
-    /* Composer annotation (Arrange-only) uses the same input styles as other composer fields
+      /* Composer annotation (Arrange-only) uses the same input styles as other composer fields
        so spacing, padding and alignment remain consistent. Keep margins modest so it sits
        close to the Find & Replace area. */
-    .composer-annotation-box {
-      margin: 12px 0 8px 0;
-      padding: 0;
-      display: block;
-    }
+      .composer-annotation-box {
+        margin: 12px 0 8px 0;
+        padding: 0;
+        display: block;
+      }
 
-    .composer-annotation-box .composer-label {
-      display: block;
-      margin-bottom: 8px;
-      font-size: 0.95em;
-      color: #6A1B9A;
-    }
+      .composer-annotation-box .composer-label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 0.95em;
+        color: #6a1b9a;
+      }
 
-    .composer-annotation-box .composer-input {
-      width: 100%;
-      padding: 10px 12px;
-      border: 2px solid #E1BEE7;
-      border-radius: 8px;
-      font-size: 14px;
-      font-family: 'Georgia', serif;
-      background: white;
-      color: #333;
-      box-sizing: border-box;
-    }
+      .composer-annotation-box .composer-input {
+        width: 100%;
+        padding: 10px 12px;
+        border: 2px solid #e1bee7;
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: "Georgia", serif;
+        background: white;
+        color: #333;
+        box-sizing: border-box;
+      }
 
-    .composer-annotation-box .composer-input:focus {
-      outline: none;
-      border-color: #9C27B0;
-      box-shadow: 0 0 8px rgba(156, 39, 176, 0.12);
-    }
+      .composer-annotation-box .composer-input:focus {
+        outline: none;
+        border-color: #9c27b0;
+        box-shadow: 0 0 8px rgba(156, 39, 176, 0.12);
+      }
 
-    .floating-compose {
-      position: fixed;
-      bottom: 30px;
-      right: 30px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      width: 70px;
-      height: 70px;
-      border-radius: 50%;
-      border: none;
-      cursor: pointer;
-      box-shadow: 0 5px 25px rgba(102, 126, 234, 0.5);
-      z-index: 1000;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      font-size: 28px;
-      transition: all 0.3s;
-    }
+      .floating-compose {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 5px 25px rgba(102, 126, 234, 0.5);
+        z-index: 1000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        transition: all 0.3s;
+      }
 
-    .floating-compose:hover {
-      transform: scale(1.1);
-      box-shadow: 0 8px 35px rgba(102, 126, 234, 0.7);
-    }
+      .floating-compose:hover {
+        transform: scale(1.1);
+        box-shadow: 0 8px 35px rgba(102, 126, 234, 0.7);
+      }
 
-    .floating-compose.visible {
-      display: flex;
-    }
+      .floating-compose.visible {
+        display: flex;
+      }
 
-    .notification-toast {
-      position: fixed;
-      top: 120px;
-      left: 50%;
-      transform: translateX(-50%) translateY(-100px);
-      background: white;
-      padding: 18px 30px;
-      border-radius: 30px;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
-      z-index: 10001;
-      opacity: 0;
-      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-      border-left: 5px solid #9C27B0;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      max-width: 400px;
-    }
+      .notification-toast {
+        position: fixed;
+        top: 120px;
+        left: 50%;
+        transform: translateX(-50%) translateY(-100px);
+        background: white;
+        padding: 18px 30px;
+        border-radius: 30px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+        z-index: 10001;
+        opacity: 0;
+        transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        border-left: 5px solid #9c27b0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        max-width: 400px;
+      }
 
-    .notification-toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
+      .notification-toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
 
-    .notification-icon {
-      font-size: 24px;
-    }
+      .notification-icon {
+        font-size: 24px;
+      }
 
-    .notification-message {
-      color: #424242;
-      font-size: 15px;
-      font-weight: 500;
-      line-height: 1.4;
-    }
+      .notification-message {
+        color: #424242;
+        font-size: 15px;
+        font-weight: 500;
+        line-height: 1.4;
+      }
 
-    .notification-toast.error {
-      border-left-color: #f44336;
-    }
+      .notification-toast.error {
+        border-left-color: #f44336;
+      }
 
-    .notification-toast.success {
-      border-left-color: #4CAF50;
-    }
-  </style>
-</head>
+      .notification-toast.success {
+        border-left-color: #4caf50;
+      }
+    </style>
+  </head>
 
-<body>
-  <div id="notificationToast" class="notification-toast">
-    <span class="notification-icon" id="notificationIcon">🎵</span>
-    <span class="notification-message" id="notificationMessage"></span>
-  </div>
+  <body>
+    <div id="notificationToast" class="notification-toast">
+      <span class="notification-icon" id="notificationIcon">🎵</span>
+      <span class="notification-message" id="notificationMessage"></span>
+    </div>
 
-  <div id="confirmModal" class="modal-overlay">
-    <div class="modal-content">
-      <div class="modal-title">🎵 Abolish This Composition?</div>
-      <div class="modal-message">This will permanently remove this note from your collection. This action cannot be
-        undone.</div>
-      <div id="modalDetails"></div>
-      <div class="modal-buttons">
-        <button id="modalConfirm" class="modal-btn modal-btn-confirm">Abolish</button>
-        <button id="modalCancel" class="modal-btn modal-btn-cancel">Sustain</button>
+    <div id="confirmModal" class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-title">🎵 Abolish This Composition?</div>
+        <div class="modal-message">
+          This will permanently remove this note from your collection. This
+          action cannot be undone.
+        </div>
+        <div id="modalDetails"></div>
+        <div class="modal-buttons">
+          <button id="modalConfirm" class="modal-btn modal-btn-confirm">
+            Abolish
+          </button>
+          <button id="modalCancel" class="modal-btn modal-btn-cancel">
+            Sustain
+          </button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div id="composerModal" class="composer-modal">
-    <div class="composer-content">
-      <div class="composer-header">
-        <div class="composer-title">🎼 TypiPat Composer Studio</div>
-        <button class="composer-close" id="composerClose">✕</button>
-      </div>
-
-      <div class="composer-body">
-        <div class="composer-row" id="composerKeyFieldContainer">
-          <div class="composer-field" id="composerKeyField">
-            <label class="composer-label">Key (Rhythm)</label>
-            <input type="text" class="composer-input" id="composerKey" placeholder="e.g., brb">
-          </div>
-
-          <div class="composer-field">
-            <label class="composer-label">Annotation (Optional)</label>
-            <input type="text" class="composer-input" id="composerAnnotation"
-              placeholder="e.g., Entire sonata from memories">
-          </div>
+    <div id="composerModal" class="composer-modal">
+      <div class="composer-content">
+        <div class="composer-header">
+          <div class="composer-title">🎼 TypiPat Composer Studio</div>
+          <button class="composer-close" id="composerClose">✕</button>
         </div>
 
-        <!-- Annotation (Arrange) placed ABOVE Find & Replace per UI requirement.
+        <div class="composer-body">
+          <div class="composer-row" id="composerKeyFieldContainer">
+            <div class="composer-field" id="composerKeyField">
+              <label class="composer-label">Key (Rhythm)</label>
+              <input
+                type="text"
+                class="composer-input"
+                id="composerKey"
+                placeholder="e.g., brb"
+              />
+            </div>
+
+            <div class="composer-field">
+              <label class="composer-label">Annotation (Optional)</label>
+              <input
+                type="text"
+                class="composer-input"
+                id="composerAnnotation"
+                placeholder="e.g., Entire sonata from memories"
+              />
+            </div>
+          </div>
+
+          <!-- Annotation (Arrange) placed ABOVE Find & Replace per UI requirement.
              This block is shown only in Arrange (edit) mode. It uses the same
              composer-input styles so spacing/typography match other fields. -->
-        <div class="composer-annotation-box" id="arrangeAnnotationBox" style="display: none;">
-          <label class="composer-label">Annotation (Arrange Notes)</label>
-          <input type="text" class="composer-input" id="composerAnnotationArrange"
-            placeholder="Add notes about this arrangement...">
-        </div>
+          <div
+            class="composer-annotation-box"
+            id="arrangeAnnotationBox"
+            style="display: none"
+          >
+            <label class="composer-label">Annotation (Arrange Notes)</label>
+            <input
+              type="text"
+              class="composer-input"
+              id="composerAnnotationArrange"
+              placeholder="Add notes about this arrangement..."
+            />
+          </div>
 
-        <div class="find-replace" id="findReplaceSection">
-          <input type="text" id="findInput" placeholder="Tune to">
-          <input type="text" id="replaceInput" placeholder="Apply pitch...">
-          <button class="find-replace-btn" id="replaceBtn">Transpose All</button>
-        </div>
+          <div class="find-replace" id="findReplaceSection">
+            <input type="text" id="findInput" placeholder="Tune to" />
+            <input type="text" id="replaceInput" placeholder="Apply pitch..." />
+            <button class="find-replace-btn" id="replaceBtn">
+              Transpose All
+            </button>
+          </div>
 
-        <div class="composer-textarea-wrapper">
-          <label class="composer-label">Manuscript</label>
-          <textarea class="composer-textarea" id="composerTextarea"
-            placeholder="Compose your musical text pattern here..."></textarea>
-        </div>
+          <div class="composer-textarea-wrapper">
+            <label class="composer-label">Manuscript</label>
+            <textarea
+              class="composer-textarea"
+              id="composerTextarea"
+              placeholder="Compose your musical text pattern here..."
+            ></textarea>
+          </div>
 
-        <div class="composer-stats">
-          <div class="composer-stats-left">
-            <span class="stat-label">📊 Beat Count: <strong id="composerBeatCount">0</strong></span>
-            <span class="stat-label">📏 Caesura: <strong id="composerCaesura">0</strong></span>
+          <div class="composer-stats">
+            <div class="composer-stats-left">
+              <span class="stat-label"
+                >📊 Beat Count: <strong id="composerBeatCount">0</strong></span
+              >
+              <span class="stat-label"
+                >📏 Caesura: <strong id="composerCaesura">0</strong></span
+              >
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="composer-footer">
-        <button class="composer-btn composer-btn-cancel" id="composerCancel">Variance</button>
-        <button class="composer-btn composer-btn-save" id="composerSave">Theme</button>
-        <button class="composer-btn composer-btn-save" id="composerFinalize" style="display: none;">Finalize
-          Arrangement</button>
-      </div>
-    </div>
-  </div>
-
-  <button id="floatingCompose" class="floating-compose">🎵</button>
-
-  <div class="container">
-    <div class="header-tagline">
-      "For you—who understands music deeply yet keeps it quietly hidden—TypiPat becomes a soft, rhythmic nudge. It turns
-      your tired day into a small, gentle harmony."
-    </div>
-
-    <h1>
-      <span>🎼 TypiPat: The Rhythmic Index</span>
-      <div class="search-container">
-        <input type="text" id="searchBox" class="search-box" placeholder="Search rhythm or harmony...">
-        <button id="searchBtn" class="search-btn">Cue</button>
-        <button id="clearSearch" class="clear-search">Mute</button>
-      </div>
-    </h1>
-
-    <div class="section">
-      <h2>🎶 Add New Notes Compositions</h2>
-      <div class="add-form">
-        <div>
-          <div class="form-label">Key</div>
-          <input type="text" id="shortcutInput" placeholder="Key (e.g., //notes)">
-        </div>
-
-        <div class="label-input-wrapper">
-          <div class="form-label">Annotation (Optional)</div>
-          <input type="text" id="labelInput" placeholder="e.g., Entire sonata from memories">
-        </div>
-
-        <div class="textarea-container">
-          <div class="form-label">Manuscript</div>
-          <textarea id="replacementInput" placeholder="e.g., 'I who lives in harmony with myself lives in harmony'"
-            rows="6"></textarea>
-          <button class="orchestrate-btn" id="orchestrateBtn" title="Expand to Composer Studio">⛶</button>
-        </div>
-
-        <button id="addBtn">Compose</button>
-        <button id="saveBtn" class="save-btn" style="display: none;">Theme</button>
-        <button id="discardBtn" class="discard-btn" style="display: none;">Variance</button>
-
-        <div class="export-import-buttons">
-          <button id="exportBtn" class="export-btn">Cadence</button>
-          <button id="importBtn" class="import-btn">Entrata</button>
+        <div class="composer-footer">
+          <button class="composer-btn composer-btn-cancel" id="composerCancel">
+            Variance
+          </button>
+          <button class="composer-btn composer-btn-save" id="composerSave">
+            Theme
+          </button>
+          <button
+            class="composer-btn composer-btn-save"
+            id="composerFinalize"
+            style="display: none"
+          >
+            Finalize Arrangement
+          </button>
         </div>
       </div>
-      <div id="addStatus" class="status-message"></div>
     </div>
 
-    <div class="section">
-      <h2>🎵 Rhythm & Notes</h2>
-      <div class="section-caption">Your collection of crafted musical text patterns.</div>
-      <div id="shortcutsContainer">
-        <div class="empty-state">Silence. Introduce your first Note.</div>
+    <button id="floatingCompose" class="floating-compose">🎵</button>
+
+    <div class="container">
+      <div class="header-tagline">
+        "For you—who understands music deeply yet keeps it quietly
+        hidden—TypiPat becomes a soft, rhythmic nudge. It turns your tired day
+        into a small, gentle harmony."
       </div>
+
+      <h1>
+        <span>🎼 TypiPat: The Rhythmic Index</span>
+        <div class="search-container">
+          <input
+            type="text"
+            id="searchBox"
+            class="search-box"
+            placeholder="Search rhythm or harmony..."
+          />
+          <button id="searchBtn" class="search-btn">Cue</button>
+          <button id="clearSearch" class="clear-search">Mute</button>
+        </div>
+      </h1>
+
+      <div class="section">
+        <h2>🎶 Add New Notes Compositions</h2>
+        <div class="add-form">
+          <div>
+            <div class="form-label">Key</div>
+            <input
+              type="text"
+              id="shortcutInput"
+              placeholder="Key (e.g., //notes)"
+            />
+          </div>
+
+          <div class="label-input-wrapper">
+            <div class="form-label">Annotation (Optional)</div>
+            <input
+              type="text"
+              id="labelInput"
+              placeholder="e.g., Entire sonata from memories"
+            />
+          </div>
+
+          <div class="textarea-container">
+            <div class="form-label">Manuscript</div>
+            <textarea
+              id="replacementInput"
+              placeholder="e.g., 'I who lives in harmony with myself lives in harmony'"
+              rows="6"
+            ></textarea>
+            <button
+              class="orchestrate-btn"
+              id="orchestrateBtn"
+              title="Expand to Composer Studio"
+            >
+              ⛶
+            </button>
+          </div>
+
+          <button id="addBtn">Compose</button>
+          <button id="saveBtn" class="save-btn" style="display: none">
+            Theme
+          </button>
+          <button id="discardBtn" class="discard-btn" style="display: none">
+            Variance
+          </button>
+
+          <div class="export-import-buttons">
+            <button id="exportBtn" class="export-btn">Cadence</button>
+            <button id="importBtn" class="import-btn">Entrata</button>
+          </div>
+        </div>
+        <div id="addStatus" class="status-message"></div>
+      </div>
+
+      <div class="section">
+        <h2>🎵 Rhythm & Notes</h2>
+        <div class="section-caption">
+          Your collection of crafted musical text patterns.
+        </div>
+        <div id="shortcutsContainer">
+          <div class="empty-state">Silence. Introduce your first Note.</div>
+        </div>
+      </div>
+
+      <div class="footer-quote" id="footerQuote">
+        "Find the cadence in your chaos. Every keystroke is a note, and every
+        day becomes your Opus."
+      </div>
+
+      <input type="file" id="importFile" accept=".json" />
+      <div id="importStatus" class="status-message"></div>
     </div>
 
-    <div class="footer-quote" id="footerQuote">
-      "Find the cadence in your chaos. Every keystroke is a note, and every day becomes your Opus."
-    </div>
-
-    <input type="file" id="importFile" accept=".json">
-    <div id="importStatus" class="status-message"></div>
-  </div>
-
-  <script src="utils.js"></script>
-  <script src="storage-helper.js"></script>
-  <script src="options.js"></script>
-</body>
-
+    <script src="utils.js"></script>
+    <script src="storage-helper.js"></script>
+    <script src="options.js"></script>
+  </body>
 </html>
