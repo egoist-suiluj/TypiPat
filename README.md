@@ -2,6 +2,49 @@
 
 **Orchestrate your day into harmony. Your quiet rhythm — composing peace with every keystroke.**
 
+TypiPat is a powerful Manifest V3 Chrome extension that transforms repetitive typing into a seamless symphony. By expanding custom text shortcuts into full motifs, it's the perfect conductor for email templates, code snippets, and professional boilerplate.
+
+## ✨ New in Version 2.0 (The Harmony Update)
+
+* **⚡ Deep Detection Engine:** Now expands shortcuts within **Shadow DOM** and modern frameworks (React, Vue, Angular). Works where others fail.
+* **🎭 Side Stage UI:** A draggable, "ghost-mode" Floating Action Button (FAB) for instant motif access without leaving your tab.
+* **📝 Composer Studio:** A full-featured manuscript editor with **Find & Replace (Transpose)** and real-time statistics.
+* **📊 Statistics:** Track your writing's **Beat Count** (Character count) and **Caesura** (Line breaks).
+* **🛡️ Security First:** 100% XSS-compliant rendering using secured DOM APIs.
+
+## 📖 Key Features
+* **🔍 Smart Search:** Quickly find motifs by key, label, or content.
+* **🏷️ Labels & Organization:** Categorize your "Rhythms" for better orchestration.
+* **💾 Import/Export:** Backup and restore your shortcuts as JSON files.
+* **🔄 Chrome Sync:** Automatically sync your library across all your devices.
+* **🎯 Template Variables:** Dynamic placeholders like `{date}`, `{time}`, and `{datetime}`.
+
+## 🛠️ Technical Details
+* **Manifest Version:** 3 (MV3)
+* **Permissions:** `storage`, `offscreen`, `clipboardWrite`, `clipboardRead`, `contextMenus`.
+* **Host Permissions:** `<all_urls>` (Strictly for universal text expansion functionality).
+* **Privacy:** All data is processed locally. No external servers, no tracking.
+
+## 📁 Project Structure
+```text
+TypiPat/
+├── manifest.json          # Extension Conductor
+├── background.js          # Service Worker (Orchestrator)
+├── content.js             # Deep Detection Script
+├── offscreen.html/js      # Secure Clipboard Bridge
+├── inject.css             # Side Stage Visuals
+├── popup.html/js          # Quick Motif View
+├── options.html/js        # Composer Studio & Index
+├── storage-helper.js      # Data Management
+└── utils.js               # Shared Rhythmic Utilities
+
+==========================================================================================================================================
+
+
+# 🎼 TypiPat
+
+**Orchestrate your day into harmony. Your quiet rhythm — composing peace with every keystroke.**
+
 TypiPat is a powerful Chrome extension that helps you type faster by expanding custom text shortcuts into full phrases, sentences, or paragraphs. Perfect for repetitive typing tasks, email templates, code snippets, and more.
 
 ## ✨ Features
