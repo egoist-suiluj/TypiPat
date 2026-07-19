@@ -604,15 +604,29 @@ if (addBtn) {
       return;
     }
 
-    postSaveFocusShortcut = shortcut;
+    // Check if shortcut already exists
+    TypiStorage.loadAll().then((existingData) => {
+    if (existingData[shortcut]) {
+    // Kung may existing, mag-pop up tayo ng babala
+    TypiUtils.showNotification(
+      `Dissonance! The Key " ${shortcut} " already exists in the Score.`, 
+      "error", 
+      "⚠️"
+    );
+    return; // Tigil muna dito, huwag i-save.
 
-    TypiStorage.save(shortcut, replacement, label || null).then(() => {
-      TypiUtils.showNotification("Success! Score Complete.", "success", "✅");
-      shortcutInput.value = "";
-      if (labelInput) labelInput.value = "";
-      replacementInput.value = "";
-      loadShortcuts();
-    });
+  }
+
+  // Kung wala, saka lang natin itutuloy ang pag-save.
+  postSaveFocusShortcut = shortcut;
+  TypiStorage.save(shortcut, replacement, label || null).then(() => {
+    TypiUtils.showNotification("Success! Score Complete.", "success", "✅");
+    shortcutInput.value = "";
+    if (labelInput) labelInput.value = "";
+    replacementInput.value = "";
+    loadShortcuts();
+  });
+});
   });
 }
 
@@ -686,26 +700,124 @@ function exitEditMode() {
 const exportBtn = document.getElementById("exportBtn");
 if (exportBtn) {
   exportBtn.addEventListener("click", async () => {
+    // 🔥 I-CHECK MUNA KUNG MAY LAMAN
     const data = await TypiStorage.loadAll();
     const exportData = {};
+    let hasContent = false;
+    
     for (let key in data) {
-      if (!key.startsWith("__meta__")) {
+      if (!key.startsWith("__meta__") && !key.startsWith("__label__")) {
         exportData[key] = data[key];
+        hasContent = true;
       }
     }
+    
+    if (!hasContent) {
+      TypiUtils.showNotification(
+        "Silence. No notes to export. Compose first.",
+        "error",
+        "🎭"
+      );
+      return;
+    }
+    
+    // 🔥 I-SHOW ANG CUSTOM MODAL
+    showCadenceModal(exportData);
+  });
+}
+
+// 🔥 FUNCTION PARA SA CUSTOM MODAL
+function showCadenceModal(exportData) {
+  const modal = document.getElementById("cadenceModal");
+  const input = document.getElementById("cadenceAlbumInput");
+  const confirmBtn = document.getElementById("cadenceConfirmBtn");
+  const cancelBtn = document.getElementById("cadenceCancelBtn");
+  const errorMsg = document.getElementById("cadenceErrorMsg");
+  
+  if (!modal) return;
+  
+  // 🔥 WALANG PRE-TYPED NAME (blank)
+  input.value = "";
+  
+  // 🔥 I-HIDE ANG ERROR MESSAGE
+  if (errorMsg) errorMsg.style.display = "none";
+  
+  // I-show ang modal
+  modal.style.display = "flex";
+  
+  // I-focus ang input
+  setTimeout(() => input.focus(), 100);
+  
+  // 🔥 CONFIRM BUTTON
+  const handleConfirm = () => {
+    const albumName = input.value.trim();
+    
+    // 🔥 KUNG WALANG NAME, MAG-PROMPT
+    if (!albumName) {
+      if (errorMsg) {
+        errorMsg.textContent = "🎵 An Album requires a title to achieve Harmony.";
+        errorMsg.style.display = "block";
+      } else {
+        TypiUtils.showNotification(
+          "An Album requires a title to achieve Harmony.",
+          "error",
+          "🎵"
+        );
+      }
+      input.focus();
+      return;
+    }
+    
+    // I-EXPORT
     const json = JSON.stringify(exportData, null, 2);
     const blob = new Blob([json], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "typipat-musical-notes.json";
+    a.download = `${albumName} - typipat-musical-notes.json`;
     a.click();
+    
     TypiUtils.showNotification(
-      "Cadence Executed. Score Released.",
+      `🎵 "${albumName}" composed and released!`,
       "success",
-      "✅",
+      "✅"
     );
-  });
+    
+    modal.style.display = "none";
+    cleanup();
+  };
+  
+  // 🔥 CANCEL BUTTON
+  const handleCancel = () => {
+    TypiUtils.showNotification(
+      "Score Sustained. No changes applied.",
+      "info",
+      "🎵"
+    );
+    modal.style.display = "none";
+    cleanup();
+  };
+  
+  // 🔥 CLEANUP
+  const cleanup = () => {
+    confirmBtn.removeEventListener("click", handleConfirm);
+    cancelBtn.removeEventListener("click", handleCancel);
+    document.removeEventListener("keydown", handleKeydown);
+    if (errorMsg) errorMsg.style.display = "none";
+  };
+  
+  // 🔥 ENTER KEY
+  const handleKeydown = (e) => {
+    if (e.key === "Enter") {
+      handleConfirm();
+    } else if (e.key === "Escape") {
+      handleCancel();
+    }
+  };
+  
+  confirmBtn.addEventListener("click", handleConfirm);
+  cancelBtn.addEventListener("click", handleCancel);
+  document.addEventListener("keydown", handleKeydown);
 }
 
 // Import

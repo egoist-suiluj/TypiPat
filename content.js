@@ -1,39 +1,22 @@
-// TypiPat - Field & Page Detection System
-// Real-time detection and safe expansion logic
-
-// ==========================================
-// 1. Field Detection Logic
-// ==========================================
 // ==========================================
 // 1. Field Detection Logic
 // ==========================================
 const FieldDetector = {
-  /**
-   * Identifies the type of text field the user is interacting with.
-   * Handles Shadow DOM and deep active elements.
-   * @returns {string} - 'input', 'textarea', 'contentEditable', 'password', 'readonly', or 'unknown'.
-   */
   getFieldType(originalElement) {
-    // 1. Deep Active Element Detection (Shadow DOM support)
     let element = this.getDeepActiveElement();
-    if (!element) element = originalElement; // Fallback
-
+    if (!element) element = originalElement;
     if (!element) return "unknown";
 
-    // Check for Read-Only / Disabled
-    if (element.isContentEditable === false && element.readOnly)
-      return "readonly";
+    if (element.isContentEditable === false && element.readOnly) return "readonly";
     if (element.disabled) return "readonly";
 
     const tagName = element.tagName.toLowerCase();
     const inputType = (element.type || "").toLowerCase();
 
-    // 2. Password Fields (Strict No-Expansion)
     if (tagName === "input" && inputType === "password") {
       return "password";
     }
 
-    // 3. Standard Inputs
     if (tagName === "input") {
       const validTypes = ["text", "email", "url", "search", "tel", "number"];
       if (validTypes.includes(inputType) || !inputType) {
@@ -42,38 +25,26 @@ const FieldDetector = {
       return "unknown";
     }
 
-    // 4. Textarea
     if (tagName === "textarea") {
       if (element.readOnly || element.disabled) return "readonly";
       return "textarea";
     }
 
-    // 5. ContentEditable (Rich Text Editors)
     if (element.isContentEditable) {
-      if (element.getAttribute("contenteditable") === "false")
-        return "readonly";
+      if (element.getAttribute("contenteditable") === "false") return "readonly";
       return "contentEditable";
     }
 
-    // 6. Iframe Handling (Optional, but good for "everything")
     if (tagName === "iframe") {
       try {
-        // If we can access the iframe document
-        const innerDoc =
-          element.contentDocument || element.contentWindow.document;
+        const innerDoc = element.contentDocument || element.contentWindow.document;
         if (innerDoc && innerDoc.designMode === "on") return "contentEditable";
-      } catch (e) {
-        // Cross-origin, can't access directly.
-        // The content script should ideally be injected into all frames (<all_frames>: true in manifest could help, but user didn't ask for that specifically yet).
-      }
+      } catch (e) {}
     }
 
     return "unknown";
   },
 
-  /**
-   * traverses Shadow DOMs to find the actual focused element
-   */
   getDeepActiveElement() {
     let el = document.activeElement;
     while (el && el.shadowRoot && el.shadowRoot.activeElement) {
@@ -84,13 +55,12 @@ const FieldDetector = {
 };
 
 // ==========================================
-// 2. Template Processing (Unchanged)
+// 2. Template Processing
 // ==========================================
 const TemplateProcessor = {
   process(text) {
     const now = new Date();
-    const date =
-      now.getMonth() + 1 + "/" + now.getDate() + "/" + now.getFullYear();
+    const date = now.getMonth() + 1 + "/" + now.getDate() + "/" + now.getFullYear();
     let hours = now.getHours();
     const minutes = String(now.getMinutes()).padStart(2, "0");
     const ampm = hours >= 12 ? "PM" : "AM";
@@ -107,37 +77,32 @@ const TemplateProcessor = {
 };
 
 // ==========================================
-// 3. Expansion Logic (Direct + Clipboard Fallback)
+// 3. Expansion Logic
 // ==========================================
 const SnippetExpander = {
   async expand(element, shortcut, replacement, fieldType) {
-    const processedReplacement = TemplateProcessor.process(replacement);
+  const processedReplacement = TemplateProcessor.process(replacement);
+  let success = false;
 
-    // STRATEGY: Try direct manipulation first (faster, less disruptive)
-    // If that fails or is risky, use Clipboard Fallback.
-
-    let success = false;
-
-    // Direct Method
-    try {
-      if (fieldType === "input" || fieldType === "textarea") {
-        success = this.insertInInput(element, shortcut, processedReplacement);
-      } else if (fieldType === "contentEditable") {
-        success = this.insertInContentEditable(
-          element,
-          shortcut,
-          processedReplacement,
-        );
+  try {
+    if (fieldType === "input" || fieldType === "textarea") {
+      success = this.insertInInput(element, shortcut, processedReplacement);
+    } else if (fieldType === "contentEditable") {
+      // 🔥 DETECT TINYMCE
+      if (window.tinymce && window.tinymce.activeEditor) {
+        success = this.insertInTinyMCE(element, shortcut, processedReplacement);
+      } else {
+        success = this.insertInContentEditable(element, shortcut, processedReplacement);
       }
-    } catch (err) {
-      success = false;
     }
+  } catch (err) {
+    success = false;
+  }
 
-    // Clipboard Fallback (The "Works Everywhere" Method)
-    if (!success) {
-      await this.insertViaClipboard(shortcut, processedReplacement);
-    }
-  },
+  if (!success) {
+    await this.insertViaClipboard(shortcut, processedReplacement);
+  }
+},
 
   insertInInput(element, shortcut, replacement) {
     try {
@@ -145,7 +110,6 @@ const SnippetExpander = {
       const end = element.selectionEnd;
       const val = element.value;
 
-      // Basic sanity check: ensure shortcut is actually before cursor
       const textBefore = val.slice(0, start);
       if (!textBefore.endsWith(shortcut)) {
         return false;
@@ -154,15 +118,10 @@ const SnippetExpander = {
       const before = val.slice(0, start - shortcut.length);
       const after = val.slice(end);
 
-      // React / Framework compatibility: Use native setter
-      const prototype =
-        element.tagName.toLowerCase() === "textarea"
-          ? window.HTMLTextAreaElement.prototype
-          : window.HTMLInputElement.prototype;
-      const nativeSetter = Object.getOwnPropertyDescriptor(
-        prototype,
-        "value",
-      ).set;
+      const prototype = element.tagName.toLowerCase() === "textarea"
+        ? window.HTMLTextAreaElement.prototype
+        : window.HTMLInputElement.prototype;
+      const nativeSetter = Object.getOwnPropertyDescriptor(prototype, "value").set;
 
       const newContent = before + replacement + after;
 
@@ -172,16 +131,9 @@ const SnippetExpander = {
         element.value = newContent;
       }
 
-      // CARET LOCKING: Calculate precise new position
       const newCursorPos = before.length + replacement.length;
-
-      // Force focus before setting selection range (Anchor Lock)
       element.focus();
-
-      // Strict Reset: Ensure cursor is exactly at the end of the insertion
       element.setSelectionRange(newCursorPos, newCursorPos);
-
-      // Framework Sync: Trigger aggressive events
       this.triggerInputEvents(element);
       return true;
     } catch (e) {
@@ -189,12 +141,11 @@ const SnippetExpander = {
     }
   },
 
+  // 🔥 ITO ANG ORIGINAL - GUMAGANA SA TINYMCE DETECTION PERO HINDI NAG-U-UPDATE ANG SCREEN
   insertInContentEditable(element, shortcut, replacement) {
-    // ATOMIC EXPANSION: Select shortcut backwards, then replace with insertText
     const selection = window.getSelection();
     if (!selection || !selection.rangeCount) return false;
 
-    // Verify we're in a text node and shortcut exists
     const range = selection.getRangeAt(0);
     if (range.endContainer.nodeType !== Node.TEXT_NODE) return false;
 
@@ -206,17 +157,13 @@ const SnippetExpander = {
     const startOffset = endOffset - shortcut.length;
     if (text.slice(startOffset, endOffset) !== shortcut) return false;
 
-    // STEP 1: Use selection.modify to select the shortcut (most reliable method)
-    // First collapse to ensure clean state
     selection.collapseToEnd();
 
-    // Extend selection backwards character by character
     if (selection.modify) {
       for (let i = 0; i < shortcut.length; i++) {
         selection.modify("extend", "backward", "character");
       }
     } else {
-      // Fallback: Manual range selection
       const newRange = document.createRange();
       newRange.setStart(range.endContainer, startOffset);
       newRange.setEnd(range.endContainer, endOffset);
@@ -224,11 +171,9 @@ const SnippetExpander = {
       selection.addRange(newRange);
     }
 
-    // STEP 2: Insert replacement text (this replaces the selection)
     const result = document.execCommand("insertText", false, replacement);
 
     if (result) {
-      // Ensure cursor is at end of insertion
       const finalSelection = window.getSelection();
       if (finalSelection && finalSelection.rangeCount > 0) {
         finalSelection.collapseToEnd();
@@ -239,76 +184,175 @@ const SnippetExpander = {
     return false;
   },
 
-  async insertViaClipboard(shortcut, replacement) {
-    // 1. Save current clipboard
-    const originalClipboard = await chrome.runtime.sendMessage({
-      action: "saveClipboard",
-    });
-
-    // 2. Delete the shortcut (we need to select it using "Shift + ArrowLeft" logic or similar?)
-    // Since we can't reliably "simulate" keypresses from content script without debugger API,
-    // we have to rely on the fact that the USER Typed it.
-    // So we can try `document.execCommand('delete')` in a loop? No.
-
-    // Backspace simulation is impossible directly.
-    // We assume the user creates a selection or we "select backwards".
-
-    // If we are in valid input/CE, we can programmatically select the previous N chars and delete.
-    const el = FieldDetector.getDeepActiveElement();
-    if (el) {
-      // Try to select the shortcut
-      if (this.selectTextBackwards(el, shortcut.length)) {
-        document.execCommand("delete"); // Or just paste over it
-      } else {
-        // If we can't select it, we just Paste. The shortcut remains?
-        // That's bad UX. But if we can't delete, we can't replace.
-        // Usually, `selectTextBackwards` works if we are in a text context.
+    // ==========================================
+  // 🆕 DETECT TINYMCE
+  // ==========================================
+  isTinyMCE() {
+  // 🔥 DIREKTA SA PAGE
+  if (window.tinymce && window.tinymce.activeEditor) {
+    console.log('✅ TinyMCE found directly on page');
+    return true;
+  }
+  
+  // Fallback: check sa parent (may try-catch)
+  if (window.parent && window.parent !== window) {
+    try {
+      if (window.parent.tinymce && window.parent.tinymce.activeEditor) {
+        console.log('✅ TinyMCE found in parent window');
+        return true;
       }
+    } catch (e) {
+      // Cross-origin parent - i-skip lang
     }
+  }
+  
+  // Fallback: check sa iframes (kung meron man)
+  const iframes = document.querySelectorAll('iframe');
+  for (const iframe of iframes) {
+    try {
+      if (iframe.contentWindow && iframe.contentWindow.tinymce && iframe.contentWindow.tinymce.activeEditor) {
+        console.log('✅ TinyMCE found in iframe');
+        return true;
+      }
+    } catch (e) {}
+  }
+  
+  return false;
+},
 
-    // 3. Write replacement to clipboard
-    await chrome.runtime.sendMessage({
-      action: "restoreClipboard",
-      data: replacement,
-    });
-
-    // 4. Paste
-    document.execCommand("paste");
-
-    // 5. Restore original clipboard
-    // We need a small delay to ensure paste finished?
-    setTimeout(() => {
-      chrome.runtime.sendMessage({
-        action: "restoreClipboard",
-        data: originalClipboard,
-      });
-    }, 100);
+  // ==========================================
+  // 🆕 INSERT IN TINYMCE - DEDICATED
+  // ==========================================
+  insertInTinyMCE(element, shortcut, replacement) {
+    console.log('🔧 TinyMCE specific insert');
+    
+    try {
+      let editor = null;
+      
+      if (window.tinymce && window.tinymce.activeEditor) {
+        editor = window.tinymce.activeEditor;
+      } else if (window.parent && window.parent.tinymce && window.parent.tinymce.activeEditor) {
+        editor = window.parent.tinymce.activeEditor;
+      } else {
+        const iframes = document.querySelectorAll('iframe');
+        for (const iframe of iframes) {
+          try {
+            if (iframe.contentWindow && iframe.contentWindow.tinymce && iframe.contentWindow.tinymce.activeEditor) {
+              editor = iframe.contentWindow.tinymce.activeEditor;
+              break;
+            }
+          } catch (e) {}
+        }
+      }
+      
+      if (!editor) {
+        console.warn('⚠️ TinyMCE editor not found');
+        return false;
+      }
+      
+      // Kunin ang selection at text bago cursor
+      const rng = editor.selection.getRng();
+      const node = rng.startContainer;
+      const offset = rng.startOffset;
+      
+      let textBefore = '';
+      if (node.nodeType === Node.TEXT_NODE) {
+        textBefore = node.textContent.substring(0, offset);
+      } else {
+        // Kung hindi text node, gamitin ang buong content
+        textBefore = editor.getContent({ format: 'text' });
+      }
+      
+      console.log('📝 Text before cursor:', textBefore.substring(Math.max(0, textBefore.length - 20)));
+      
+      if (textBefore.endsWith(shortcut)) {
+        const startPos = textBefore.length - shortcut.length;
+        const newRange = document.createRange();
+        newRange.setStart(node, startPos);
+        newRange.setEnd(node, offset);
+        editor.selection.setRng(newRange);
+        
+        // 🔥 GAMITIN ANG TINYMCE insertContent
+        const success = editor.execCommand('mceInsertContent', false, replacement);
+        
+        if (success) {
+          editor.fire('input');
+          editor.fire('change');
+          editor.fire('UpdateContent');
+          console.log('✅ TinyMCE insert successful!');
+          return true;
+        }
+      }
+      
+      return false;
+    } catch (err) {
+      console.warn('TinyMCE insert error:', err);
+      return false;
+    }
   },
 
-  // Helper to select last N chars of active element
+    async insertViaClipboard(shortcut, replacement) {
+    console.log('📋 Clipboard fallback called');
+    
+    try {
+      // 1. I-save ang current clipboard
+      let originalClipboard = '';
+      try {
+        originalClipboard = await navigator.clipboard.readText();
+        console.log('✅ Original clipboard saved');
+      } catch (err) {
+        console.log('⚠️ Cannot read clipboard, continuing anyway');
+      }
+
+      // 2. I-delete ang shortcut
+      const el = FieldDetector.getDeepActiveElement();
+      if (el) {
+        if (this.selectTextBackwards(el, shortcut.length)) {
+          document.execCommand("delete");
+          console.log('✅ Shortcut deleted');
+        }
+      }
+
+      // 3. Write replacement sa clipboard
+      await navigator.clipboard.writeText(replacement);
+      console.log('✅ Replacement written to clipboard');
+
+      // 4. Paste
+      document.execCommand("paste");
+      console.log('✅ Paste executed');
+
+      // 5. I-restore ang original clipboard (kung meron)
+      if (originalClipboard) {
+        setTimeout(async () => {
+          try {
+            await navigator.clipboard.writeText(originalClipboard);
+            console.log('✅ Original clipboard restored');
+          } catch (err) {
+            console.warn('⚠️ Cannot restore clipboard:', err);
+          }
+        }, 200);
+      }
+      
+      return true;
+    } catch (err) {
+      console.warn('❌ Clipboard fallback failed:', err);
+      return false;
+    }
+  },
+
   selectTextBackwards(element, length) {
-    // Input/Textarea
     if (["input", "textarea"].includes(element.tagName.toLowerCase())) {
       const start = element.selectionStart;
       if (start >= length) {
         element.setSelectionRange(start - length, start);
         return true;
       }
-    }
-    // ContentEditable
-    else if (element.isContentEditable) {
+    } else if (element.isContentEditable) {
       const sel = window.getSelection();
       if (!sel.rangeCount) return false;
       const range = sel.getRangeAt(0);
 
-      // Collapse to end first?
-      // We try to move start backwards
-      // This is complex in rich text.
-      // Simplified: Extend selection logic
-      // `selection.modify` is non-standard but widely supported in Chrome/Webkit
       if (sel.modify) {
-        // Extend selection backwards by 'length' characters?
-        // modify('extend', 'backward', 'character') is one by one.
         for (let i = 0; i < length; i++) {
           sel.modify("extend", "backward", "character");
         }
@@ -319,10 +363,6 @@ const SnippetExpander = {
   },
 
   triggerInputEvents(element) {
-    // AGGRESSIVE FRAMEWORK SYNC (Event Dispatching)
-    // Use InputEvent with insertReplacementText for proper framework detection
-
-    // 1. InputEvent with proper inputType (official way to signal text replacement)
     try {
       const inputEvent = new InputEvent("input", {
         bubbles: true,
@@ -332,25 +372,16 @@ const SnippetExpander = {
       });
       element.dispatchEvent(inputEvent);
     } catch (e) {
-      // Fallback for older browsers
-      const fallbackInput = new Event("input", {
-        bubbles: true,
-        cancelable: true,
-      });
+      const fallbackInput = new Event("input", { bubbles: true, cancelable: true });
       element.dispatchEvent(fallbackInput);
     }
 
-    // 2. Change event
-    const changeEvent = new Event("change", {
-      bubbles: true,
-      cancelable: true,
-    });
+    const changeEvent = new Event("change", { bubbles: true, cancelable: true });
     element.dispatchEvent(changeEvent);
 
-    // 3. Keyup event (some frameworks listen to this)
     const keyupEvent = new Event("keyup", { bubbles: true, cancelable: true });
     element.dispatchEvent(keyupEvent);
-  },
+  }
 };
 
 // ==========================================
@@ -358,19 +389,283 @@ const SnippetExpander = {
 // ==========================================
 const TypiPat = {
   shortcuts: {},
-  sortedKeys: [], // Cache sorted keys for performance
+  sortedKeys: [],
   isReplacing: false,
 
   init() {
-    this.loadShortcuts();
+  this.loadShortcuts();
 
-    // Listen for storage changes via TypiStorage helper
-    TypiStorage.onChanged((data) => {
-      this.updateShortcuts(data);
+  TypiStorage.onChanged((data) => {
+    this.updateShortcuts(data);
+  });
+
+  // 🔥 PARA SA GMAIL (SPA)
+  if (window.location.hostname.includes('mail.google.com')) {
+    console.log('📧 Gmail detected, setting up SPA listeners...');
+    
+    let lastUrl = location.href;
+    new MutationObserver(() => {
+      const url = location.href;
+      if (url !== lastUrl) {
+        lastUrl = url;
+        console.log('🔄 Gmail navigation detected, re-attaching listeners...');
+        this.setupListeners();
+      }
+    }).observe(document, { subtree: true, childList: true });
+  }
+
+  // 🔥 TUMAWAG SA setupListeners()
+  this.setupListeners();
+},
+
+// ==========================================
+// SETUP LISTENERS
+// ==========================================
+setupListeners() {
+  console.log('🎵 Setting up TypiPat listeners...');
+  
+  // 🔥 I-SKIP ANG MGA CHROME PAGES
+  if (window.location.protocol === 'chrome:') {
+    console.log('⏭️ Skipping setup on chrome:// page');
+    return;
+  }
+  
+  document.addEventListener("input", this.handleInput.bind(this), true);
+
+  document.addEventListener("focusin", (e) => {
+    const element = e.target;
+    if (this.isTextField(element)) {
+      element.addEventListener("input", this.handleInput.bind(this), true);
+      
+      if (element.isContentEditable) {
+        element.addEventListener("keyup", this.handleInput.bind(this), true);
+        element.addEventListener("keydown", this.handleInput.bind(this), true);
+      }
+    }
+  }, true);
+
+  this.attachToTinyMCE();
+  this.observeDynamicFields();
+
+  if (window === window.top) {
+    this.observeIframes();
+  }
+},
+
+// ==========================================
+// ATTACH TO TINYMCE
+// ==========================================
+attachToTinyMCE() {
+  // 🔥 I-SKIP ANG MGA CHROME PAGES (newtab, settings, etc.)
+  if (window.location.protocol === 'chrome:') {
+    console.log('⏭️ Skipping TinyMCE on chrome:// page');
+    return;
+  }
+  
+  console.log('🔍 Looking for TinyMCE...');
+  
+  setTimeout(() => {
+    try {
+      let editor = null;
+      
+      if (window.tinymce && window.tinymce.activeEditor) {
+        editor = window.tinymce.activeEditor;
+      } else if (window.parent && window.parent !== window) {
+        // 🔥 I-WRAP SA TRY-CATCH PARA MAIWASAN ANG CROSS-ORIGIN ERROR
+        try {
+          if (window.parent.tinymce && window.parent.tinymce.activeEditor) {
+            editor = window.parent.tinymce.activeEditor;
+          }
+        } catch (e) {
+          // Cross-origin parent - i-skip lang
+          console.log('⏭️ Cannot access parent.tinymce (cross-origin)');
+        }
+      }
+      
+      if (editor) {
+        console.log('✅ TinyMCE editor found');
+        const editorBody = editor.getBody();
+        if (editorBody) {
+          editorBody.addEventListener('input', this.handleInput.bind(this), true);
+          editorBody.addEventListener('keyup', this.handleInput.bind(this), true);
+          editorBody.addEventListener('keydown', this.handleInput.bind(this), true);
+          
+          editor.on('input', () => {
+            this.handleInput({ target: editorBody, type: 'input' });
+          });
+          
+          console.log('✅ TinyMCE listeners attached');
+        }
+      }
+    } catch (err) {
+      console.warn('⚠️ TinyMCE error:', err.message || err);
+    }
+  }, 500);
+},
+
+// ==========================================
+// OBSERVE DYNAMIC FIELDS
+// ==========================================
+observeDynamicFields() {
+  const targetNode = document.body;
+  const config = {
+    childList: true,
+    subtree: true,
+    attributes: false,
+  };
+
+  const callback = (mutationsList) => {
+    for (const mutation of mutationsList) {
+      if (mutation.type === 'childList') {
+        mutation.addedNodes.forEach((node) => {
+          if (node.tagName === 'IFRAME') return;
+          
+          if (this.isTextField(node)) {
+            if (node.isContentEditable && !node._hasTypiPatListener) {
+              node.addEventListener("input", this.handleInput.bind(this), true);
+              node._hasTypiPatListener = true;
+            } else if (!node.isContentEditable) {
+              node.addEventListener("input", this.handleInput.bind(this), true);
+            }
+          }
+          if (node.querySelectorAll) {
+            const inputs = node.querySelectorAll('input, textarea, [contenteditable="true"]');
+            inputs.forEach((input) => {
+              if (input.isContentEditable && !input._hasTypiPatListener) {
+                input.addEventListener("input", this.handleInput.bind(this), true);
+                input._hasTypiPatListener = true;
+              } else if (!input.isContentEditable) {
+                input.addEventListener("input", this.handleInput.bind(this), true);
+              }
+            });
+          }
+        });
+      }
+    }
+  };
+
+  const observer = new MutationObserver(callback);
+  observer.observe(targetNode, config);
+  this.observer = observer;
+},
+
+// ==========================================
+// OBSERVE IFRAMES
+// ==========================================
+observeIframes() {
+  // 🔥 I-SKIP ANG MGA CHROME PAGES
+  if (window.location.protocol === 'chrome:') {
+    return;
+  }
+  
+  const iframes = document.querySelectorAll('iframe');
+  iframes.forEach((iframe) => {
+    if (iframe.src && iframe.src.startsWith('chrome-extension://')) {
+      return;
+    }
+    this.attachToIframe(iframe);
+  });
+
+  const observer = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+      for (const node of mutation.addedNodes) {
+        if (node.tagName === 'IFRAME') {
+          if (node.src && node.src.startsWith('chrome-extension://')) {
+            continue;
+          }
+          this.attachToIframe(node);
+        }
+        if (node.querySelectorAll) {
+          const nestedIframes = node.querySelectorAll('iframe');
+          nestedIframes.forEach((iframe) => {
+            if (iframe.src && iframe.src.startsWith('chrome-extension://')) {
+              return;
+            }
+            this.attachToIframe(iframe);
+          });
+        }
+      }
+    }
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+},
+
+// ==========================================
+// ATTACH TO IFRAME
+// ==========================================
+attachToIframe(iframe) {
+  if (iframe.src && iframe.src.startsWith('chrome-extension://')) {
+    return;
+  }
+
+  try {
+    iframe.addEventListener('load', () => {
+      try {
+        const doc = iframe.contentDocument || iframe.contentWindow?.document;
+        if (!doc) return;
+
+        console.log('📄 Attaching to iframe:', iframe.src);
+
+        const editableElements = doc.querySelectorAll(
+          'input, textarea, [contenteditable="true"]'
+        );
+        
+        editableElements.forEach((el) => {
+          el.addEventListener('input', this.handleInput.bind(this), true);
+          console.log('✅ Attached listener to:', el.tagName);
+        });
+
+        doc.addEventListener('focusin', (e) => {
+          const target = e.target;
+          if (this.isTextField(target)) {
+            target.addEventListener('input', this.handleInput.bind(this), true);
+          }
+        }, true);
+
+        const innerObserver = new MutationObserver((mutations) => {
+          for (const mutation of mutations) {
+            for (const node of mutation.addedNodes) {
+              if (this.isTextField(node)) {
+                node.addEventListener('input', this.handleInput.bind(this), true);
+              }
+              if (node.querySelectorAll) {
+                const inputs = node.querySelectorAll(
+                  'input, textarea, [contenteditable="true"]'
+                );
+                inputs.forEach((el) => {
+                  el.addEventListener('input', this.handleInput.bind(this), true);
+                });
+              }
+            }
+          }
+        });
+
+        if (doc.body) {
+          innerObserver.observe(doc.body, {
+            childList: true,
+            subtree: true
+          });
+        }
+
+      } catch (err) {
+        console.log('⚠️ Cannot access iframe content (cross-origin):', iframe.src);
+      }
     });
+  } catch (err) {
+    // Silent fail
+  }
+},
 
-    // Main Input Listener
-    document.addEventListener("input", this.handleInput.bind(this), true);
+  isTextField(element) {
+    if (!element) return false;
+    const tag = element.tagName ? element.tagName.toLowerCase() : '';
+    if (tag === 'input' || tag === 'textarea') return true;
+    if (element.isContentEditable) return true;
+    return false;
   },
 
   loadShortcuts() {
@@ -386,45 +681,31 @@ const TypiPat = {
         this.shortcuts[key] = data[key];
       }
     }
-    // PERFORMANCE: Sort once on load
-    this.sortedKeys = Object.keys(this.shortcuts).sort(
-      (a, b) => b.length - a.length,
-    );
+    this.sortedKeys = Object.keys(this.shortcuts).sort((a, b) => b.length - a.length);
   },
 
   handleInput(e) {
     if (this.isReplacing) return;
 
-    // Shadow DOM support: Get the actual target
     const path = e.composedPath ? e.composedPath() : [];
     const element = path.length > 0 ? path[0] : e.target;
     const fieldType = FieldDetector.getFieldType(element);
 
-    // 1. Early Exit for unsupported fields
-    if (
-      fieldType === "password" ||
-      fieldType === "readonly" ||
-      fieldType === "unknown"
-    ) {
+    if (fieldType === "password" || fieldType === "readonly" || fieldType === "unknown") {
       return;
     }
 
-    // 2. Get Text Context
     const context = this.getTextContext(element, fieldType);
     if (!context) return;
 
     const { textBeforeCursor } = context;
 
-    // 3. Check for Matches
-    // Use cached sortedKeys
     for (let shortcut of this.sortedKeys) {
       if (textBeforeCursor.endsWith(shortcut)) {
-        // Boundary Check
         if (!this.isWordBoundary(textBeforeCursor, shortcut)) {
           continue;
         }
 
-        // Match Found!
         const replacement = this.shortcuts[shortcut];
 
         this.isReplacing = true;
@@ -433,13 +714,11 @@ const TypiPat = {
         } catch (err) {
           // Silent fail
         } finally {
-          // RECOVERY DELAY: 150ms for browser rendering before next keystroke
           setTimeout(() => {
             this.isReplacing = false;
           }, 150);
         }
-
-        break; // Stop after first match (longest due to sort)
+        break;
       }
     }
   },
@@ -454,10 +733,6 @@ const TypiPat = {
         const sel = window.getSelection();
         if (sel.rangeCount > 0) {
           const range = sel.getRangeAt(0);
-          // We need text before caret.
-          // Cloning range to select everything before caret in the current block is tricky.
-          // Simplest reliable method for *detection* is getting the text content of the current node
-          // up to the offset.
           const node = range.endContainer;
           const offset = range.endOffset;
 
@@ -466,7 +741,6 @@ const TypiPat = {
               textBeforeCursor: node.textContent.substring(0, offset),
             };
           }
-          // If caret is not in a text node (rare during typing), we might be at element boundary.
           return null;
         }
       }
@@ -478,10 +752,9 @@ const TypiPat = {
 
   isWordBoundary(text, shortcut) {
     const beforeIndex = text.length - shortcut.length - 1;
-    if (beforeIndex < 0) return true; // Start of line
+    if (beforeIndex < 0) return true;
 
     const charBefore = text.charAt(beforeIndex);
-    // Allow expansion if preceded by whitespace or punctuation
     return !/[A-Za-z0-9_]/.test(charBefore);
   },
 };
@@ -495,38 +768,27 @@ TypiPat.init();
 const FloatingUI = {
   container: null,
   iframe: null,
-  icon: null, // The img element
+  icon: null,
   visible: false,
-
-  // Drag State
   isDragging: false,
   startY: 0,
   startTop: 0,
   hasMoved: false,
 
   init() {
-    // Anti-Ad: Only run on the top-level frame
     if (window !== window.top) return;
-
     this.createButton();
     this.createOverlay();
 
-    // Listen for messages
-    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    chrome.runtime.onMessage.addListener((request) => {
       if (request.action === "toggleOverlay") {
         this.toggleOverlay();
       }
     });
 
-    // Close on outside click
     document.addEventListener("click", (e) => {
-      if (
-        this.visible &&
-        this.iframe &&
-        !this.iframe.contains(e.target) &&
-        this.container &&
-        !this.container.contains(e.target)
-      ) {
+      if (this.visible && this.iframe && !this.iframe.contains(e.target) &&
+          this.container && !this.container.contains(e.target)) {
         this.closeOverlay();
       }
     });
@@ -536,7 +798,6 @@ const FloatingUI = {
     const container = document.createElement("div");
     container.id = "typipat-fab-container";
 
-    // Icon Image
     const img = document.createElement("img");
     img.src = chrome.runtime.getURL("iPat.png");
     img.className = "typipat-fab-icon";
@@ -544,28 +805,22 @@ const FloatingUI = {
     container.appendChild(img);
     document.body.appendChild(container);
 
-    // Toggle on Click (Restored)
     container.onclick = (e) => {
       e.stopPropagation();
-      // Only toggle if NOT dragging
       if (!this.hasMoved) {
         this.toggleOverlay();
       }
     };
 
-    // Open Options on Double Click (Restored)
     container.ondblclick = (e) => {
       e.stopPropagation();
       try {
         if (chrome.runtime?.id) {
           chrome.runtime.sendMessage({ action: "openOptions" });
         }
-      } catch (err) {
-        // Extension context invalidated
-      }
+      } catch (err) {}
     };
 
-    // Open Options on Right Click (Orchestra Entrata)
     container.oncontextmenu = (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -573,23 +828,19 @@ const FloatingUI = {
         if (chrome.runtime?.id) {
           chrome.runtime.sendMessage({ action: "openOptions" });
         }
-      } catch (err) {
-        // Extension context invalidated
-      }
+      } catch (err) {}
     };
 
     this.container = container;
     this.icon = img;
-
-    // Attach Drag Logic
     this.initDrag(container);
   },
 
   createOverlay() {
     const iframe = document.createElement("iframe");
     iframe.id = "typipat-overlay";
-    iframe.src = chrome.runtime.getURL("popup.html"); // Correct Source
-    iframe.allow = "clipboard-read; clipboard-write"; // Fix Clipboard Permissions
+    iframe.src = chrome.runtime.getURL("popup.html");
+    iframe.allow = "clipboard-read; clipboard-write";
 
     document.body.appendChild(iframe);
     this.iframe = iframe;
@@ -597,51 +848,30 @@ const FloatingUI = {
 
   initDrag(element) {
     const startDrag = (e) => {
-      // Only left click
       if (e.button !== 0) return;
-
       this.isDragging = true;
-      this.hasMoved = false; // Reset movement check
+      this.hasMoved = false;
       this.startY = e.clientY;
-
-      // Get current top value (computed style)
       const rect = element.getBoundingClientRect();
       this.startTop = rect.top;
-
-      element.style.transition = "none"; // Disable transition during drag
-
+      element.style.transition = "none";
       e.preventDefault();
     };
 
     const doDrag = (e) => {
       if (!this.isDragging) return;
-
       const deltaY = e.clientY - this.startY;
-
-      // Threshold check: 5px movement counts as drag
       if (Math.abs(deltaY) > 5) {
         this.hasMoved = true;
       }
-
       const newTop = this.startTop + deltaY;
-
-      // Update Top Position (Vertical Only) - Icon Only
       element.style.top = `${newTop}px`;
-
-      // Decoupled: Overlay stays fixed at 15vh (handled in CSS)
     };
 
-    const stopDrag = (e) => {
+    const stopDrag = () => {
       if (!this.isDragging) return;
-
       this.isDragging = false;
-      element.style.transition = ""; // Restore CSS transition
-
-      // If NOT moved significantly, it's a Click.
-      // We handle the actual toggle in container.onclick to avoid conflict/double-firing.
-      if (!this.hasMoved) {
-        // Pass to onclick
-      }
+      element.style.transition = "";
     };
 
     element.addEventListener("mousedown", startDrag);
@@ -651,15 +881,10 @@ const FloatingUI = {
 
   toggleOverlay() {
     this.visible = !this.visible;
-
     if (this.visible) {
-      // OPEN
       this.iframe.classList.add("visible");
-
-      // Hide Icon (Smart Toggle)
       this.container.style.display = "none";
     } else {
-      // CLOSE
       this.closeOverlay();
     }
   },
@@ -667,13 +892,11 @@ const FloatingUI = {
   closeOverlay() {
     this.visible = false;
     this.iframe.classList.remove("visible");
-
-    // Show Icon
     this.container.style.display = "flex";
   },
 };
 
-// Initialize
+// Initialize FloatingUI
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", () => FloatingUI.init());
 } else {

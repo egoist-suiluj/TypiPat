@@ -21,9 +21,16 @@ const TypiUtils = {
    * @param {string} icon - Emoji icon to display
    */
   showNotification(message, type = "info", icon = "🎵") {
-    const toast = document.getElementById("notificationToast");
-    const iconEl = document.getElementById("notificationIcon");
-    const msgEl = document.getElementById("notificationMessage");
+    let toast = document.getElementById("notificationToast");
+    let iconEl = document.getElementById("notificationIcon");
+    let msgEl = document.getElementById("notificationMessage");
+
+    if (!toast || !iconEl || !msgEl) {
+      this._createNotificationElements();
+      toast = document.getElementById("notificationToast");
+      iconEl = document.getElementById("notificationIcon");
+      msgEl = document.getElementById("notificationMessage");
+    }
 
     if (!toast || !iconEl || !msgEl) {
       console.warn("[TypiPat] Notification elements not found");
@@ -34,10 +41,31 @@ const TypiUtils = {
     msgEl.textContent = message;
     toast.className = `notification-toast ${type} show`;
 
-    setTimeout(
-      () => toast.classList.remove("show"),
-      TIMING_CONFIG.NOTIFICATION_DURATION,
-    );
+    setTimeout(() => {
+      toast.classList.remove("show");
+    }, 3000);
+  },
+
+  /**
+   * Create notification elements if they don't exist
+   * @private
+   */
+  _createNotificationElements() {
+    const container = document.createElement("div");
+    container.id = "notificationToast";
+    container.className = "notification-toast";
+    
+    const icon = document.createElement("span");
+    icon.id = "notificationIcon";
+    icon.className = "toast-icon";
+    
+    const message = document.createElement("span");
+    message.id = "notificationMessage";
+    message.className = "toast-message";
+    
+    container.appendChild(icon);
+    container.appendChild(message);
+    document.body.appendChild(container);
   },
 
   /**
@@ -54,7 +82,7 @@ const TypiUtils = {
         const shortcutKey = key.replace("__label__", "");
         labels[shortcutKey] = data[key];
       } else if (key.startsWith("__meta__")) {
-        continue; // Skip metadata
+        continue;
       } else {
         shortcuts[key] = data[key];
       }
@@ -70,10 +98,17 @@ const TypiUtils = {
    * @returns {Array} - Sorted array of shortcut keys
    */
   sortShortcutsByLabel(shortcuts, labels) {
-    return Object.keys(shortcuts).sort((a, b) => {
-      const labelA = (labels[a] || "").toLowerCase();
-      const labelB = (labels[b] || "").toLowerCase();
-
+    const shortcutKeys = Object.keys(shortcuts);
+    const labelCache = {};
+    
+    shortcutKeys.forEach(key => {
+      labelCache[key] = (labels[key] || "").toLowerCase();
+    });
+    
+    return shortcutKeys.sort((a, b) => {
+      const labelA = labelCache[a];
+      const labelB = labelCache[b];
+      
       if (labelA && labelB) return labelA.localeCompare(labelB);
       if (labelA && !labelB) return -1;
       if (!labelA && labelB) return 1;
@@ -99,6 +134,18 @@ const TypiUtils = {
         message: "Shortcut cannot start with __ (reserved prefix)",
       };
     }
+    if (/\s/.test(shortcut)) {
+      return {
+        valid: false,
+        message: "Shortcut cannot contain spaces (use - or _ instead)",
+      };
+    }
+    if (/[{}[\]\\|]/.test(shortcut)) {
+      return {
+        valid: false,
+        message: "Shortcut contains invalid characters: {}[]\\|",
+      };
+    }
     return { valid: true, message: "" };
   },
 
@@ -115,9 +162,11 @@ const TypiUtils = {
   },
 };
 
-// Timing configuration constants
+// ==========================================
+// TIMING CONFIGURATION - GLOBAL
+// ==========================================
 const TIMING_CONFIG = {
-  REPLACEMENT_DEBOUNCE: 100, // Increased from 50ms for better VM compatibility
+  REPLACEMENT_DEBOUNCE: 100,
   NOTIFICATION_DURATION: 3000,
   BUTTON_FEEDBACK_DURATION: 1500,
   FOCUS_HIGHLIGHT_DURATION: 2000,
