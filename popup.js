@@ -5,15 +5,22 @@ async function loadNotes() {
 
   if (!container) return;
 
+  // 🔥 I-FILTER ANG __section__ KEYS
+  const filteredData = {};
+  for (let key in data) {
+    if (!key.startsWith("__section__")) {
+      filteredData[key] = data[key];
+    }
+  }
+
   // Use shared utility to parse storage data
-  const { shortcuts, labels } = TypiUtils.parseStorageData(data);
+  const { shortcuts, labels } = TypiUtils.parseStorageData(filteredData);
 
   // Clear container safely
   container.textContent = "";
 
   // Check if there are shortcuts
   if (Object.keys(shortcuts).length === 0) {
-    // Create empty state using createElement (XSS-safe)
     const emptyState = document.createElement("div");
     emptyState.className = "empty-state";
     emptyState.textContent = "Silence. No notes composed yet.";
@@ -28,28 +35,23 @@ async function loadNotes() {
   sortedShortcuts.forEach((shortcut) => {
     const label = labels[shortcut] || "Untitled";
 
-    // Create note item container
     const noteItem = document.createElement("div");
     noteItem.className = "note-item";
     noteItem.setAttribute("data-shortcut", shortcut.toLowerCase());
     noteItem.setAttribute("data-label", label.toLowerCase());
     noteItem.setAttribute("data-text", shortcuts[shortcut]);
 
-    // Create note header
     const noteHeader = document.createElement("div");
     noteHeader.className = "note-header";
 
-    // Create note content wrapper
     const noteContent = document.createElement("div");
     noteContent.className = "note-content";
 
-    // Create rhythm (label - prominent)
     const noteRhythm = document.createElement("div");
     noteRhythm.className = "note-rhythm";
     noteRhythm.textContent = label;
     noteContent.appendChild(noteRhythm);
 
-    // Create label (shortcut - secondary)
     const noteLabel = document.createElement("div");
     noteLabel.className = "note-label";
     noteLabel.textContent = shortcut;
@@ -57,7 +59,6 @@ async function loadNotes() {
 
     noteHeader.appendChild(noteContent);
 
-    // Create perform button
     const performBtn = document.createElement("button");
     performBtn.className = "perform-btn";
     performBtn.textContent = "Perform";
@@ -67,7 +68,6 @@ async function loadNotes() {
     container.appendChild(noteItem);
   });
 
-  // Add event listeners
   addPerformListeners();
 }
 
@@ -277,3 +277,17 @@ if (clearBtn) {
 
 // Load notes when popup opens
 loadNotes();
+// 🔥 MAG-REGISTER NG STORAGE CHANGE LISTENER
+chrome.storage.onChanged.addListener((changes, area) => {
+  // I-check kung may pagbabago sa shortcuts
+  const hasShortcutChanges = Object.keys(changes).some(key => 
+    !key.startsWith("__meta__") && 
+    !key.startsWith("__label__") && 
+    !key.startsWith("__section__")
+  );
+  
+  if (hasShortcutChanges) {
+    console.log('🔄 Shortcuts changed, reloading notes...');
+    loadNotes();
+  }
+});

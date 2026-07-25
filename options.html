@@ -27,10 +27,13 @@
     }
 
     .container {
-      background: white;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
       padding: 40px;
       border-radius: 15px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
     }
 
     .header-tagline {
@@ -49,14 +52,24 @@
       font-size: 15px;
       font-style: italic;
       line-height: 1.8;
-      padding: 15px 0;
+      padding: 20px 24px;
       margin-top: 30px;
-      opacity: 1;
-      transition: opacity 0.5s ease;
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      transition: all 0.3s ease;
     }
 
     .footer-quote.visible {
       opacity: 1;
+    }
+
+    .footer-quote:hover {
+      background: rgba(255, 255, 255, 0.35);
+      box-shadow: 0 8px 30px rgba(102, 126, 234, 0.06);
     }
 
     h1 {
@@ -68,13 +81,17 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 2px solid #7b1fa2;
-      padding: 20px 0;
+      border-bottom: 1px solid rgba(123, 31, 162, 0.2);
+      padding: 20px 24px;
       margin-bottom: 30px;
       position: sticky;
       top: 0;
-      background: white;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 12px 12px 0 0;
       z-index: 100;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
     }
 
     .search-container {
@@ -83,23 +100,41 @@
       gap: 10px;
       max-width: 550px;
       margin-left: auto;
+      background: rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      padding: 4px 4px 4px 16px;
+      border-radius: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+      transition: all 0.3s ease;
+    }
+
+    .search-container:focus-within {
+      background: rgba(255, 255, 255, 0.45);
+      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.08);
+      border-color: rgba(123, 31, 162, 0.15);
     }
 
     .search-box {
       flex: 1;
-      padding: 12px 20px;
-      border: 2px solid #9c27b0;
-      border-radius: 25px;
+      padding: 10px 0;
+      border: none;
+      background: transparent;
       font-size: 14px;
       font-family: "Georgia", serif;
-      transition: all 0.3s;
-      min-width: 300px;
+      color: #4a148c;
+      outline: none;
+      min-width: 200px;
+    }
+
+    .search-box::placeholder {
+      color: rgba(74, 20, 140, 0.4);
+      font-style: italic;
     }
 
     .search-box:focus {
       outline: none;
-      border-color: #7b1fa2;
-      box-shadow: 0 0 10px rgba(123, 31, 162, 0.3);
     }
 
     .search-btn,
@@ -118,6 +153,17 @@
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       font-size: 14px;
       padding: 12px 25px;
+      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.25);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .search-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(102, 126, 234, 0.35);
+    }
+
+    .search-btn:active {
+      transform: scale(0.97);
     }
 
     .clear-search {
@@ -129,7 +175,6 @@
       display: block;
     }
 
-    .search-btn:hover,
     .clear-search:hover {
       transform: scale(1.05);
     }
@@ -166,6 +211,19 @@
       gap: 15px;
       margin-bottom: 20px;
       align-items: start;
+      background: rgba(255, 255, 255, 0.35);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 24px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      transition: all 0.3s ease;
+    }
+
+    .add-form:hover {
+      background: rgba(255, 255, 255, 0.45);
+      box-shadow: 0 8px 30px rgba(102, 126, 234, 0.06);
     }
 
     .form-label {
@@ -178,18 +236,24 @@
 
     .add-form input[type="text"] {
       padding: 12px;
-      border: 2px solid #e1bee7;
+      border: 1px solid rgba(156, 39, 176, 0.15);
       border-radius: 8px;
       font-size: 14px;
       font-family: "Georgia", serif;
-      transition: border-color 0.3s;
+      transition: all 0.3s;
       width: 100%;
       box-sizing: border-box;
+      background: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      color: #4a148c;
     }
 
     .add-form input[type="text"]:focus {
       outline: none;
       border-color: #9c27b0;
+      box-shadow: 0 0 0 3px rgba(156, 39, 176, 0.08);
+      background: rgba(255, 255, 255, 0.7);
     }
 
     .add-form input#shortcutInput {
@@ -197,7 +261,6 @@
       grid-row: 1;
     }
 
-    /* 🆕 SECTION INPUT - NASA IBABA NG KEY */
     .add-form input#sectionInput {
       grid-column: 1;
       grid-row: 2;
@@ -217,7 +280,7 @@
 
     .add-form textarea {
       padding: 15px 60px 15px 15px;
-      border: 2px solid #e1bee7;
+      border: 1px solid rgba(156, 39, 176, 0.15);
       border-radius: 8px;
       font-size: 15px;
       min-height: 200px;
@@ -226,13 +289,19 @@
       line-height: 1.8;
       white-space: pre-wrap;
       font-family: "Georgia", serif;
-      transition: border-color 0.3s;
+      transition: all 0.3s;
       box-sizing: border-box;
+      background: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      color: #4a148c;
     }
 
     .add-form textarea:focus {
       outline: none;
       border-color: #9c27b0;
+      box-shadow: 0 0 0 3px rgba(156, 39, 176, 0.08);
+      background: rgba(255, 255, 255, 0.7);
     }
 
     .orchestrate-btn {
@@ -273,15 +342,64 @@
       font-size: 15px;
       font-weight: 600;
       justify-self: start;
-      transition: transform 0.2s;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       letter-spacing: 1px;
+      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.25);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .add-form button#addBtn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .add-form button#addBtn:hover::before {
+      left: 100%;
     }
 
     .add-form button#addBtn:hover {
-      transform: scale(1.05);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(102, 126, 234, 0.35);
     }
 
-    .save-btn,
+    .add-form button#addBtn:active {
+      transform: scale(0.97);
+    }
+
+    .save-btn {
+      grid-column: 2;
+      grid-row: 4;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 600;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      letter-spacing: 1px;
+      color: white;
+      background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+      justify-self: start;
+      margin-right: 10px;
+      box-shadow: 0 4px 16px rgba(76, 175, 80, 0.25);
+    }
+
+    .save-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(76, 175, 80, 0.35);
+    }
+
+    .save-btn:active {
+      transform: scale(0.97);
+    }
+
     .discard-btn {
       grid-column: 2;
       grid-row: 4;
@@ -291,26 +409,22 @@
       cursor: pointer;
       font-size: 15px;
       font-weight: 600;
-      transition: transform 0.2s;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       letter-spacing: 1px;
       color: white;
-    }
-
-    .save-btn {
-      background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
-      justify-self: start;
-      margin-right: 10px;
-    }
-
-    .discard-btn {
       background: linear-gradient(135deg, #f44336 0%, #da190b 100%);
       justify-self: start;
       margin-left: 190px;
+      box-shadow: 0 4px 16px rgba(244, 67, 54, 0.25);
     }
 
-    .save-btn:hover,
     .discard-btn:hover {
-      transform: scale(1.05);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(244, 67, 54, 0.35);
+    }
+
+    .discard-btn:active {
+      transform: scale(0.97);
     }
 
     .export-import-buttons {
@@ -318,11 +432,34 @@
       flex-direction: column;
       gap: 12px;
       grid-column: 1;
-      grid-row: 4;
+      grid-row: 3 / 5;
       align-self: start;
     }
 
-    .export-btn,
+    .export-btn {
+      padding: 12px 15px;
+      font-size: 14px;
+      border-radius: 25px;
+      cursor: pointer;
+      border: none;
+      color: white;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      font-family: "Georgia", serif;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      box-shadow: 0 4px 16px rgba(245, 87, 108, 0.25);
+    }
+
+    .export-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(245, 87, 108, 0.35);
+    }
+
+    .export-btn:active {
+      transform: scale(0.97);
+    }
+
     .import-btn {
       padding: 12px 15px;
       font-size: 14px;
@@ -330,35 +467,42 @@
       cursor: pointer;
       border: none;
       color: white;
-      transition: transform 0.2s;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       font-weight: 600;
       letter-spacing: 0.5px;
       font-family: "Georgia", serif;
-    }
-
-    .export-btn {
-      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    }
-
-    .import-btn {
       background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      box-shadow: 0 4px 16px rgba(79, 172, 254, 0.25);
     }
 
-    .export-btn:hover,
     .import-btn:hover {
-      transform: scale(1.05);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(79, 172, 254, 0.35);
+    }
+
+    .import-btn:active {
+      transform: scale(0.97);
     }
 
     .shortcuts-table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 20px;
+      background: rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
     }
 
     .shortcuts-table th {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.85), rgba(118, 75, 162, 0.85));
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       color: white;
-      padding: 15px;
+      padding: 16px 20px;
       text-align: left;
       font-weight: 600;
       border: none;
@@ -367,18 +511,22 @@
     }
 
     .shortcuts-table th:first-child {
-      border-radius: 10px 0 0 0;
+      border-radius: 16px 0 0 0;
       text-align: center;
     }
 
     .shortcuts-table th:last-child {
-      border-radius: 0 10px 0 0;
+      border-radius: 0 16px 0 0;
       padding-left: 45px;
     }
 
     .shortcuts-table td {
       padding: 20px 15px;
-      border-bottom: 1px solid #e1bee7;
+      background: rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      transition: background 0.3s ease;
+      border-bottom: 1px solid rgba(156, 39, 176, 0.25);
     }
 
     .shortcuts-table tr:hover {
@@ -387,6 +535,22 @@
 
     .shortcuts-table tr:last-child td {
       border-bottom: none;
+    }
+
+    .shortcuts-table tbody tr:first-child td {
+      border-top: 1px solid rgba(156, 39, 176, 0.08);
+    }
+
+    .shortcuts-table tr:hover td {
+      background: rgba(243, 229, 245, 0.5);
+    }
+
+    .shortcuts-table tr:last-child td:first-child {
+      border-radius: 0 0 0 16px;
+    }
+
+    .shortcuts-table tr:last-child td:last-child {
+      border-radius: 0 0 16px 0;
     }
 
     .shortcuts-table tr.highlight {
@@ -400,9 +564,7 @@
           rgba(255, 249, 196, 0.95),
           rgba(255, 244, 200, 0.6));
       border-left: 6px solid rgba(156, 39, 176, 0.85);
-      transition:
-        background 0.3s ease,
-        box-shadow 0.25s ease;
+      transition: background 0.3s ease, box-shadow 0.25s ease;
     }
 
     @keyframes flashPulse {
@@ -456,27 +618,31 @@
 
     .label-badge {
       display: block !important;
-      background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+      background: rgba(255, 243, 224, 0.6);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       color: #e65100;
       padding: 6px 15px;
       border-radius: 20px;
       font-size: 12px;
       font-weight: 600;
       margin: 0 0 15px 0 !important;
-      border-left: 4px solid #ff6f00;
+      border: 1px solid rgba(255, 183, 77, 0.2);
       width: fit-content;
     }
 
     .section-badge {
       display: inline-block !important;
-      background: linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%);
+      background: rgba(232, 234, 246, 0.6);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       color: #283593;
       padding: 4px 14px;
       border-radius: 20px;
       font-size: 11px;
       font-weight: 600;
       margin: 0 0 10px 0 !important;
-      border-left: 4px solid #3f51b5;
+      border: 1px solid rgba(144, 202, 249, 0.2);
       width: fit-content;
     }
 
@@ -583,32 +749,6 @@
       display: none;
     }
 
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.6);
-      z-index: 9999;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .modal-overlay.active {
-      display: flex;
-    }
-
-    .modal-content {
-      background: white;
-      padding: 35px;
-      border-radius: 15px;
-      max-width: 500px;
-      box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
-      animation: modalSlideIn 0.3s ease-out;
-    }
-
     @keyframes modalSlideIn {
       from {
         transform: translateY(-50px);
@@ -693,23 +833,6 @@
       color: white;
     }
 
-    .composer-modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.75);
-      z-index: 10000;
-      justify-content: center;
-      align-items: center;
-      animation: fadeIn 0.3s ease;
-    }
-
-    .composer-modal.active {
-      display: flex;
-    }
 
     @keyframes fadeIn {
       from {
@@ -722,18 +845,20 @@
     }
 
     .composer-content {
-      background: white;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
       width: 85%;
       height: 75%;
       max-height: 90vh;
-      border-radius: 15px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
       display: flex;
       flex-direction: column;
       animation: scaleIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
       position: relative;
       overflow: hidden;
-      border: 3px solid #9c27b0;
     }
 
     @keyframes scaleIn {
@@ -1024,25 +1149,57 @@
       position: fixed;
       bottom: 30px;
       right: 30px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
       width: 70px;
       height: 70px;
       border-radius: 50%;
       border: none;
       cursor: pointer;
-      box-shadow: 0 5px 25px rgba(102, 126, 234, 0.5);
       z-index: 1000;
       display: none;
       align-items: center;
       justify-content: center;
       font-size: 28px;
-      transition: all 0.3s;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      box-shadow:
+        0 8px 32px rgba(102, 126, 234, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      color: #4a148c;
     }
+
+    .floating-compose::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      z-index: -1;
+      opacity: 0.15;
+      filter: blur(10px);
+      transition: opacity 0.3s ease;
+    }
+
 
     .floating-compose:hover {
       transform: scale(1.1);
-      box-shadow: 0 8px 35px rgba(102, 126, 234, 0.7);
+      box-shadow:
+        0 12px 40px rgba(102, 126, 234, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .floating-compose:hover::before {
+      opacity: 0.25;
+    }
+
+    .floating-compose:active {
+      transform: scale(0.92);
     }
 
     .floating-compose.visible {
@@ -1054,14 +1211,17 @@
       top: 120px;
       left: 50%;
       transform: translateX(-50%) translateY(-100px);
-      background: white;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-left: 5px solid #9c27b0;
+      border-radius: 16px;
       padding: 18px 30px;
-      border-radius: 30px;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
       z-index: 10001;
       opacity: 0;
       transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-      border-left: 5px solid #9c27b0;
       display: flex;
       align-items: center;
       gap: 12px;
@@ -1071,6 +1231,10 @@
     .notification-toast.show {
       opacity: 1;
       transform: translateX(-50%) translateY(0);
+    }
+
+    .notification-toast.error {
+      border-left-color: #f44336;
     }
 
     .notification-icon {
@@ -1092,30 +1256,39 @@
       border-left-color: #4caf50;
     }
 
-    /* CUSTOM MODAL - CADENCE */
+    .modal-overlay,
+    .composer-modal,
     .cadence-modal {
+      display: none;
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.6);
-      z-index: 99999;
-      display: flex;
-      align-items: center;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 9999;
       justify-content: center;
-      backdrop-filter: blur(4px);
-      animation: fadeIn 0.3s ease;
+      align-items: center;
     }
 
+    .modal-overlay.active,
+    .composer-modal.active,
+    .cadence-modal.active {
+      display: flex;
+    }
+
+    .modal-content,
     .cadence-modal-content {
-      background: white;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: 16px;
-      max-width: 450px;
-      width: 90%;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      overflow: hidden;
-      animation: scaleIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      padding: 35px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+      animation: modalSlideIn 0.3s ease-out;
     }
 
     .cadence-modal-header {
@@ -1153,6 +1326,7 @@
 
     .cadence-modal-input {
       width: 100%;
+      min-width: 300px;
       padding: 12px 16px;
       border: 2px solid #e1bee7;
       border-radius: 10px;
@@ -1217,28 +1391,6 @@
       box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
     }
 
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-      }
-
-      to {
-        opacity: 1;
-      }
-    }
-
-    @keyframes scaleIn {
-      from {
-        transform: scale(0.8);
-        opacity: 0;
-      }
-
-      to {
-        transform: scale(1);
-        opacity: 1;
-      }
-    }
-
     @keyframes shake {
 
       0%,
@@ -1267,17 +1419,12 @@
     <div class="modal-content">
       <div class="modal-title">🎵 Abolish This Composition?</div>
       <div class="modal-message">
-        This will permanently remove this note from your collection. This
-        action cannot be undone.
+        This will permanently remove this note from your collection. This action cannot be undone.
       </div>
       <div id="modalDetails"></div>
       <div class="modal-buttons">
-        <button id="modalConfirm" class="modal-btn modal-btn-confirm">
-          Abolish
-        </button>
-        <button id="modalCancel" class="modal-btn modal-btn-cancel">
-          Sustain
-        </button>
+        <button id="modalConfirm" class="modal-btn modal-btn-confirm">Abolish</button>
+        <button id="modalCancel" class="modal-btn modal-btn-cancel">Sustain</button>
       </div>
     </div>
   </div>
@@ -1326,9 +1473,7 @@
         <div class="find-replace" id="findReplaceSection">
           <input type="text" id="findInput" placeholder="Tune to" />
           <input type="text" id="replaceInput" placeholder="Apply pitch..." />
-          <button class="find-replace-btn" id="replaceBtn">
-            Transpose All
-          </button>
+          <button class="find-replace-btn" id="replaceBtn">Transpose All</button>
         </div>
 
         <div class="composer-textarea-wrapper">
@@ -1346,12 +1491,8 @@
       </div>
 
       <div class="composer-footer">
-        <button class="composer-btn composer-btn-cancel" id="composerCancel">
-          Variance
-        </button>
-        <button class="composer-btn composer-btn-save" id="composerSave">
-          Theme
-        </button>
+        <button class="composer-btn composer-btn-cancel" id="composerCancel">Variance</button>
+        <button class="composer-btn composer-btn-save" id="composerSave">Theme</button>
         <button class="composer-btn composer-btn-save" id="composerFinalize" style="display: none">
           Finalize Arrangement
         </button>
@@ -1363,9 +1504,8 @@
 
   <div class="container">
     <div class="header-tagline">
-      "For you—who understands music deeply yet keeps it quietly
-      hidden—TypiPat becomes a soft, rhythmic nudge. It turns your tired day
-      into a small, gentle harmony."
+      "For you—who understands music deeply yet keeps it quietly hidden—TypiPat becomes a soft, rhythmic nudge. It turns
+      your tired day into a small, gentle harmony."
     </div>
 
     <h1>
@@ -1390,7 +1530,6 @@
           <input type="text" id="labelInput" placeholder="e.g., Entire sonata from memories" />
         </div>
 
-        <!-- 🆕 SECTION INPUT - NASA ILALIM NG KEY (BAGONG ROW) -->
         <div style="grid-column: 1; grid-row: 2;">
           <div class="form-label">Section (Optional)</div>
           <input type="text" id="sectionInput" placeholder="e.g., Email, Support..." />
@@ -1403,13 +1542,13 @@
           <button class="orchestrate-btn" id="orchestrateBtn" title="Expand to Composer Studio">⛶</button>
         </div>
 
-        <button id="addBtn" style="grid-column: 2; grid-row: 4; width: 180px; padding: 12px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 25px; cursor: pointer; font-size: 15px; font-weight: 600; justify-self: start; transition: transform 0.2s; letter-spacing: 1px;">Compose</button>
-        <button id="saveBtn" class="save-btn" style="display: none; grid-column: 2; grid-row: 4; padding: 12px 20px; border: none; border-radius: 25px; cursor: pointer; font-size: 15px; font-weight: 600; transition: transform 0.2s; letter-spacing: 1px; color: white; background: linear-gradient(135deg, #4caf50 0%, #45a049 100%); justify-self: start; margin-right: 10px;">Theme</button>
-        <button id="discardBtn" class="discard-btn" style="display: none; grid-column: 2; grid-row: 4; padding: 12px 20px; border: none; border-radius: 25px; cursor: pointer; font-size: 15px; font-weight: 600; transition: transform 0.2s; letter-spacing: 1px; color: white; background: linear-gradient(135deg, #f44336 0%, #da190b 100%); justify-self: start; margin-left: 190px;">Variance</button>
+        <button id="addBtn">Compose</button>
+        <button id="saveBtn" class="save-btn" style="display: none;">Theme</button>
+        <button id="discardBtn" class="discard-btn" style="display: none;">Variance</button>
 
-        <div class="export-import-buttons" style="display: flex; flex-direction: column; gap: 12px; grid-column: 1; grid-row: 3 / 5; align-self: start;">
-          <button id="exportBtn" class="export-btn" style="padding: 12px 15px; font-size: 14px; border-radius: 25px; cursor: pointer; border: none; color: white; transition: transform 0.2s; font-weight: 600; letter-spacing: 0.5px; font-family: 'Georgia', serif; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">Cadence</button>
-          <button id="importBtn" class="import-btn" style="padding: 12px 15px; font-size: 14px; border-radius: 25px; cursor: pointer; border: none; color: white; transition: transform 0.2s; font-weight: 600; letter-spacing: 0.5px; font-family: 'Georgia', serif; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">Entrata</button>
+        <div class="export-import-buttons">
+          <button id="exportBtn" class="export-btn">Cadence</button>
+          <button id="importBtn" class="import-btn">Entrata</button>
         </div>
       </div>
       <div id="addStatus" class="status-message"></div>
@@ -1426,17 +1565,13 @@
     </div>
 
     <div class="footer-quote" id="footerQuote">
-      "Find the cadence in your chaos. Every keystroke is a note, and every
-      day becomes your Opus."
+      "Find the cadence in your chaos. Every keystroke is a note, and every day becomes your Opus."
     </div>
 
     <input type="file" id="importFile" accept=".json" />
     <div id="importStatus" class="status-message"></div>
   </div>
 
-  <!-- ========================================== -->
-  <!-- CUSTOM MODAL FOR CADENCE (EXPORT) -->
-  <!-- ========================================== -->
   <div id="cadenceModal" class="cadence-modal" style="display: none;">
     <div class="cadence-modal-content">
       <div class="cadence-modal-header">
@@ -1446,7 +1581,7 @@
       <div class="cadence-modal-body">
         <p class="cadence-modal-message">Designate an Album title for this exported compilation:</p>
         <input type="text" id="cadenceAlbumInput" class="cadence-modal-input"
-          placeholder="e.g., Symphony No. 1, Office Rhythms, Daily Sonatas...">
+          placeholder="e.g., Symphony No. 1, Office Rhythms, Daily Sonatas..." />
         <p id="cadenceErrorMsg" class="cadence-modal-error" style="display: none;"></p>
       </div>
       <div class="cadence-modal-footer">
