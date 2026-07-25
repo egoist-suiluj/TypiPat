@@ -3,6 +3,7 @@ let confirmCallback = null;
 let isEditMode = false;
 let currentEditingShortcut = null;
 let postSaveFocusShortcut = null;
+let lastEditedShortcut = null;  // 🆕 BAGO
 
 // UI configuration
 const UI_CONFIG = {
@@ -44,12 +45,7 @@ function updateCounters(textarea, beatElement, caesuraElement) {
 }
 
 // Open Composer Modal
-function openComposerModal(
-  content = "",
-  annotation = "",
-  key = "",
-  forEdit = false,
-) {
+function openComposerModal(content = "", annotation = "", key = "", section = "", forEdit = false) {
   if (!composerTextarea || !composerAnnotation || !composerModal) return;
 
   composerTextarea.value = content;
@@ -59,8 +55,12 @@ function openComposerModal(
     composerKey.value = key;
   }
 
+  const sectionInput = document.getElementById("composerSection");
+  if (sectionInput) {
+    sectionInput.value = section || "";
+  }
+
   if (forEdit) {
-    // EDIT MODE
     if (composerKeyFieldContainer)
       composerKeyFieldContainer.style.display = "none";
     if (findReplaceSection) findReplaceSection.style.display = "flex";
@@ -75,9 +75,11 @@ function openComposerModal(
       arrangeAnnotationBox.style.display = "block";
       const arrangeInput = document.getElementById("composerAnnotationArrange");
       if (arrangeInput) arrangeInput.value = annotation || "";
+
+      const sectionArrangeInput = document.getElementById("composerSectionArrange");
+      if (sectionArrangeInput) sectionArrangeInput.value = section || "";
     }
   } else {
-    // COMPOSE MODE
     if (composerKeyFieldContainer)
       composerKeyFieldContainer.style.display = "flex";
     if (findReplaceSection) findReplaceSection.style.display = "none";
@@ -122,7 +124,8 @@ if (orchestrateBtn) {
     const content = document.getElementById("replacementInput")?.value || "";
     const annotation = document.getElementById("labelInput")?.value || "";
     const key = document.getElementById("shortcutInput")?.value || "";
-    openComposerModal(content, annotation, key, false);
+    const section = document.getElementById("sectionInput")?.value || "";
+    openComposerModal(content, annotation, key, section, false);
   });
 }
 
@@ -167,14 +170,17 @@ if (composerFinalize) {
     const content = composerTextarea.value;
     const annotation = composerAnnotation.value;
     const key = composerKey ? composerKey.value : "";
+    const section = document.getElementById("composerSection")?.value || "";
 
     const replacementInput = document.getElementById("replacementInput");
     const labelInput = document.getElementById("labelInput");
     const shortcutInput = document.getElementById("shortcutInput");
+    const sectionInput = document.getElementById("sectionInput");
 
     if (replacementInput) replacementInput.value = content;
     if (labelInput) labelInput.value = annotation;
     if (shortcutInput) shortcutInput.value = key;
+    if (sectionInput) sectionInput.value = section;
 
     closeComposerModal();
     TypiUtils.showNotification(
@@ -191,25 +197,26 @@ if (composerSave) {
     if (!composerTextarea) return;
 
     const content = composerTextarea.value;
-    let annotationValue = "";
+    let annotationValue = null;
+    let sectionValue = null;
 
     if (isEditMode) {
       const arrangeEl = document.getElementById("composerAnnotationArrange");
-      annotationValue = arrangeEl
-        ? arrangeEl.value
-        : composerAnnotation
-          ? composerAnnotation.value
-          : "";
+      annotationValue = arrangeEl ? arrangeEl.value.trim() || null : null;
+      const sectionArrangeEl = document.getElementById("composerSectionArrange");
+      sectionValue = sectionArrangeEl ? sectionArrangeEl.value.trim() || null : null;
     } else {
-      annotationValue = composerAnnotation ? composerAnnotation.value : "";
+      annotationValue = composerAnnotation ? composerAnnotation.value.trim() || null : null;
+      const sectionInput = document.getElementById("composerSection");
+      sectionValue = sectionInput ? sectionInput.value.trim() || null : null;
     }
 
-    // Save directly in Edit Mode (Composer)
     if (currentEditingShortcut) {
       TypiStorage.save(
         currentEditingShortcut,
         content,
-        annotationValue || null,
+        annotationValue,
+        sectionValue
       ).then(() => {
         TypiUtils.showNotification(
           "Theme saved successfully! 🎼",
@@ -261,21 +268,35 @@ if (modalCancel) {
   modalCancel.addEventListener("click", closeConfirmModal);
 }
 
-// Load Shortcuts Function
+// ==========================================
+// LOAD SHORTCUTS - DITO ANG TABLE
+// ==========================================
 async function loadShortcuts() {
   const data = await TypiStorage.loadAll();
   const container = document.getElementById("shortcutsContainer");
 
   if (!container) return;
 
-  // Use shared utility to parse storage data
-  const { shortcuts, labels } = TypiUtils.parseStorageData(data);
+  const filteredData = {};
+  for (let key in data) {
+    if (!key.startsWith("__section__")) {
+      filteredData[key] = data[key];
+    }
+  }
 
-  // Clear container safely
+  const { shortcuts, labels } = TypiUtils.parseStorageData(filteredData);
+
+  const sections = {};
+  for (let key in data) {
+    if (key.startsWith("__section__")) {
+      const shortcutKey = key.replace("__section__", "");
+      sections[shortcutKey] = data[key];
+    }
+  }
+
   container.textContent = "";
 
   if (Object.keys(shortcuts).length === 0) {
-    // Create empty state using createElement (XSS-safe)
     const emptyState = document.createElement("div");
     emptyState.className = "empty-state";
     emptyState.textContent = "Silence. Introduce your first Note.";
@@ -283,14 +304,12 @@ async function loadShortcuts() {
     return;
   }
 
-  // Use shared utility to sort shortcuts
-  const sortedShortcuts = TypiUtils.sortShortcutsByLabel(shortcuts, labels);
+  const sortedShortcuts = TypiUtils.sortShortcutsByLabel(shortcuts, labels, sections);
 
-  // Build Table using createElement (XSS-safe)
   const table = document.createElement("table");
   table.className = "shortcuts-table";
 
-  // Create thead
+  // TABLE HEADER
   const thead = document.createElement("thead");
   const headerRow = document.createElement("tr");
 
@@ -305,34 +324,60 @@ async function loadShortcuts() {
   thead.appendChild(headerRow);
   table.appendChild(thead);
 
-  // Create tbody
+  // TABLE BODY
   const tbody = document.createElement("tbody");
 
   sortedShortcuts.forEach((shortcut) => {
     const label = labels[shortcut] || "";
+    const section = data[`__section__${shortcut}`] || "";
     const stats = TypiUtils.calculateStats(shortcuts[shortcut]);
 
-    // Create row
     const tr = document.createElement("tr");
     tr.setAttribute("data-shortcut", shortcut.toLowerCase());
     tr.setAttribute("data-label", label.toLowerCase());
+    tr.setAttribute("data-section", section.toLowerCase());
 
-    // First cell - Rhythm (shortcut key)
+    // Column 1: Rhythm
     const td1 = document.createElement("td");
     td1.textContent = shortcut;
     tr.appendChild(td1);
 
-    // Second cell - Replacement content
+    // Column 2: Symphony & Harmony Notes
     const td2 = document.createElement("td");
     td2.className = "replacement-cell";
+    td2.style.cssText = "display: flex; flex-direction: column; align-items: stretch;";
 
-    // Label badge (if label exists)
-    if (label) {
-      const labelBadge = document.createElement("div");
-      labelBadge.className = "label-badge";
-      labelBadge.textContent = "📌 " + label;
-      td2.appendChild(labelBadge);
+    // Top row: Label (left) + Section (right)
+    const topRow = document.createElement("div");
+    topRow.style.cssText = "display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 5px;";
+
+    // Label badge (kaliwa)
+    const labelDisplay = label || "Untitled";
+    const labelBadge = document.createElement("div");
+    labelBadge.className = "label-badge";
+    labelBadge.textContent = "📌 " + labelDisplay;
+    topRow.appendChild(labelBadge);
+
+    // Section badge (kanan) - may konting taas at blended color
+    if (section) {
+      const sectionBadge = document.createElement("span");
+      sectionBadge.className = "section-badge-right";
+      sectionBadge.textContent = "📂 " + section;
+      sectionBadge.style.cssText = `
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #fff8e7 0%, #ffecb3 100%);
+  color: #4a148c;
+  border: 2px solid #ffd54f;
+  font-family: "Georgia", "Times New Roman", serif;
+  margin-top: -18px;
+`;
+      topRow.appendChild(sectionBadge);
     }
+
+    td2.appendChild(topRow);
 
     // Replacement content
     const replacementContent = document.createElement("div");
@@ -356,27 +401,25 @@ async function loadShortcuts() {
 
     td2.appendChild(statsDiv);
 
-    // Button group
+    // Buttons
     const buttonGroup = document.createElement("div");
     buttonGroup.className = "button-group";
 
-    // Copy/Perform button
     const copyBtn = document.createElement("button");
     copyBtn.className = "action-btn copy-btn";
     copyBtn.setAttribute("data-text", shortcuts[shortcut]);
     copyBtn.textContent = "Perform";
     buttonGroup.appendChild(copyBtn);
 
-    // Edit/Arrange button
     const editBtn = document.createElement("button");
     editBtn.className = "action-btn edit-btn";
     editBtn.setAttribute("data-shortcut", shortcut);
     editBtn.setAttribute("data-label", label);
     editBtn.setAttribute("data-replacement", shortcuts[shortcut]);
+    editBtn.setAttribute("data-section", section);
     editBtn.textContent = "Arrange";
     buttonGroup.appendChild(editBtn);
 
-    // Delete/Abolish button
     const deleteBtn = document.createElement("button");
     deleteBtn.className = "action-btn delete-btn";
     deleteBtn.setAttribute("data-shortcut", shortcut);
@@ -385,6 +428,7 @@ async function loadShortcuts() {
 
     td2.appendChild(buttonGroup);
     tr.appendChild(td2);
+
     tbody.appendChild(tr);
   });
 
@@ -393,7 +437,6 @@ async function loadShortcuts() {
 
   addActionListeners();
 
-  // Post-save focus logic
   if (postSaveFocusShortcut) {
     const seek = postSaveFocusShortcut.toLowerCase();
     requestAnimationFrame(() => {
@@ -441,22 +484,25 @@ function addActionListeners() {
     });
   });
 
-  document.querySelectorAll(".edit-btn").forEach((btn) => {
+    document.querySelectorAll(".edit-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       const shortcut = btn.getAttribute("data-shortcut");
       const label = btn.getAttribute("data-label");
       const replacement = btn.getAttribute("data-replacement");
+      const section = btn.getAttribute("data-section") || "";
 
       const shortcutInput = document.getElementById("shortcutInput");
       const labelInput = document.getElementById("labelInput");
       const replacementInput = document.getElementById("replacementInput");
+      const sectionInput = document.getElementById("sectionInput");
       const addBtn = document.getElementById("addBtn");
       const saveBtn = document.getElementById("saveBtn");
       const discardBtn = document.getElementById("discardBtn");
 
       if (shortcutInput) shortcutInput.value = shortcut;
-      if (labelInput) labelInput.value = label;
+      if (labelInput) labelInput.value = label || "";
       if (replacementInput) replacementInput.value = replacement;
+      if (sectionInput) sectionInput.value = section;
 
       if (addBtn) addBtn.style.display = "none";
       if (saveBtn) {
@@ -465,6 +511,7 @@ function addActionListeners() {
       }
       if (discardBtn) discardBtn.style.display = "inline-block";
 
+      lastEditedShortcut = shortcut;  // 🆕 BAGO
       window.scrollTo({ top: 0, behavior: "smooth" });
       isEditMode = true;
     });
@@ -492,23 +539,23 @@ function performSearch() {
   if (clearBtn) clearBtn.classList.add("visible");
 
   rows.forEach((row) => {
-    // Remove previous highlight
     row.classList.remove("highlight");
 
     const shortcut = row.getAttribute("data-shortcut") || "";
     const label = row.getAttribute("data-label") || "";
+    const section = row.getAttribute("data-section") || "";
     const contentEl = row.querySelector(".replacement-content");
     const content = contentEl ? contentEl.textContent.toLowerCase() : "";
 
     if (
       shortcut.includes(query) ||
       label.includes(query) ||
-      content.includes(query)
+      content.includes(query) ||
+      section.includes(query)
     ) {
       row.classList.remove("hidden");
       matchCount++;
 
-      // Track first match
       if (!firstMatch) {
         firstMatch = row;
       }
@@ -530,15 +577,13 @@ function performSearch() {
       "🎵",
     );
 
-    // ✨ NEW: Auto-scroll to first match and highlight it
     if (firstMatch) {
       firstMatch.scrollIntoView({ behavior: "smooth", block: "center" });
       firstMatch.classList.add("highlight");
 
-      // Remove highlight after animation completes
       setTimeout(() => {
         firstMatch.classList.remove("highlight");
-      }, 2000); // Match the highlightPulse animation duration
+      }, 2000);
     }
   }
 }
@@ -585,48 +630,46 @@ if (addBtn) {
     const shortcutInput = document.getElementById("shortcutInput");
     const labelInput = document.getElementById("labelInput");
     const replacementInput = document.getElementById("replacementInput");
+    const sectionInput = document.getElementById("sectionInput");
 
     if (!shortcutInput || !replacementInput) return;
 
     const shortcut = shortcutInput.value.trim();
     const label = labelInput ? labelInput.value : "";
     const replacement = replacementInput.value;
+    const section = sectionInput ? sectionInput.value : "";
 
     if (!shortcut || !replacement) {
       TypiUtils.showNotification("Missing Key or Manuscript.", "error", "⚠️");
       return;
     }
 
-    // ✨ VALIDATION: Check for reserved prefix
     const validation = TypiUtils.validateShortcut(shortcut);
     if (!validation.valid) {
       TypiUtils.showNotification(validation.message, "error", "⚠️");
       return;
     }
 
-    // Check if shortcut already exists
     TypiStorage.loadAll().then((existingData) => {
-    if (existingData[shortcut]) {
-    // Kung may existing, mag-pop up tayo ng babala
-    TypiUtils.showNotification(
-      `Dissonance! The Key " ${shortcut} " already exists in the Score.`, 
-      "error", 
-      "⚠️"
-    );
-    return; // Tigil muna dito, huwag i-save.
+      if (existingData[shortcut]) {
+        TypiUtils.showNotification(
+          `Dissonance! The Key " ${shortcut} " already exists in the Score.`,
+          "error",
+          "⚠️"
+        );
+        return;
+      }
 
-  }
-
-  // Kung wala, saka lang natin itutuloy ang pag-save.
-  postSaveFocusShortcut = shortcut;
-  TypiStorage.save(shortcut, replacement, label || null).then(() => {
-    TypiUtils.showNotification("Success! Score Complete.", "success", "✅");
-    shortcutInput.value = "";
-    if (labelInput) labelInput.value = "";
-    replacementInput.value = "";
-    loadShortcuts();
-  });
-});
+      postSaveFocusShortcut = shortcut;
+      TypiStorage.save(shortcut, replacement, label || null, section || null).then(() => {
+        TypiUtils.showNotification("Success! Score Complete.", "success", "✅");
+        shortcutInput.value = "";
+        if (labelInput) labelInput.value = "";
+        replacementInput.value = "";
+        if (sectionInput) sectionInput.value = "";
+        loadShortcuts();
+      });
+    });
   });
 }
 
@@ -637,6 +680,7 @@ if (saveBtn) {
     const shortcutInput = document.getElementById("shortcutInput");
     const labelInput = document.getElementById("labelInput");
     const replacementInput = document.getElementById("replacementInput");
+    const sectionInput = document.getElementById("sectionInput");
 
     if (!shortcutInput || !replacementInput) return;
 
@@ -644,13 +688,13 @@ if (saveBtn) {
     const newShortcut = shortcutInput.value.trim();
     const label = labelInput ? labelInput.value : "";
     const replacement = replacementInput.value;
+    const section = sectionInput ? sectionInput.value : "";
 
     if (!newShortcut || !replacement) {
       TypiUtils.showNotification("Missing Key or Manuscript.", "error", "⚠️");
       return;
     }
 
-    // ✨ VALIDATION: Check for reserved prefix
     const validation = TypiUtils.validateShortcut(newShortcut);
     if (!validation.valid) {
       TypiUtils.showNotification(validation.message, "error", "⚠️");
@@ -660,9 +704,9 @@ if (saveBtn) {
     const savePromise =
       originalShortcut !== newShortcut
         ? TypiStorage.remove(originalShortcut).then(() =>
-            TypiStorage.save(newShortcut, replacement, label || null),
-          )
-        : TypiStorage.save(newShortcut, replacement, label || null);
+          TypiStorage.save(newShortcut, replacement, label || null, section || null)
+        )
+        : TypiStorage.save(newShortcut, replacement, label || null, section || null);
 
     savePromise.then(() => {
       TypiUtils.showNotification("Theme saved successfully!", "success", "✅");
@@ -683,35 +727,45 @@ function exitEditMode() {
   const shortcutInput = document.getElementById("shortcutInput");
   const labelInput = document.getElementById("labelInput");
   const replacementInput = document.getElementById("replacementInput");
+  const sectionInput = document.getElementById("sectionInput");
   const addBtn = document.getElementById("addBtn");
   const saveBtn = document.getElementById("saveBtn");
   const discardBtn = document.getElementById("discardBtn");
 
+  // I-clear ang fields
   if (shortcutInput) shortcutInput.value = "";
   if (labelInput) labelInput.value = "";
   if (replacementInput) replacementInput.value = "";
+  if (sectionInput) sectionInput.value = "";
+
   if (addBtn) addBtn.style.display = "block";
   if (saveBtn) saveBtn.style.display = "none";
   if (discardBtn) discardBtn.style.display = "none";
   isEditMode = false;
+
+  // 🔥 BUMALIK SA TABLE VIEW (kung saan nag-click ng Arrange)
+  if (lastEditedShortcut) {
+    postSaveFocusShortcut = lastEditedShortcut;  // ← I-set para mag-scroll
+    lastEditedShortcut = null;
+    loadShortcuts();  // ← I-reload ang table
+  }
 }
 
 // Export
 const exportBtn = document.getElementById("exportBtn");
 if (exportBtn) {
   exportBtn.addEventListener("click", async () => {
-    // 🔥 I-CHECK MUNA KUNG MAY LAMAN
     const data = await TypiStorage.loadAll();
     const exportData = {};
     let hasContent = false;
-    
+
     for (let key in data) {
-      if (!key.startsWith("__meta__") && !key.startsWith("__label__")) {
+      if (!key.startsWith("__meta__") && !key.startsWith("__label__") && !key.startsWith("__section__")) {
         exportData[key] = data[key];
         hasContent = true;
       }
     }
-    
+
     if (!hasContent) {
       TypiUtils.showNotification(
         "Silence. No notes to export. Compose first.",
@@ -720,39 +774,30 @@ if (exportBtn) {
       );
       return;
     }
-    
-    // 🔥 I-SHOW ANG CUSTOM MODAL
+
     showCadenceModal(exportData);
   });
 }
 
-// 🔥 FUNCTION PARA SA CUSTOM MODAL
+// Cadence Modal
 function showCadenceModal(exportData) {
   const modal = document.getElementById("cadenceModal");
   const input = document.getElementById("cadenceAlbumInput");
   const confirmBtn = document.getElementById("cadenceConfirmBtn");
   const cancelBtn = document.getElementById("cadenceCancelBtn");
   const errorMsg = document.getElementById("cadenceErrorMsg");
-  
+
   if (!modal) return;
-  
-  // 🔥 WALANG PRE-TYPED NAME (blank)
+
   input.value = "";
-  
-  // 🔥 I-HIDE ANG ERROR MESSAGE
   if (errorMsg) errorMsg.style.display = "none";
-  
-  // I-show ang modal
+
   modal.style.display = "flex";
-  
-  // I-focus ang input
   setTimeout(() => input.focus(), 100);
-  
-  // 🔥 CONFIRM BUTTON
+
   const handleConfirm = () => {
     const albumName = input.value.trim();
-    
-    // 🔥 KUNG WALANG NAME, MAG-PROMPT
+
     if (!albumName) {
       if (errorMsg) {
         errorMsg.textContent = "🎵 An Album requires a title to achieve Harmony.";
@@ -767,8 +812,7 @@ function showCadenceModal(exportData) {
       input.focus();
       return;
     }
-    
-    // I-EXPORT
+
     const json = JSON.stringify(exportData, null, 2);
     const blob = new Blob([json], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -776,18 +820,17 @@ function showCadenceModal(exportData) {
     a.href = url;
     a.download = `${albumName} - typipat-musical-notes.json`;
     a.click();
-    
+
     TypiUtils.showNotification(
       `🎵 "${albumName}" composed and released!`,
       "success",
       "✅"
     );
-    
+
     modal.style.display = "none";
     cleanup();
   };
-  
-  // 🔥 CANCEL BUTTON
+
   const handleCancel = () => {
     TypiUtils.showNotification(
       "Score Sustained. No changes applied.",
@@ -797,16 +840,14 @@ function showCadenceModal(exportData) {
     modal.style.display = "none";
     cleanup();
   };
-  
-  // 🔥 CLEANUP
+
   const cleanup = () => {
     confirmBtn.removeEventListener("click", handleConfirm);
     cancelBtn.removeEventListener("click", handleCancel);
     document.removeEventListener("keydown", handleKeydown);
     if (errorMsg) errorMsg.style.display = "none";
   };
-  
-  // 🔥 ENTER KEY
+
   const handleKeydown = (e) => {
     if (e.key === "Enter") {
       handleConfirm();
@@ -814,7 +855,7 @@ function showCadenceModal(exportData) {
       handleCancel();
     }
   };
-  
+
   confirmBtn.addEventListener("click", handleConfirm);
   cancelBtn.addEventListener("click", handleCancel);
   document.addEventListener("keydown", handleKeydown);

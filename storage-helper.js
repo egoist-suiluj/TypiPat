@@ -66,32 +66,38 @@ const TypiStorage = {
    * @param {string} value - Replacement text
    * @param {string} label - Optional label
    */
-  save(key, value, label = null) {
-    return new Promise((resolve) => {
-      const timestamp = Date.now();
-      const updates = {};
+  save(key, value, label = null, section = null) {
+  return new Promise((resolve) => {
+    const timestamp = Date.now();
+    const updates = {};
 
-      updates[key] = value;
-      if (label !== null) {
-        updates[`__label__${key}`] = label;
-      }
-      updates[`__meta__${key}`] = timestamp;
+    updates[key] = value;
+    
+    // 🔥 I-SET ANG LABEL KAHIT NULL
+    updates[`__label__${key}`] = label;  // ← Dati: if (label !== null) { ... }
 
-      chrome.storage.local.set(updates, () => {
-        if (this.SYNC_ENABLED && chrome.storage.sync) {
-          try {
-            chrome.storage.sync.set(updates, () => {
-              resolve();
-            });
-          } catch (e) {
+    if (section !== null && section.trim() !== "") {
+      updates[`__section__${key}`] = section.trim();
+    } else {
+      updates[`__section__${key}`] = null;
+    }
+    updates[`__meta__${key}`] = timestamp;
+
+    chrome.storage.local.set(updates, () => {
+      if (this.SYNC_ENABLED && chrome.storage.sync) {
+        try {
+          chrome.storage.sync.set(updates, () => {
             resolve();
-          }
-        } else {
+          });
+        } catch (e) {
           resolve();
         }
-      });
+      } else {
+        resolve();
+      }
     });
-  },
+  });
+},
 
   /**
    * Import data (batch save)
@@ -131,22 +137,22 @@ const TypiStorage = {
    * @param {string} key - Shortcut key
    */
   remove(key) {
-    return new Promise((resolve) => {
-      const keysToRemove = [key, `__label__${key}`, `__meta__${key}`];
+  return new Promise((resolve) => {
+    const keysToRemove = [key, `__label__${key}`, `__section__${key}`, `__meta__${key}`];
 
-      chrome.storage.local.remove(keysToRemove, () => {
-        if (this.SYNC_ENABLED && chrome.storage.sync) {
-          try {
-            chrome.storage.sync.remove(keysToRemove, () => resolve());
-          } catch (e) {
-            resolve();
-          }
-        } else {
+    chrome.storage.local.remove(keysToRemove, () => {
+      if (this.SYNC_ENABLED && chrome.storage.sync) {
+        try {
+          chrome.storage.sync.remove(keysToRemove, () => resolve());
+        } catch (e) {
           resolve();
         }
-      });
+      } else {
+        resolve();
+      }
     });
-  },
+  });
+},
 
   /**
    * Clear all data
@@ -205,14 +211,34 @@ const TypiStorage = {
     return merged;
   },
 
-  /**
-   * Sync back to storage if one is outdated
-   */
   syncBack(merged, sync, local) {
-    if (chrome.storage.local) {
-      chrome.storage.local.set(merged);
+  // 🔥 I-CHECK MUNA KUNG MAY PAGKAKAIBA
+  const localKeys = Object.keys(local || {});
+  const mergedKeys = Object.keys(merged || {});
+  
+  // Kung pareho ang laman, huwag nang mag-set (para iwasan ang infinite loop)
+  if (localKeys.length === mergedKeys.length) {
+    let isSame = true;
+    for (let key of mergedKeys) {
+      if (local[key] !== merged[key]) {
+        isSame = false;
+        break;
+      }
     }
-  },
+    if (isSame) {
+      console.log('📊 No changes needed, skipping sync back');
+      return; // ✅ WALANG PAGBABAGO - HUWAG MAG-SET
+    }
+  }
+  
+  // 🔥 MAY PAGKAKAIBA - Saka lang mag-set
+  console.log('📊 Syncing back changes...');
+  chrome.storage.local.set(merged, () => {
+    if (chrome.runtime.lastError) {
+      console.warn('Sync back failed:', chrome.runtime.lastError);
+    }
+  });
+},
 };
 
 TypiStorage.init();

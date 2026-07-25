@@ -54,15 +54,15 @@ const TypiUtils = {
     const container = document.createElement("div");
     container.id = "notificationToast";
     container.className = "notification-toast";
-    
+
     const icon = document.createElement("span");
     icon.id = "notificationIcon";
     icon.className = "toast-icon";
-    
+
     const message = document.createElement("span");
     message.id = "notificationMessage";
     message.className = "toast-message";
-    
+
     container.appendChild(icon);
     container.appendChild(message);
     document.body.appendChild(container);
@@ -97,21 +97,30 @@ const TypiUtils = {
    * @param {Object} labels - Labels object
    * @returns {Array} - Sorted array of shortcut keys
    */
-  sortShortcutsByLabel(shortcuts, labels) {
-    const shortcutKeys = Object.keys(shortcuts);
-    const labelCache = {};
-    
-    shortcutKeys.forEach(key => {
-      labelCache[key] = (labels[key] || "").toLowerCase();
-    });
-    
-    return shortcutKeys.sort((a, b) => {
-      const labelA = labelCache[a];
-      const labelB = labelCache[b];
-      
-      if (labelA && labelB) return labelA.localeCompare(labelB);
+  sortShortcutsByLabel(shortcuts, labels, sections) {
+    return Object.keys(shortcuts).sort((a, b) => {
+      const sectionA = (sections && sections[a]) || "";
+      const sectionB = (sections && sections[b]) || "";
+      const labelA = (labels && labels[a]) || "";
+      const labelB = (labels && labels[b]) || "";
+
+      // 1. UNA: Section (a-z)
+      if (sectionA && sectionB) {
+        const sectionCompare = sectionA.localeCompare(sectionB);
+        if (sectionCompare !== 0) return sectionCompare;
+      }
+      if (sectionA && !sectionB) return -1;
+      if (!sectionA && sectionB) return 1;
+
+      // 2. PANGALAWA: Annotation (a-z)
+      if (labelA && labelB) {
+        const labelCompare = labelA.localeCompare(labelB);
+        if (labelCompare !== 0) return labelCompare;
+      }
       if (labelA && !labelB) return -1;
       if (!labelA && labelB) return 1;
+
+      // 3. PANGATLO: ID (a-z)
       return a.localeCompare(b);
     });
   },
@@ -137,7 +146,7 @@ const TypiUtils = {
     if (/\s/.test(shortcut)) {
       return {
         valid: false,
-        message: "Shortcut cannot contain spaces (use - or _ instead)",
+        message: "A Key plays without pause. Connect your melody using '-' or '_'.",
       };
     }
     if (/[{}[\]\\|]/.test(shortcut)) {
