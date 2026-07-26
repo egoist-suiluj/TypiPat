@@ -167,10 +167,12 @@ if (openOptionsBtn) {
     try {
       if (chrome.runtime?.id) {
         chrome.runtime.openOptionsPage();
+        // 🎵 Sound: Orchestra Entrata
+        if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
+          SoundPlayer.playOrchestraEntrataSound();
+        }
       }
-    } catch (err) {
-      // Extension context invalidated
-    }
+    } catch (err) { }
   });
 }
 
@@ -280,14 +282,44 @@ loadNotes();
 // 🔥 MAG-REGISTER NG STORAGE CHANGE LISTENER
 chrome.storage.onChanged.addListener((changes, area) => {
   // I-check kung may pagbabago sa shortcuts
-  const hasShortcutChanges = Object.keys(changes).some(key => 
-    !key.startsWith("__meta__") && 
-    !key.startsWith("__label__") && 
+  const hasShortcutChanges = Object.keys(changes).some(key =>
+    !key.startsWith("__meta__") &&
+    !key.startsWith("__label__") &&
     !key.startsWith("__section__")
   );
-  
+
   if (hasShortcutChanges) {
     console.log('🔄 Shortcuts changed, reloading notes...');
     loadNotes();
   }
+  // Load notes when popup opens
+  loadNotes();
+
+  // 🎵 Sound: Popup Open
+  if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
+    SoundPlayer.playPopupOpenSound();
+  }
+
+  // 🎵 Popup close detection (beforeunload)
+  window.addEventListener('beforeunload', () => {
+    if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
+      SoundPlayer.playPopupCloseSound();
+    }
+  });
+
+  // 🎵 Storage listener for real-time updates
+  chrome.storage.onChanged.addListener((changes, area) => {
+    const hasShortcutChanges = Object.keys(changes).some(key =>
+      !key.startsWith("__meta__") &&
+      !key.startsWith("__label__") &&
+      !key.startsWith("__section__")
+    );
+    if (hasShortcutChanges) {
+      loadNotes();
+      // 🎵 Sound: Refresh
+      if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
+        SoundPlayer.playSearchSound();
+      }
+    }
+  });
 });

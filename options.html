@@ -72,6 +72,147 @@
       box-shadow: 0 8px 30px rgba(102, 126, 234, 0.06);
     }
 
+    /* ========================================== */
+    /* DEDICATION SECTION - PARA KAY PATRICIA */
+    /* ========================================== */
+
+    .dedication-section {
+      margin-top: 50px;
+      padding-top: 30px;
+      border-top: 1px solid rgba(123, 31, 162, 0.08);
+      text-align: center;
+    }
+
+    .dedication-divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .dedication-divider-line {
+      width: 60px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(123, 31, 162, 0.2), transparent);
+    }
+
+    .dedication-divider-icon {
+      font-size: 18px;
+      color: rgba(123, 31, 162, 0.3);
+      animation: pulseIcon 3s ease-in-out infinite;
+    }
+
+    .dedication-divider-icon:nth-child(1) {
+      animation-delay: 0s;
+    }
+
+    .dedication-divider-icon:nth-child(3) {
+      animation-delay: 0.5s;
+    }
+
+    .dedication-divider-icon:nth-child(5) {
+      animation-delay: 1s;
+    }
+
+    /* ========================================== */
+    /* SOUND TOGGLE - Piano Notes */
+    /* ========================================== */
+    .sound-toggle-section {
+      text-align: center;
+      margin-top: 20px;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .sound-toggle-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      font-family: "Georgia", serif;
+      font-size: 14px;
+      color: #6a1b9a;
+    }
+
+    .sound-toggle-label input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: #9c27b0;
+      cursor: pointer;
+    }
+
+    @keyframes pulseIcon {
+
+      0%,
+      100% {
+        opacity: 0.3;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.8;
+        transform: scale(1.1);
+      }
+    }
+
+    .dedication-text {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .dedication-quote {
+      font-size: 20px;
+      font-style: italic;
+      color: #6a1b9a;
+      line-height: 1.8;
+      margin-bottom: 20px;
+      font-weight: 300;
+      letter-spacing: 0.5px;
+    }
+
+    .dedication-ornament {
+      font-size: 18px;
+      color: rgba(123, 31, 162, 0.25);
+      letter-spacing: 8px;
+      margin-bottom: 24px;
+    }
+
+    .dedication-message {
+      font-size: 15px;
+      color: #7b1fa2;
+      line-height: 2;
+      margin-bottom: 20px;
+      font-style: italic;
+      opacity: 0.8;
+    }
+
+    .dedication-signature {
+      font-size: 18px;
+      color: #4a148c;
+      font-weight: 600;
+      letter-spacing: 2px;
+      font-style: italic;
+      margin-top: 8px;
+    }
+
+    .dedication-signature::before {
+      content: '♩ ';
+      font-size: 16px;
+      color: rgba(123, 31, 162, 0.2);
+    }
+
+    .dedication-signature::after {
+      content: ' ♩';
+      font-size: 16px;
+      color: rgba(123, 31, 162, 0.2);
+    }
+
     h1 {
       color: #4a148c;
       margin-top: 0;
@@ -1564,12 +1705,39 @@
       </div>
     </div>
 
-    <div class="footer-quote" id="footerQuote">
-      "Find the cadence in your chaos. Every keystroke is a note, and every day becomes your Opus."
-    </div>
-
     <input type="file" id="importFile" accept=".json" />
     <div id="importStatus" class="status-message"></div>
+
+    <!-- ==================================================== -->
+    <!-- DEDICATION SECTION - PARA KAY BOSS - PATRICIA VILLAS -->
+    <!-- ==================================================== -->
+    <div class="dedication-section">
+      <div class="dedication-divider">
+        <span class="dedication-divider-icon">🎵</span>
+        <span class="dedication-divider-line"></span>
+        <span class="dedication-divider-icon">♩</span>
+        <span class="dedication-divider-line"></span>
+        <span class="dedication-divider-icon">♪</span>
+      </div>
+
+      <div class="dedication-text">
+        <p class="dedication-quote">
+          "Find the cadence in your chaos. Every keystroke is a note,<br>
+          and every day becomes your Opus."
+        </p>
+
+        <div class="dedication-ornament">•••</div>
+
+        <p class="dedication-message">
+          Composed as a living love letter for the one who holds music<br>
+          closest to her heart. May this serve as a perpetual refrain—a promise<br>
+          that the music in your life, much like my love for you, will never<br>
+          fade into silence.
+        </p>
+
+        <p class="dedication-signature">— Jwu</p>
+      </div>
+    </div>
   </div>
 
   <div id="cadenceModal" class="cadence-modal" style="display: none;">
@@ -1589,6 +1757,13 @@
         <button id="cadenceConfirmBtn" class="cadence-btn cadence-btn-confirm">Release</button>
       </div>
     </div>
+  </div>
+
+  <div class="sound-toggle-section">
+    <label class="sound-toggle-label">
+      <input type="checkbox" id="soundToggle" />
+      <span class="sound-toggle-text">🎵 Enable Piano Notes</span>
+    </label>
   </div>
 
   <script src="utils.js"></script>

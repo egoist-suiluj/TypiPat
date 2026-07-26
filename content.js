@@ -39,7 +39,7 @@ const FieldDetector = {
       try {
         const innerDoc = element.contentDocument || element.contentWindow.document;
         if (innerDoc && innerDoc.designMode === "on") return "contentEditable";
-      } catch (e) {}
+      } catch (e) { }
     }
 
     return "unknown";
@@ -81,28 +81,42 @@ const TemplateProcessor = {
 // ==========================================
 const SnippetExpander = {
   async expand(element, shortcut, replacement, fieldType) {
-  const processedReplacement = TemplateProcessor.process(replacement);
-  let success = false;
+    const processedReplacement = TemplateProcessor.process(replacement);
+    let success = false;
 
-  try {
-    if (fieldType === "input" || fieldType === "textarea") {
-      success = this.insertInInput(element, shortcut, processedReplacement);
-    } else if (fieldType === "contentEditable") {
-      // 🔥 DETECT TINYMCE
-      if (window.tinymce && window.tinymce.activeEditor) {
-        success = this.insertInTinyMCE(element, shortcut, processedReplacement);
-      } else {
-        success = this.insertInContentEditable(element, shortcut, processedReplacement);
+    try {
+      if (fieldType === "input" || fieldType === "textarea") {
+        success = this.insertInInput(element, shortcut, processedReplacement);
+      } else if (fieldType === "contentEditable") {
+        // 🔥 DETECT TINYMCE
+        if (window.tinymce && window.tinymce.activeEditor) {
+          success = this.insertInTinyMCE(element, shortcut, processedReplacement);
+        } else {
+          success = this.insertInContentEditable(element, shortcut, processedReplacement);
+        }
+      }
+    } catch (err) {
+      success = false;
+    }
+
+    if (!success) {
+      await this.insertViaClipboard(shortcut, processedReplacement);
+    }
+    // 🔥 MAG-PLAY NG PIANO NOTE KUNG SUCCESSFUL
+    if (success) {
+      try {
+        if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
+          // Randomly choose a melody type
+          const melodies = ['playMelody', 'playArpeggio', 'playScale'];
+          const randomMelody = melodies[Math.floor(Math.random() * melodies.length)];
+          SoundPlayer.playRandomExpansion();
+        }
+      } catch (err) {
+        // Silent fail - sound not available
       }
     }
-  } catch (err) {
-    success = false;
-  }
-
-  if (!success) {
-    await this.insertViaClipboard(shortcut, processedReplacement);
-  }
-},
+    return success;
+  },
 
   insertInInput(element, shortcut, replacement) {
     try {
@@ -184,51 +198,51 @@ const SnippetExpander = {
     return false;
   },
 
-    // ==========================================
+  // ==========================================
   // 🆕 DETECT TINYMCE
   // ==========================================
   isTinyMCE() {
-  // 🔥 DIREKTA SA PAGE
-  if (window.tinymce && window.tinymce.activeEditor) {
-    console.log('✅ TinyMCE found directly on page');
-    return true;
-  }
-  
-  // Fallback: check sa parent (may try-catch)
-  if (window.parent && window.parent !== window) {
-    try {
-      if (window.parent.tinymce && window.parent.tinymce.activeEditor) {
-        console.log('✅ TinyMCE found in parent window');
-        return true;
-      }
-    } catch (e) {
-      // Cross-origin parent - i-skip lang
+    // 🔥 DIREKTA SA PAGE
+    if (window.tinymce && window.tinymce.activeEditor) {
+      console.log('✅ TinyMCE found directly on page');
+      return true;
     }
-  }
-  
-  // Fallback: check sa iframes (kung meron man)
-  const iframes = document.querySelectorAll('iframe');
-  for (const iframe of iframes) {
-    try {
-      if (iframe.contentWindow && iframe.contentWindow.tinymce && iframe.contentWindow.tinymce.activeEditor) {
-        console.log('✅ TinyMCE found in iframe');
-        return true;
+
+    // Fallback: check sa parent (may try-catch)
+    if (window.parent && window.parent !== window) {
+      try {
+        if (window.parent.tinymce && window.parent.tinymce.activeEditor) {
+          console.log('✅ TinyMCE found in parent window');
+          return true;
+        }
+      } catch (e) {
+        // Cross-origin parent - i-skip lang
       }
-    } catch (e) {}
-  }
-  
-  return false;
-},
+    }
+
+    // Fallback: check sa iframes (kung meron man)
+    const iframes = document.querySelectorAll('iframe');
+    for (const iframe of iframes) {
+      try {
+        if (iframe.contentWindow && iframe.contentWindow.tinymce && iframe.contentWindow.tinymce.activeEditor) {
+          console.log('✅ TinyMCE found in iframe');
+          return true;
+        }
+      } catch (e) { }
+    }
+
+    return false;
+  },
 
   // ==========================================
   // 🆕 INSERT IN TINYMCE - DEDICATED
   // ==========================================
   insertInTinyMCE(element, shortcut, replacement) {
     console.log('🔧 TinyMCE specific insert');
-    
+
     try {
       let editor = null;
-      
+
       if (window.tinymce && window.tinymce.activeEditor) {
         editor = window.tinymce.activeEditor;
       } else if (window.parent && window.parent.tinymce && window.parent.tinymce.activeEditor) {
@@ -241,20 +255,20 @@ const SnippetExpander = {
               editor = iframe.contentWindow.tinymce.activeEditor;
               break;
             }
-          } catch (e) {}
+          } catch (e) { }
         }
       }
-      
+
       if (!editor) {
         console.warn('⚠️ TinyMCE editor not found');
         return false;
       }
-      
+
       // Kunin ang selection at text bago cursor
       const rng = editor.selection.getRng();
       const node = rng.startContainer;
       const offset = rng.startOffset;
-      
+
       let textBefore = '';
       if (node.nodeType === Node.TEXT_NODE) {
         textBefore = node.textContent.substring(0, offset);
@@ -262,19 +276,19 @@ const SnippetExpander = {
         // Kung hindi text node, gamitin ang buong content
         textBefore = editor.getContent({ format: 'text' });
       }
-      
+
       console.log('📝 Text before cursor:', textBefore.substring(Math.max(0, textBefore.length - 20)));
-      
+
       if (textBefore.endsWith(shortcut)) {
         const startPos = textBefore.length - shortcut.length;
         const newRange = document.createRange();
         newRange.setStart(node, startPos);
         newRange.setEnd(node, offset);
         editor.selection.setRng(newRange);
-        
+
         // 🔥 GAMITIN ANG TINYMCE insertContent
         const success = editor.execCommand('mceInsertContent', false, replacement);
-        
+
         if (success) {
           editor.fire('input');
           editor.fire('change');
@@ -283,7 +297,7 @@ const SnippetExpander = {
           return true;
         }
       }
-      
+
       return false;
     } catch (err) {
       console.warn('TinyMCE insert error:', err);
@@ -291,9 +305,9 @@ const SnippetExpander = {
     }
   },
 
-    async insertViaClipboard(shortcut, replacement) {
+  async insertViaClipboard(shortcut, replacement) {
     console.log('📋 Clipboard fallback called');
-    
+
     try {
       // 1. I-save ang current clipboard
       let originalClipboard = '';
@@ -332,7 +346,7 @@ const SnippetExpander = {
           }
         }, 200);
       }
-      
+
       return true;
     } catch (err) {
       console.warn('❌ Clipboard fallback failed:', err);
@@ -393,272 +407,272 @@ const TypiPat = {
   isReplacing: false,
 
   init() {
-  this.loadShortcuts();
+    this.loadShortcuts();
 
-  TypiStorage.onChanged((data) => {
-    this.updateShortcuts(data);
-  });
+    TypiStorage.onChanged((data) => {
+      this.updateShortcuts(data);
+    });
 
-  // 🔥 PARA SA GMAIL (SPA)
-  if (window.location.hostname.includes('mail.google.com')) {
-    console.log('📧 Gmail detected, setting up SPA listeners...');
-    
-    let lastUrl = location.href;
-    new MutationObserver(() => {
-      const url = location.href;
-      if (url !== lastUrl) {
-        lastUrl = url;
-        console.log('🔄 Gmail navigation detected, re-attaching listeners...');
-        this.setupListeners();
-      }
-    }).observe(document, { subtree: true, childList: true });
-  }
+    // 🔥 PARA SA GMAIL (SPA)
+    if (window.location.hostname.includes('mail.google.com')) {
+      console.log('📧 Gmail detected, setting up SPA listeners...');
 
-  // 🔥 TUMAWAG SA setupListeners()
-  this.setupListeners();
-},
-
-// ==========================================
-// SETUP LISTENERS
-// ==========================================
-setupListeners() {
-  console.log('🎵 Setting up TypiPat listeners...');
-  
-  // 🔥 I-SKIP ANG MGA CHROME PAGES
-  if (window.location.protocol === 'chrome:') {
-    console.log('⏭️ Skipping setup on chrome:// page');
-    return;
-  }
-  
-  document.addEventListener("input", this.handleInput.bind(this), true);
-
-  document.addEventListener("focusin", (e) => {
-    const element = e.target;
-    if (this.isTextField(element)) {
-      element.addEventListener("input", this.handleInput.bind(this), true);
-      
-      if (element.isContentEditable) {
-        element.addEventListener("keyup", this.handleInput.bind(this), true);
-        element.addEventListener("keydown", this.handleInput.bind(this), true);
-      }
+      let lastUrl = location.href;
+      new MutationObserver(() => {
+        const url = location.href;
+        if (url !== lastUrl) {
+          lastUrl = url;
+          console.log('🔄 Gmail navigation detected, re-attaching listeners...');
+          this.setupListeners();
+        }
+      }).observe(document, { subtree: true, childList: true });
     }
-  }, true);
 
-  this.attachToTinyMCE();
-  this.observeDynamicFields();
+    // 🔥 TUMAWAG SA setupListeners()
+    this.setupListeners();
+  },
 
-  if (window === window.top) {
-    this.observeIframes();
-  }
-},
+  // ==========================================
+  // SETUP LISTENERS
+  // ==========================================
+  setupListeners() {
+    console.log('🎵 Setting up TypiPat listeners...');
 
-// ==========================================
-// ATTACH TO TINYMCE
-// ==========================================
-attachToTinyMCE() {
-  // 🔥 I-SKIP ANG MGA CHROME PAGES (newtab, settings, etc.)
-  if (window.location.protocol === 'chrome:') {
-    console.log('⏭️ Skipping TinyMCE on chrome:// page');
-    return;
-  }
-  
-  console.log('🔍 Looking for TinyMCE...');
-  
-  setTimeout(() => {
-    try {
-      let editor = null;
-      
-      if (window.tinymce && window.tinymce.activeEditor) {
-        editor = window.tinymce.activeEditor;
-      } else if (window.parent && window.parent !== window) {
-        // 🔥 I-WRAP SA TRY-CATCH PARA MAIWASAN ANG CROSS-ORIGIN ERROR
-        try {
-          if (window.parent.tinymce && window.parent.tinymce.activeEditor) {
-            editor = window.parent.tinymce.activeEditor;
-          }
-        } catch (e) {
-          // Cross-origin parent - i-skip lang
-          console.log('⏭️ Cannot access parent.tinymce (cross-origin)');
+    // 🔥 I-SKIP ANG MGA CHROME PAGES
+    if (window.location.protocol === 'chrome:') {
+      console.log('⏭️ Skipping setup on chrome:// page');
+      return;
+    }
+
+    document.addEventListener("input", this.handleInput.bind(this), true);
+
+    document.addEventListener("focusin", (e) => {
+      const element = e.target;
+      if (this.isTextField(element)) {
+        element.addEventListener("input", this.handleInput.bind(this), true);
+
+        if (element.isContentEditable) {
+          element.addEventListener("keyup", this.handleInput.bind(this), true);
+          element.addEventListener("keydown", this.handleInput.bind(this), true);
         }
       }
-      
-      if (editor) {
-        console.log('✅ TinyMCE editor found');
-        const editorBody = editor.getBody();
-        if (editorBody) {
-          editorBody.addEventListener('input', this.handleInput.bind(this), true);
-          editorBody.addEventListener('keyup', this.handleInput.bind(this), true);
-          editorBody.addEventListener('keydown', this.handleInput.bind(this), true);
-          
-          editor.on('input', () => {
-            this.handleInput({ target: editorBody, type: 'input' });
-          });
-          
-          console.log('✅ TinyMCE listeners attached');
-        }
-      }
-    } catch (err) {
-      console.warn('⚠️ TinyMCE error:', err.message || err);
+    }, true);
+
+    this.attachToTinyMCE();
+    this.observeDynamicFields();
+
+    if (window === window.top) {
+      this.observeIframes();
     }
-  }, 500);
-},
+  },
 
-// ==========================================
-// OBSERVE DYNAMIC FIELDS
-// ==========================================
-observeDynamicFields() {
-  const targetNode = document.body;
-  const config = {
-    childList: true,
-    subtree: true,
-    attributes: false,
-  };
+  // ==========================================
+  // ATTACH TO TINYMCE
+  // ==========================================
+  attachToTinyMCE() {
+    // 🔥 I-SKIP ANG MGA CHROME PAGES (newtab, settings, etc.)
+    if (window.location.protocol === 'chrome:') {
+      console.log('⏭️ Skipping TinyMCE on chrome:// page');
+      return;
+    }
 
-  const callback = (mutationsList) => {
-    for (const mutation of mutationsList) {
-      if (mutation.type === 'childList') {
-        mutation.addedNodes.forEach((node) => {
-          if (node.tagName === 'IFRAME') return;
-          
-          if (this.isTextField(node)) {
-            if (node.isContentEditable && !node._hasTypiPatListener) {
-              node.addEventListener("input", this.handleInput.bind(this), true);
-              node._hasTypiPatListener = true;
-            } else if (!node.isContentEditable) {
-              node.addEventListener("input", this.handleInput.bind(this), true);
+    console.log('🔍 Looking for TinyMCE...');
+
+    setTimeout(() => {
+      try {
+        let editor = null;
+
+        if (window.tinymce && window.tinymce.activeEditor) {
+          editor = window.tinymce.activeEditor;
+        } else if (window.parent && window.parent !== window) {
+          // 🔥 I-WRAP SA TRY-CATCH PARA MAIWASAN ANG CROSS-ORIGIN ERROR
+          try {
+            if (window.parent.tinymce && window.parent.tinymce.activeEditor) {
+              editor = window.parent.tinymce.activeEditor;
             }
+          } catch (e) {
+            // Cross-origin parent - i-skip lang
+            console.log('⏭️ Cannot access parent.tinymce (cross-origin)');
+          }
+        }
+
+        if (editor) {
+          console.log('✅ TinyMCE editor found');
+          const editorBody = editor.getBody();
+          if (editorBody) {
+            editorBody.addEventListener('input', this.handleInput.bind(this), true);
+            editorBody.addEventListener('keyup', this.handleInput.bind(this), true);
+            editorBody.addEventListener('keydown', this.handleInput.bind(this), true);
+
+            editor.on('input', () => {
+              this.handleInput({ target: editorBody, type: 'input' });
+            });
+
+            console.log('✅ TinyMCE listeners attached');
+          }
+        }
+      } catch (err) {
+        console.warn('⚠️ TinyMCE error:', err.message || err);
+      }
+    }, 500);
+  },
+
+  // ==========================================
+  // OBSERVE DYNAMIC FIELDS
+  // ==========================================
+  observeDynamicFields() {
+    const targetNode = document.body;
+    const config = {
+      childList: true,
+      subtree: true,
+      attributes: false,
+    };
+
+    const callback = (mutationsList) => {
+      for (const mutation of mutationsList) {
+        if (mutation.type === 'childList') {
+          mutation.addedNodes.forEach((node) => {
+            if (node.tagName === 'IFRAME') return;
+
+            if (this.isTextField(node)) {
+              if (node.isContentEditable && !node._hasTypiPatListener) {
+                node.addEventListener("input", this.handleInput.bind(this), true);
+                node._hasTypiPatListener = true;
+              } else if (!node.isContentEditable) {
+                node.addEventListener("input", this.handleInput.bind(this), true);
+              }
+            }
+            if (node.querySelectorAll) {
+              const inputs = node.querySelectorAll('input, textarea, [contenteditable="true"]');
+              inputs.forEach((input) => {
+                if (input.isContentEditable && !input._hasTypiPatListener) {
+                  input.addEventListener("input", this.handleInput.bind(this), true);
+                  input._hasTypiPatListener = true;
+                } else if (!input.isContentEditable) {
+                  input.addEventListener("input", this.handleInput.bind(this), true);
+                }
+              });
+            }
+          });
+        }
+      }
+    };
+
+    const observer = new MutationObserver(callback);
+    observer.observe(targetNode, config);
+    this.observer = observer;
+  },
+
+  // ==========================================
+  // OBSERVE IFRAMES
+  // ==========================================
+  observeIframes() {
+    // 🔥 I-SKIP ANG MGA CHROME PAGES
+    if (window.location.protocol === 'chrome:') {
+      return;
+    }
+
+    const iframes = document.querySelectorAll('iframe');
+    iframes.forEach((iframe) => {
+      if (iframe.src && iframe.src.startsWith('chrome-extension://')) {
+        return;
+      }
+      this.attachToIframe(iframe);
+    });
+
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        for (const node of mutation.addedNodes) {
+          if (node.tagName === 'IFRAME') {
+            if (node.src && node.src.startsWith('chrome-extension://')) {
+              continue;
+            }
+            this.attachToIframe(node);
           }
           if (node.querySelectorAll) {
-            const inputs = node.querySelectorAll('input, textarea, [contenteditable="true"]');
-            inputs.forEach((input) => {
-              if (input.isContentEditable && !input._hasTypiPatListener) {
-                input.addEventListener("input", this.handleInput.bind(this), true);
-                input._hasTypiPatListener = true;
-              } else if (!input.isContentEditable) {
-                input.addEventListener("input", this.handleInput.bind(this), true);
+            const nestedIframes = node.querySelectorAll('iframe');
+            nestedIframes.forEach((iframe) => {
+              if (iframe.src && iframe.src.startsWith('chrome-extension://')) {
+                return;
               }
+              this.attachToIframe(iframe);
             });
           }
-        });
+        }
       }
-    }
-  };
+    });
 
-  const observer = new MutationObserver(callback);
-  observer.observe(targetNode, config);
-  this.observer = observer;
-},
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  },
 
-// ==========================================
-// OBSERVE IFRAMES
-// ==========================================
-observeIframes() {
-  // 🔥 I-SKIP ANG MGA CHROME PAGES
-  if (window.location.protocol === 'chrome:') {
-    return;
-  }
-  
-  const iframes = document.querySelectorAll('iframe');
-  iframes.forEach((iframe) => {
+  // ==========================================
+  // ATTACH TO IFRAME
+  // ==========================================
+  attachToIframe(iframe) {
     if (iframe.src && iframe.src.startsWith('chrome-extension://')) {
       return;
     }
-    this.attachToIframe(iframe);
-  });
 
-  const observer = new MutationObserver((mutations) => {
-    for (const mutation of mutations) {
-      for (const node of mutation.addedNodes) {
-        if (node.tagName === 'IFRAME') {
-          if (node.src && node.src.startsWith('chrome-extension://')) {
-            continue;
-          }
-          this.attachToIframe(node);
-        }
-        if (node.querySelectorAll) {
-          const nestedIframes = node.querySelectorAll('iframe');
-          nestedIframes.forEach((iframe) => {
-            if (iframe.src && iframe.src.startsWith('chrome-extension://')) {
-              return;
-            }
-            this.attachToIframe(iframe);
+    try {
+      iframe.addEventListener('load', () => {
+        try {
+          const doc = iframe.contentDocument || iframe.contentWindow?.document;
+          if (!doc) return;
+
+          console.log('📄 Attaching to iframe:', iframe.src);
+
+          const editableElements = doc.querySelectorAll(
+            'input, textarea, [contenteditable="true"]'
+          );
+
+          editableElements.forEach((el) => {
+            el.addEventListener('input', this.handleInput.bind(this), true);
+            console.log('✅ Attached listener to:', el.tagName);
           });
+
+          doc.addEventListener('focusin', (e) => {
+            const target = e.target;
+            if (this.isTextField(target)) {
+              target.addEventListener('input', this.handleInput.bind(this), true);
+            }
+          }, true);
+
+          const innerObserver = new MutationObserver((mutations) => {
+            for (const mutation of mutations) {
+              for (const node of mutation.addedNodes) {
+                if (this.isTextField(node)) {
+                  node.addEventListener('input', this.handleInput.bind(this), true);
+                }
+                if (node.querySelectorAll) {
+                  const inputs = node.querySelectorAll(
+                    'input, textarea, [contenteditable="true"]'
+                  );
+                  inputs.forEach((el) => {
+                    el.addEventListener('input', this.handleInput.bind(this), true);
+                  });
+                }
+              }
+            }
+          });
+
+          if (doc.body) {
+            innerObserver.observe(doc.body, {
+              childList: true,
+              subtree: true
+            });
+          }
+
+        } catch (err) {
+          console.log('⚠️ Cannot access iframe content (cross-origin):', iframe.src);
         }
-      }
+      });
+    } catch (err) {
+      // Silent fail
     }
-  });
-
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true
-  });
-},
-
-// ==========================================
-// ATTACH TO IFRAME
-// ==========================================
-attachToIframe(iframe) {
-  if (iframe.src && iframe.src.startsWith('chrome-extension://')) {
-    return;
-  }
-
-  try {
-    iframe.addEventListener('load', () => {
-      try {
-        const doc = iframe.contentDocument || iframe.contentWindow?.document;
-        if (!doc) return;
-
-        console.log('📄 Attaching to iframe:', iframe.src);
-
-        const editableElements = doc.querySelectorAll(
-          'input, textarea, [contenteditable="true"]'
-        );
-        
-        editableElements.forEach((el) => {
-          el.addEventListener('input', this.handleInput.bind(this), true);
-          console.log('✅ Attached listener to:', el.tagName);
-        });
-
-        doc.addEventListener('focusin', (e) => {
-          const target = e.target;
-          if (this.isTextField(target)) {
-            target.addEventListener('input', this.handleInput.bind(this), true);
-          }
-        }, true);
-
-        const innerObserver = new MutationObserver((mutations) => {
-          for (const mutation of mutations) {
-            for (const node of mutation.addedNodes) {
-              if (this.isTextField(node)) {
-                node.addEventListener('input', this.handleInput.bind(this), true);
-              }
-              if (node.querySelectorAll) {
-                const inputs = node.querySelectorAll(
-                  'input, textarea, [contenteditable="true"]'
-                );
-                inputs.forEach((el) => {
-                  el.addEventListener('input', this.handleInput.bind(this), true);
-                });
-              }
-            }
-          }
-        });
-
-        if (doc.body) {
-          innerObserver.observe(doc.body, {
-            childList: true,
-            subtree: true
-          });
-        }
-
-      } catch (err) {
-        console.log('⚠️ Cannot access iframe content (cross-origin):', iframe.src);
-      }
-    });
-  } catch (err) {
-    // Silent fail
-  }
-},
+  },
 
   isTextField(element) {
     if (!element) return false;
@@ -788,7 +802,7 @@ const FloatingUI = {
 
     document.addEventListener("click", (e) => {
       if (this.visible && this.iframe && !this.iframe.contains(e.target) &&
-          this.container && !this.container.contains(e.target)) {
+        this.container && !this.container.contains(e.target)) {
         this.closeOverlay();
       }
     });
@@ -818,7 +832,7 @@ const FloatingUI = {
         if (chrome.runtime?.id) {
           chrome.runtime.sendMessage({ action: "openOptions" });
         }
-      } catch (err) {}
+      } catch (err) { }
     };
 
     container.oncontextmenu = (e) => {
@@ -828,7 +842,7 @@ const FloatingUI = {
         if (chrome.runtime?.id) {
           chrome.runtime.sendMessage({ action: "openOptions" });
         }
-      } catch (err) {}
+      } catch (err) { }
     };
 
     this.container = container;

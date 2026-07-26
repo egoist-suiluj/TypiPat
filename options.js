@@ -3,7 +3,24 @@ let confirmCallback = null;
 let isEditMode = false;
 let currentEditingShortcut = null;
 let postSaveFocusShortcut = null;
-let lastEditedShortcut = null;  // 🆕 BAGO
+let lastEditedShortcut = null;
+
+function hasKeyConflict(newKey, existingKeys) {
+  for (const key of existingKeys) {
+    if (key === newKey) return true;
+    if (key.startsWith(newKey) || newKey.startsWith(key)) {
+      const shorter = key.length < newKey.length ? key : newKey;
+      const longer = key.length < newKey.length ? newKey : key;
+      if (longer.startsWith(shorter)) {
+        const nextChar = longer[shorter.length];
+        if (nextChar && /[A-Za-z0-9]/.test(nextChar)) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
 
 // UI configuration
 const UI_CONFIG = {
@@ -11,13 +28,11 @@ const UI_CONFIG = {
   focusHighlightDuration: TIMING_CONFIG.FOCUS_HIGHLIGHT_DURATION,
 };
 
-// DOM Elements - with null checks
+// DOM Elements
 const composerAnnotation = document.getElementById("composerAnnotation");
 const composerKey = document.getElementById("composerKey");
 const composerKeyField = document.getElementById("composerKeyField");
-const composerKeyFieldContainer = document.getElementById(
-  "composerKeyFieldContainer",
-);
+const composerKeyFieldContainer = document.getElementById("composerKeyFieldContainer");
 const findReplaceSection = document.getElementById("findReplaceSection");
 const composerBeatCount = document.getElementById("composerBeatCount");
 const composerCaesura = document.getElementById("composerCaesura");
@@ -38,7 +53,6 @@ const modalCancel = document.getElementById("modalCancel");
 // Update counters
 function updateCounters(textarea, beatElement, caesuraElement) {
   if (!textarea || !beatElement || !caesuraElement) return;
-
   const stats = TypiUtils.calculateStats(textarea.value);
   beatElement.textContent = stats.beatCount;
   caesuraElement.textContent = stats.caesura;
@@ -47,49 +61,33 @@ function updateCounters(textarea, beatElement, caesuraElement) {
 // Open Composer Modal
 function openComposerModal(content = "", annotation = "", key = "", section = "", forEdit = false) {
   if (!composerTextarea || !composerAnnotation || !composerModal) return;
-
   composerTextarea.value = content;
   composerAnnotation.value = annotation;
-
-  if (composerKey) {
-    composerKey.value = key;
-  }
-
+  if (composerKey) composerKey.value = key;
   const sectionInput = document.getElementById("composerSection");
-  if (sectionInput) {
-    sectionInput.value = section || "";
-  }
+  if (sectionInput) sectionInput.value = section || "";
 
   if (forEdit) {
-    if (composerKeyFieldContainer)
-      composerKeyFieldContainer.style.display = "none";
+    if (composerKeyFieldContainer) composerKeyFieldContainer.style.display = "none";
     if (findReplaceSection) findReplaceSection.style.display = "flex";
     if (composerSave) composerSave.style.display = "block";
     if (composerFinalize) composerFinalize.style.display = "none";
     if (composerCancel) composerCancel.textContent = "Variance";
-
-    const arrangeAnnotationBox = document.getElementById(
-      "arrangeAnnotationBox",
-    );
+    const arrangeAnnotationBox = document.getElementById("arrangeAnnotationBox");
     if (arrangeAnnotationBox) {
       arrangeAnnotationBox.style.display = "block";
       const arrangeInput = document.getElementById("composerAnnotationArrange");
       if (arrangeInput) arrangeInput.value = annotation || "";
-
       const sectionArrangeInput = document.getElementById("composerSectionArrange");
       if (sectionArrangeInput) sectionArrangeInput.value = section || "";
     }
   } else {
-    if (composerKeyFieldContainer)
-      composerKeyFieldContainer.style.display = "flex";
+    if (composerKeyFieldContainer) composerKeyFieldContainer.style.display = "flex";
     if (findReplaceSection) findReplaceSection.style.display = "none";
     if (composerSave) composerSave.style.display = "none";
     if (composerFinalize) composerFinalize.style.display = "block";
     if (composerCancel) composerCancel.textContent = "Variance";
-
-    const arrangeAnnotationBox = document.getElementById(
-      "arrangeAnnotationBox",
-    );
+    const arrangeAnnotationBox = document.getElementById("arrangeAnnotationBox");
     if (arrangeAnnotationBox) arrangeAnnotationBox.style.display = "none";
   }
 
@@ -103,17 +101,14 @@ function openComposerModal(content = "", annotation = "", key = "", section = ""
 // Close Composer Modal
 function closeComposerModal() {
   if (!composerModal) return;
-
   composerModal.classList.remove("active");
   if (composerTextarea) composerTextarea.value = "";
   if (composerAnnotation) composerAnnotation.value = "";
-
   const arrangeAnnotationBox = document.getElementById("arrangeAnnotationBox");
   const arrangeInput = document.getElementById("composerAnnotationArrange");
   if (arrangeInput) arrangeInput.value = "";
   if (arrangeAnnotationBox) arrangeAnnotationBox.style.display = "none";
   if (composerKey) composerKey.value = "";
-
   isEditMode = false;
   currentEditingShortcut = null;
 }
@@ -142,64 +137,45 @@ if (replaceBtn && composerTextarea) {
   replaceBtn.addEventListener("click", () => {
     const findInput = document.getElementById("findInput");
     const replaceInput = document.getElementById("replaceInput");
-
     if (!findInput || !replaceInput) return;
-
     const findText = findInput.value;
     const replaceText = replaceInput.value;
-
     if (findText) {
-      composerTextarea.value = composerTextarea.value
-        .split(findText)
-        .join(replaceText);
+      composerTextarea.value = composerTextarea.value.split(findText).join(replaceText);
       updateCounters(composerTextarea, composerBeatCount, composerCaesura);
-      TypiUtils.showNotification(
-        "Text transposed successfully!",
-        "success",
-        "✅",
-      );
+      TypiUtils.showNotification("Text transposed successfully!", "success", "✅");
     }
   });
 }
 
-// Composer Finalize (Compose Mode)
+// Composer Finalize
 if (composerFinalize) {
   composerFinalize.addEventListener("click", () => {
     if (!composerTextarea || !composerAnnotation) return;
-
     const content = composerTextarea.value;
     const annotation = composerAnnotation.value;
     const key = composerKey ? composerKey.value : "";
     const section = document.getElementById("composerSection")?.value || "";
-
     const replacementInput = document.getElementById("replacementInput");
     const labelInput = document.getElementById("labelInput");
     const shortcutInput = document.getElementById("shortcutInput");
     const sectionInput = document.getElementById("sectionInput");
-
     if (replacementInput) replacementInput.value = content;
     if (labelInput) labelInput.value = annotation;
     if (shortcutInput) shortcutInput.value = key;
     if (sectionInput) sectionInput.value = section;
-
     closeComposerModal();
-    TypiUtils.showNotification(
-      "Arrangement finalized. Click Compose to save.",
-      "success",
-      "🎵",
-    );
+    TypiUtils.showNotification("Arrangement finalized. Click Compose to save.", "success", "🎵");
   });
 }
 
-// Composer Save (Edit Mode)
+// Composer Save
 if (composerSave) {
   composerSave.addEventListener("click", () => {
     if (!composerTextarea) return;
-
     const content = composerTextarea.value;
     let annotationValue = null;
     let sectionValue = null;
-
     if (isEditMode) {
       const arrangeEl = document.getElementById("composerAnnotationArrange");
       annotationValue = arrangeEl ? arrangeEl.value.trim() || null : null;
@@ -210,21 +186,15 @@ if (composerSave) {
       const sectionInput = document.getElementById("composerSection");
       sectionValue = sectionInput ? sectionInput.value.trim() || null : null;
     }
-
     if (currentEditingShortcut) {
-      TypiStorage.save(
-        currentEditingShortcut,
-        content,
-        annotationValue,
-        sectionValue
-      ).then(() => {
-        TypiUtils.showNotification(
-          "Theme saved successfully! 🎼",
-          "success",
-          "✅",
-        );
+      TypiStorage.save(currentEditingShortcut, content, annotationValue, sectionValue).then(() => {
+        TypiUtils.showNotification("Theme saved successfully! 🎼", "success", "✅");
         closeComposerModal();
         loadShortcuts();
+        // 🎵 Sound: Edit/Theme
+        if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
+          SoundPlayer.playEditSound();
+        }
       });
     }
   });
@@ -232,22 +202,23 @@ if (composerSave) {
 
 // Composer Close/Cancel
 if (composerClose) composerClose.addEventListener("click", closeComposerModal);
-if (composerCancel)
-  composerCancel.addEventListener("click", closeComposerModal);
+if (composerCancel) composerCancel.addEventListener("click", closeComposerModal);
 
-// Confirm Modal Logic
+// Confirm Modal
 function showConfirmModal(shortcut) {
   if (!confirmModal) return;
-
   const details = document.getElementById("modalDetails");
   if (details) details.textContent = `Key: ${shortcut}`;
   confirmModal.classList.add("active");
-
   confirmCallback = () => {
     TypiStorage.remove(shortcut).then(() => {
       TypiUtils.showNotification("Composition Abolished.", "success", "🗑️");
       loadShortcuts();
       closeConfirmModal();
+      // 🎵 Sound: Delete/Abolish
+      if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
+        SoundPlayer.playDeleteSound();
+      }
     });
   };
 }
@@ -269,12 +240,11 @@ if (modalCancel) {
 }
 
 // ==========================================
-// LOAD SHORTCUTS - DITO ANG TABLE
+// LOAD SHORTCUTS
 // ==========================================
 async function loadShortcuts() {
   const data = await TypiStorage.loadAll();
   const container = document.getElementById("shortcutsContainer");
-
   if (!container) return;
 
   const filteredData = {};
@@ -285,7 +255,6 @@ async function loadShortcuts() {
   }
 
   const { shortcuts, labels } = TypiUtils.parseStorageData(filteredData);
-
   const sections = {};
   for (let key in data) {
     if (key.startsWith("__section__")) {
@@ -305,26 +274,20 @@ async function loadShortcuts() {
   }
 
   const sortedShortcuts = TypiUtils.sortShortcutsByLabel(shortcuts, labels, sections);
-
   const table = document.createElement("table");
   table.className = "shortcuts-table";
 
-  // TABLE HEADER
   const thead = document.createElement("thead");
   const headerRow = document.createElement("tr");
-
   const th1 = document.createElement("th");
   th1.textContent = "Rhythm";
   headerRow.appendChild(th1);
-
   const th2 = document.createElement("th");
   th2.textContent = "Symphony & Harmony Notes";
   headerRow.appendChild(th2);
-
   thead.appendChild(headerRow);
   table.appendChild(thead);
 
-  // TABLE BODY
   const tbody = document.createElement("tbody");
 
   sortedShortcuts.forEach((shortcut) => {
@@ -337,71 +300,60 @@ async function loadShortcuts() {
     tr.setAttribute("data-label", label.toLowerCase());
     tr.setAttribute("data-section", section.toLowerCase());
 
-    // Column 1: Rhythm
     const td1 = document.createElement("td");
     td1.textContent = shortcut;
     tr.appendChild(td1);
 
-    // Column 2: Symphony & Harmony Notes
     const td2 = document.createElement("td");
     td2.className = "replacement-cell";
     td2.style.cssText = "display: flex; flex-direction: column; align-items: stretch;";
 
-    // Top row: Label (left) + Section (right)
     const topRow = document.createElement("div");
     topRow.style.cssText = "display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 5px;";
 
-    // Label badge (kaliwa)
     const labelDisplay = label || "Untitled";
     const labelBadge = document.createElement("div");
     labelBadge.className = "label-badge";
     labelBadge.textContent = "📌 " + labelDisplay;
     topRow.appendChild(labelBadge);
 
-    // Section badge (kanan) - may konting taas at blended color
     if (section) {
       const sectionBadge = document.createElement("span");
       sectionBadge.className = "section-badge-right";
       sectionBadge.textContent = "📂 " + section;
       sectionBadge.style.cssText = `
-  padding: 4px 14px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  background: linear-gradient(135deg, #fff8e7 0%, #ffecb3 100%);
-  color: #4a148c;
-  border: 2px solid #ffd54f;
-  font-family: "Georgia", "Times New Roman", serif;
-  margin-top: -18px;
-`;
+        padding: 4px 14px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        background: linear-gradient(135deg, #fff8e7 0%, #ffecb3 100%);
+        color: #4a148c;
+        border: 2px solid #ffd54f;
+        font-family: "Georgia", "Times New Roman", serif;
+        margin-top: -18px;
+      `;
       topRow.appendChild(sectionBadge);
     }
 
     td2.appendChild(topRow);
 
-    // Replacement content
     const replacementContent = document.createElement("div");
     replacementContent.className = "replacement-content";
     replacementContent.textContent = shortcuts[shortcut];
     td2.appendChild(replacementContent);
 
-    // Stats
     const statsDiv = document.createElement("div");
     statsDiv.className = "replacement-stats";
-
     const beatSpan = document.createElement("span");
     beatSpan.className = "stat-item";
     beatSpan.textContent = "📊 Beat Count: " + stats.beatCount;
     statsDiv.appendChild(beatSpan);
-
     const caesuraSpan = document.createElement("span");
     caesuraSpan.className = "stat-item";
     caesuraSpan.textContent = "📏 Caesura: " + stats.caesura;
     statsDiv.appendChild(caesuraSpan);
-
     td2.appendChild(statsDiv);
 
-    // Buttons
     const buttonGroup = document.createElement("div");
     buttonGroup.className = "button-group";
 
@@ -428,13 +380,11 @@ async function loadShortcuts() {
 
     td2.appendChild(buttonGroup);
     tr.appendChild(td2);
-
     tbody.appendChild(tr);
   });
 
   table.appendChild(tbody);
   container.appendChild(table);
-
   addActionListeners();
 
   if (postSaveFocusShortcut) {
@@ -445,15 +395,11 @@ async function loadShortcuts() {
       rows.forEach((r) => {
         if (r.getAttribute("data-shortcut") === seek) target = r;
       });
-
       if (target) {
         target.scrollIntoView({ behavior: "smooth", block: "center" });
         const cls = UI_CONFIG.focusHighlightClass;
         target.classList.add(cls);
-        setTimeout(
-          () => target.classList.remove(cls),
-          UI_CONFIG.focusHighlightDuration,
-        );
+        setTimeout(() => target.classList.remove(cls), UI_CONFIG.focusHighlightDuration);
       }
     });
     postSaveFocusShortcut = null;
@@ -473,6 +419,10 @@ function addActionListeners() {
           btn.textContent = originalText;
           btn.classList.remove("copied");
         }, TIMING_CONFIG.BUTTON_FEEDBACK_DURATION);
+        // 🎵 Sound: Perform
+        if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
+          SoundPlayer.playPerformSound();
+        }
       });
     });
   });
@@ -484,7 +434,7 @@ function addActionListeners() {
     });
   });
 
-    document.querySelectorAll(".edit-btn").forEach((btn) => {
+  document.querySelectorAll(".edit-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       const shortcut = btn.getAttribute("data-shortcut");
       const label = btn.getAttribute("data-label");
@@ -511,17 +461,21 @@ function addActionListeners() {
       }
       if (discardBtn) discardBtn.style.display = "inline-block";
 
-      lastEditedShortcut = shortcut;  // 🆕 BAGO
+      lastEditedShortcut = shortcut;
       window.scrollTo({ top: 0, behavior: "smooth" });
       isEditMode = true;
+
+      // 🎵 Sound: Arrange
+      if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
+        SoundPlayer.playArrangeSound();
+      }
     });
   });
 }
 
-// Search Functionality
+// Search
 function performSearch() {
   if (!searchBox) return;
-
   const query = searchBox.value.toLowerCase().trim();
   const rows = document.querySelectorAll(".shortcuts-table tbody tr");
   let matchCount = 0;
@@ -540,56 +494,41 @@ function performSearch() {
 
   rows.forEach((row) => {
     row.classList.remove("highlight");
-
     const shortcut = row.getAttribute("data-shortcut") || "";
     const label = row.getAttribute("data-label") || "";
     const section = row.getAttribute("data-section") || "";
     const contentEl = row.querySelector(".replacement-content");
     const content = contentEl ? contentEl.textContent.toLowerCase() : "";
 
-    if (
-      shortcut.includes(query) ||
-      label.includes(query) ||
-      content.includes(query) ||
-      section.includes(query)
-    ) {
+    if (shortcut.includes(query) || label.includes(query) || content.includes(query) || section.includes(query)) {
       row.classList.remove("hidden");
       matchCount++;
-
-      if (!firstMatch) {
-        firstMatch = row;
-      }
+      if (!firstMatch) firstMatch = row;
     } else {
       row.classList.add("hidden");
     }
   });
 
   if (matchCount === 0) {
-    TypiUtils.showNotification(
-      "No matching compositions found.",
-      "error",
-      "🎭",
-    );
+    TypiUtils.showNotification("No matching compositions found.", "error", "🎭");
   } else {
-    TypiUtils.showNotification(
-      `Found ${matchCount} matching composition${matchCount > 1 ? "s" : ""}!`,
-      "success",
-      "🎵",
-    );
-
+    TypiUtils.showNotification(`Found ${matchCount} matching composition${matchCount > 1 ? "s" : ""}!`, "success", "🎵");
     if (firstMatch) {
       firstMatch.scrollIntoView({ behavior: "smooth", block: "center" });
       firstMatch.classList.add("highlight");
-
-      setTimeout(() => {
-        firstMatch.classList.remove("highlight");
-      }, 2000);
+      setTimeout(() => firstMatch.classList.remove("highlight"), 2000);
     }
   }
 }
 
 if (searchBtn) {
-  searchBtn.addEventListener("click", performSearch);
+  searchBtn.addEventListener("click", () => {
+    performSearch();
+    // 🎵 Sound: Search
+    if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
+      SoundPlayer.playSearchSound();
+    }
+  });
 }
 
 if (searchBox) {
@@ -602,6 +541,10 @@ if (clearBtn) {
   clearBtn.addEventListener("click", () => {
     if (searchBox) searchBox.value = "";
     performSearch();
+    // 🎵 Sound: Clear
+    if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
+      SoundPlayer.playClearSound();
+    }
   });
 }
 
@@ -615,7 +558,6 @@ if (floatingBtn) {
       floatingBtn.classList.remove("visible");
     }
   });
-
   floatingBtn.addEventListener("click", () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
     const shortcutInput = document.getElementById("shortcutInput");
@@ -644,19 +586,36 @@ if (addBtn) {
       return;
     }
 
+    if (!shortcut || !replacement) {
+      TypiUtils.showNotification("Missing Key or Manuscript.", "error", "⚠️");
+      // 🎵 Sound: Error
+      if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
+        SoundPlayer.playErrorSound();
+      }
+      return;
+    }
+
     const validation = TypiUtils.validateShortcut(shortcut);
     if (!validation.valid) {
       TypiUtils.showNotification(validation.message, "error", "⚠️");
+      // 🎵 Sound: Error
+      if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
+        SoundPlayer.playErrorSound();
+      }
       return;
     }
 
     TypiStorage.loadAll().then((existingData) => {
-      if (existingData[shortcut]) {
-        TypiUtils.showNotification(
-          `Dissonance! The Key " ${shortcut} " already exists in the Score.`,
-          "error",
-          "⚠️"
-        );
+      const existingKeys = Object.keys(existingData).filter(k =>
+        !k.startsWith("__label__") && !k.startsWith("__meta__") && !k.startsWith("__section__")
+      );
+
+      if (hasKeyConflict(shortcut, existingKeys)) {
+        TypiUtils.showNotification(`🎵 Dissonance! The Key "${shortcut}" conflicts with an existing key.`, "error", "⚠️");
+        // 🎵 Sound: Error
+        if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
+          SoundPlayer.playErrorSound();
+        }
         return;
       }
 
@@ -668,6 +627,10 @@ if (addBtn) {
         replacementInput.value = "";
         if (sectionInput) sectionInput.value = "";
         loadShortcuts();
+        // 🎵 Sound: Add
+        if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
+          SoundPlayer.playAddSound();
+        }
       });
     });
   });
@@ -701,26 +664,60 @@ if (saveBtn) {
       return;
     }
 
-    const savePromise =
-      originalShortcut !== newShortcut
-        ? TypiStorage.remove(originalShortcut).then(() =>
-          TypiStorage.save(newShortcut, replacement, label || null, section || null)
-        )
-        : TypiStorage.save(newShortcut, replacement, label || null, section || null);
+    TypiStorage.loadAll().then((existingData) => {
+      const existingKeys = Object.keys(existingData).filter(k =>
+        !k.startsWith("__label__") && !k.startsWith("__meta__") && !k.startsWith("__section__")
+      );
 
-    savePromise.then(() => {
-      TypiUtils.showNotification("Theme saved successfully!", "success", "✅");
-      postSaveFocusShortcut = newShortcut;
-      exitEditMode();
-      loadShortcuts();
+      if (originalShortcut === newShortcut) {
+        performSave(originalShortcut, newShortcut, replacement, label, section);
+        return;
+      }
+
+      const filteredKeys = existingKeys.filter(k => k !== originalShortcut);
+      if (hasKeyConflict(newShortcut, filteredKeys)) {
+        TypiUtils.showNotification(`🎵 Dissonance! The Key "${newShortcut}" conflicts with an existing key.`, "error", "⚠️");
+        // 🎵 Sound: Error
+        if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
+          SoundPlayer.playErrorSound();
+        }
+        return;
+      }
+
+      performSave(originalShortcut, newShortcut, replacement, label, section);
     });
+  });
+}
+
+function performSave(originalShortcut, newShortcut, replacement, label, section) {
+  const savePromise = originalShortcut !== newShortcut
+    ? TypiStorage.remove(originalShortcut).then(() =>
+      TypiStorage.save(newShortcut, replacement, label || null, section || null)
+    )
+    : TypiStorage.save(newShortcut, replacement, label || null, section || null);
+
+  savePromise.then(() => {
+    TypiUtils.showNotification("Theme saved successfully!", "success", "✅");
+    postSaveFocusShortcut = newShortcut;
+    exitEditMode();
+    loadShortcuts();
+    // 🎵 Sound: Edit/Theme
+    if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
+      SoundPlayer.playEditSound();
+    }
   });
 }
 
 // Discard Button
 const discardBtn = document.getElementById("discardBtn");
 if (discardBtn) {
-  discardBtn.addEventListener("click", exitEditMode);
+  discardBtn.addEventListener("click", () => {
+    exitEditMode();
+    // 🎵 Sound: Variance
+    if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
+      SoundPlayer.playVarianceSound();
+    }
+  });
 }
 
 function exitEditMode() {
@@ -732,7 +729,6 @@ function exitEditMode() {
   const saveBtn = document.getElementById("saveBtn");
   const discardBtn = document.getElementById("discardBtn");
 
-  // I-clear ang fields
   if (shortcutInput) shortcutInput.value = "";
   if (labelInput) labelInput.value = "";
   if (replacementInput) replacementInput.value = "";
@@ -743,11 +739,10 @@ function exitEditMode() {
   if (discardBtn) discardBtn.style.display = "none";
   isEditMode = false;
 
-  // 🔥 BUMALIK SA TABLE VIEW (kung saan nag-click ng Arrange)
   if (lastEditedShortcut) {
-    postSaveFocusShortcut = lastEditedShortcut;  // ← I-set para mag-scroll
+    postSaveFocusShortcut = lastEditedShortcut;
     lastEditedShortcut = null;
-    loadShortcuts();  // ← I-reload ang table
+    loadShortcuts();
   }
 }
 
@@ -758,24 +753,26 @@ if (exportBtn) {
     const data = await TypiStorage.loadAll();
     const exportData = {};
     let hasContent = false;
-
     for (let key in data) {
       if (!key.startsWith("__meta__") && !key.startsWith("__label__") && !key.startsWith("__section__")) {
         exportData[key] = data[key];
         hasContent = true;
       }
     }
-
     if (!hasContent) {
-      TypiUtils.showNotification(
-        "Silence. No notes to export. Compose first.",
-        "error",
-        "🎭"
-      );
+      TypiUtils.showNotification("Silence. No notes to export. Compose first.", "error", "🎭");
       return;
     }
-
     showCadenceModal(exportData);
+    // 🎵 Sound: Cadence
+    if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
+      SoundPlayer.playCadenceSound();
+    }
+    showCadenceModal(exportData);
+    // 🎵 Sound: Cadence
+    if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
+      SoundPlayer.playCadenceSound();
+    }
   });
 }
 
@@ -788,31 +785,23 @@ function showCadenceModal(exportData) {
   const errorMsg = document.getElementById("cadenceErrorMsg");
 
   if (!modal) return;
-
   input.value = "";
   if (errorMsg) errorMsg.style.display = "none";
-
   modal.style.display = "flex";
   setTimeout(() => input.focus(), 100);
 
   const handleConfirm = () => {
     const albumName = input.value.trim();
-
     if (!albumName) {
       if (errorMsg) {
         errorMsg.textContent = "🎵 An Album requires a title to achieve Harmony.";
         errorMsg.style.display = "block";
       } else {
-        TypiUtils.showNotification(
-          "An Album requires a title to achieve Harmony.",
-          "error",
-          "🎵"
-        );
+        TypiUtils.showNotification("An Album requires a title to achieve Harmony.", "error", "🎵");
       }
       input.focus();
       return;
     }
-
     const json = JSON.stringify(exportData, null, 2);
     const blob = new Blob([json], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -820,23 +809,13 @@ function showCadenceModal(exportData) {
     a.href = url;
     a.download = `${albumName} - typipat-musical-notes.json`;
     a.click();
-
-    TypiUtils.showNotification(
-      `🎵 "${albumName}" composed and released!`,
-      "success",
-      "✅"
-    );
-
+    TypiUtils.showNotification(`🎵 "${albumName}" composed and released!`, "success", "✅");
     modal.style.display = "none";
     cleanup();
   };
 
   const handleCancel = () => {
-    TypiUtils.showNotification(
-      "Score Sustained. No changes applied.",
-      "info",
-      "🎵"
-    );
+    TypiUtils.showNotification("Score Sustained. No changes applied.", "info", "🎵");
     modal.style.display = "none";
     cleanup();
   };
@@ -864,26 +843,24 @@ function showCadenceModal(exportData) {
 // Import
 const importBtn = document.getElementById("importBtn");
 const importFile = document.getElementById("importFile");
-
 if (importBtn && importFile) {
   importBtn.addEventListener("click", () => {
     importFile.click();
+    // 🎵 Sound: Entrata
+    if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
+      SoundPlayer.playEntrataSound();
+    }
   });
 
   importFile.addEventListener("change", (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
         const data = JSON.parse(e.target.result);
         TypiStorage.importData(data).then(() => {
-          TypiUtils.showNotification(
-            "Score Imported Successfully!",
-            "success",
-            "✅",
-          );
+          TypiUtils.showNotification("Score Imported Successfully!", "success", "✅");
           loadShortcuts();
         });
       } catch (err) {
@@ -898,3 +875,30 @@ if (importBtn && importFile) {
 
 // Initialize
 loadShortcuts();
+
+// ==========================================
+// SOUND TOGGLE
+// ==========================================
+const soundToggle = document.getElementById("soundToggle");
+if (soundToggle) {
+  chrome.storage.local.get(['soundEnabled'], (result) => {
+    soundToggle.checked = result.soundEnabled !== false;
+  });
+
+  soundToggle.addEventListener("change", () => {
+    const enabled = soundToggle.checked;
+    chrome.storage.local.set({ soundEnabled: enabled });
+    chrome.tabs.query({}, (tabs) => {
+      tabs.forEach((tab) => {
+        if (tab.id) {
+          chrome.tabs.sendMessage(tab.id, { action: "toggleSound", enabled: enabled }).catch(() => { });
+        }
+      });
+    });
+    TypiUtils.showNotification(
+      enabled ? "🎵 Piano Notes Enabled" : "🔇 Piano Notes Disabled",
+      "info",
+      enabled ? "🎵" : "🔇"
+    );
+  });
+}

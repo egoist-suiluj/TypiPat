@@ -164,11 +164,14 @@ const TypiUtils = {
    * @returns {Object} - { beatCount, caesura }
    */
   calculateStats(text) {
+    // 🔥 SIGURADUHIN NA STRING ANG TEXT
+    const safeText = text || "";  // Kung undefined/null, gawing empty string
+
     return {
-      beatCount: text.length,
-      caesura: text.split("\n").length,
+      beatCount: safeText.length,
+      caesura: safeText.split("\n").length,
     };
-  },
+  }
 };
 
 // ==========================================
@@ -179,4 +182,221 @@ const TIMING_CONFIG = {
   NOTIFICATION_DURATION: 3000,
   BUTTON_FEEDBACK_DURATION: 1500,
   FOCUS_HIGHLIGHT_DURATION: 2000,
+};
+
+// ==========================================
+// SOUND UTILITY - Complete Interactions
+// ==========================================
+
+const SoundPlayer = {
+  enabled: true,
+  audioContext: null,
+  isPlaying: false,
+
+  init() {
+    if (!this.audioContext) {
+      this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+  },
+
+  playInstrumentNote(freq, duration = 0.2, volume = 0.1, instrument = 'piano') {
+    if (!this.enabled) return;
+    try {
+      this.init();
+      const now = this.audioContext.currentTime;
+      const osc = this.audioContext.createOscillator();
+      const gain = this.audioContext.createGain();
+      
+      const settings = {
+        piano: { type: 'sine', attack: 0.005, decay: 0.05, sustain: 0.6, release: 0.15 },
+        strings: { type: 'sine', attack: 0.02, decay: 0.1, sustain: 0.8, release: 0.3 },
+        flute: { type: 'sine', attack: 0.01, decay: 0.05, sustain: 0.7, release: 0.2 },
+        guitar: { type: 'triangle', attack: 0.001, decay: 0.03, sustain: 0.4, release: 0.1 },
+        bell: { type: 'sine', attack: 0.001, decay: 0.2, sustain: 0.9, release: 0.4 },
+        warning: { type: 'square', attack: 0.01, decay: 0.05, sustain: 0.3, release: 0.1 },
+        rise: { type: 'sine', attack: 0.01, decay: 0.1, sustain: 0.7, release: 0.2 },
+        fall: { type: 'sine', attack: 0.01, decay: 0.1, sustain: 0.5, release: 0.3 },
+      };
+      
+      const inst = settings[instrument] || settings.piano;
+      
+      osc.type = inst.type;
+      osc.frequency.value = freq;
+      
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(volume, now + inst.attack);
+      gain.gain.exponentialRampToValueAtTime(volume * inst.sustain, now + inst.decay);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + duration + inst.release);
+      
+      if (instrument === 'piano' || instrument === 'strings' || instrument === 'rise') {
+        const harmonic = this.audioContext.createOscillator();
+        const hGain = this.audioContext.createGain();
+        harmonic.type = 'sine';
+        harmonic.frequency.value = freq * 2;
+        hGain.gain.value = volume * 0.15;
+        harmonic.connect(hGain);
+        hGain.connect(this.audioContext.destination);
+        harmonic.start(now);
+        harmonic.stop(now + duration + inst.release);
+      }
+      
+      osc.connect(gain);
+      gain.connect(this.audioContext.destination);
+      osc.start(now);
+      osc.stop(now + duration + inst.release);
+    } catch (err) { /* Silent fail */ }
+  },
+
+  playChord(notes, instrument = 'piano', duration = 0.3, volume = 0.08) {
+    if (!this.enabled) return;
+    notes.forEach((freq, i) => {
+      setTimeout(() => {
+        this.playInstrumentNote(freq, duration, volume * (1 - i * 0.1), instrument);
+      }, i * 50);
+    });
+  },
+
+  playSequence(notes, instruments, delay = 80) {
+    if (this.isPlaying) return;
+    this.isPlaying = true;
+    let index = 0;
+    const playNext = () => {
+      if (index >= notes.length) {
+        this.isPlaying = false;
+        return;
+      }
+      const inst = instruments[index % instruments.length];
+      this.playInstrumentNote(notes[index], 0.15, 0.08, inst);
+      index++;
+      setTimeout(playNext, delay);
+    };
+    playNext();
+  },
+
+  // ==========================================
+  // 🎵 EXPANSION SOUNDS
+  // ==========================================
+
+  playOrchestralExpansion() {
+    const melody = [523.25, 659.25, 783.99, 1046.50];
+    const instruments = ['piano', 'piano', 'strings', 'flute'];
+    this.playSequence(melody, instruments, 80);
+    setTimeout(() => {
+      this.playChord([523.25, 659.25, 783.99], 'strings', 0.5, 0.05);
+    }, 100);
+  },
+
+  playGuitarPianoExpansion() {
+    this.playSequence([392.00, 493.88, 587.33, 783.99], ['guitar', 'piano', 'guitar', 'piano'], 90);
+  },
+
+  playFluteBellExpansion() {
+    this.playSequence([587.33, 783.99, 1046.50, 1318.51], ['flute', 'bell', 'flute', 'bell'], 70);
+  },
+
+  playStringQuartetExpansion() {
+    this.playSequence([261.63, 329.63, 392.00, 523.25], ['strings', 'strings', 'strings', 'strings'], 100);
+  },
+
+  playRandomExpansion() {
+    const expansions = [
+      this.playOrchestralExpansion.bind(this),
+      this.playGuitarPianoExpansion.bind(this),
+      this.playFluteBellExpansion.bind(this),
+      this.playStringQuartetExpansion.bind(this),
+    ];
+    expansions[Math.floor(Math.random() * expansions.length)]();
+  },
+
+  // ==========================================
+  // 🎵 INTERACTION SOUNDS
+  // ==========================================
+
+  playAddSound() {
+    this.playSequence([523.25, 659.25, 783.99, 1046.50], ['piano', 'bell', 'piano', 'bell'], 80);
+  },
+
+  playEditSound() {
+    this.playChord([523.25, 659.25, 783.99], 'strings', 0.3, 0.07);
+  },
+
+  playDeleteSound() {
+    this.playSequence([783.99, 659.25, 523.25, 392.00], ['flute', 'strings', 'flute', 'strings'], 120);
+  },
+
+  playSearchSound() {
+    this.playInstrumentNote(880.00, 0.2, 0.1, 'bell');
+  },
+
+  playClearSound() {
+    this.playInstrumentNote(440.00, 0.3, 0.06, 'flute');
+  },
+
+  playArrangeSound() {
+    this.playInstrumentNote(587.33, 0.15, 0.08, 'guitar');
+  },
+
+  playVarianceSound() {
+    this.playSequence([392.00, 440.00, 493.88, 523.25], ['guitar', 'piano', 'guitar', 'piano'], 60);
+  },
+
+  playPerformSound() {
+    this.playSequence([1046.50, 1318.51], ['bell', 'bell'], 50);
+  },
+
+  playCadenceSound() {
+    this.playChord([523.25, 659.25, 783.99, 1046.50], 'piano', 0.4, 0.09);
+  },
+
+  playEntrataSound() {
+    this.playSequence([392.00, 493.88, 587.33, 783.99], ['guitar', 'piano', 'flute', 'bell'], 90);
+  },
+
+  playHoverSound() {
+    this.playInstrumentNote(659.25, 0.06, 0.04, 'bell');
+  },
+
+  // ==========================================
+  // 🎵 ERROR SOUND
+  // ==========================================
+
+  playErrorSound() {
+    this.playInstrumentNote(440.00, 0.15, 0.08, 'warning');
+  },
+
+  // ==========================================
+  // 🎵 POPUP OPEN/CLOSE
+  // ==========================================
+
+  playPopupOpenSound() {
+    this.playSequence([523.25, 659.25, 783.99], ['piano', 'strings', 'bell'], 60);
+  },
+
+  playPopupCloseSound() {
+    this.playSequence([783.99, 659.25, 523.25], ['bell', 'strings', 'piano'], 60);
+  },
+
+  // ==========================================
+  // 🎵 ORCHESTRA ENTRATA
+  // ==========================================
+
+  playOrchestraEntrataSound() {
+    this.playChord([523.25, 659.25, 783.99, 1046.50], 'piano', 0.5, 0.1);
+    setTimeout(() => {
+      this.playSequence([523.25, 659.25, 783.99, 1046.50], ['piano', 'strings', 'flute', 'bell'], 70);
+    }, 200);
+  },
+
+  // ==========================================
+  // 🎵 TOGGLE
+  // ==========================================
+
+  toggle() {
+    this.enabled = !this.enabled;
+    return this.enabled;
+  },
+
+  setEnabled(state) {
+    this.enabled = state;
+  }
 };
