@@ -896,7 +896,7 @@ if (soundToggle) {
       });
     });
     TypiUtils.showNotification(
-      enabled ? "🎵 Piano Notes Enabled" : "🔇 Piano Notes Disabled",
+      enabled ? "🎵 Harmonies Restored: Audio feedback enabled." : "🔇 Tacet Mode: Audio feedback muted.",
       "info",
       enabled ? "🎵" : "🔇"
     );
