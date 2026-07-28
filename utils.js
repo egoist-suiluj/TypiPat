@@ -2,11 +2,6 @@
 // Common functions used across popup and options pages
 
 const TypiUtils = {
-  /**
-   * Escape HTML to prevent XSS
-   * @param {string} text - Text to escape
-   * @returns {string} - Escaped HTML
-   */
   escapeHtml(text) {
     if (!text) return "";
     const div = document.createElement("div");
@@ -14,12 +9,6 @@ const TypiUtils = {
     return div.innerHTML;
   },
 
-  /**
-   * Show notification toast
-   * @param {string} message - Message to display
-   * @param {string} type - Type of notification ('info', 'success', 'error')
-   * @param {string} icon - Emoji icon to display
-   */
   showNotification(message, type = "info", icon = "🎵") {
     let toast = document.getElementById("notificationToast");
     let iconEl = document.getElementById("notificationIcon");
@@ -46,37 +35,24 @@ const TypiUtils = {
     }, 3000);
   },
 
-  /**
-   * Create notification elements if they don't exist
-   * @private
-   */
   _createNotificationElements() {
     const container = document.createElement("div");
     container.id = "notificationToast";
     container.className = "notification-toast";
-
     const icon = document.createElement("span");
     icon.id = "notificationIcon";
     icon.className = "toast-icon";
-
     const message = document.createElement("span");
     message.id = "notificationMessage";
     message.className = "toast-message";
-
     container.appendChild(icon);
     container.appendChild(message);
     document.body.appendChild(container);
   },
 
-  /**
-   * Parse storage data into shortcuts and labels
-   * @param {Object} data - Raw storage data
-   * @returns {Object} - { shortcuts, labels }
-   */
   parseStorageData(data) {
     const shortcuts = {};
     const labels = {};
-
     for (let key in data) {
       if (key.startsWith("__label__")) {
         const shortcutKey = key.replace("__label__", "");
@@ -87,16 +63,9 @@ const TypiUtils = {
         shortcuts[key] = data[key];
       }
     }
-
     return { shortcuts, labels };
   },
 
-  /**
-   * Sort shortcuts by label alphabetically
-   * @param {Object} shortcuts - Shortcuts object
-   * @param {Object} labels - Labels object
-   * @returns {Array} - Sorted array of shortcut keys
-   */
   sortShortcutsByLabel(shortcuts, labels, sections) {
     return Object.keys(shortcuts).sort((a, b) => {
       const sectionA = (sections && sections[a]) || "";
@@ -104,7 +73,6 @@ const TypiUtils = {
       const labelA = (labels && labels[a]) || "";
       const labelB = (labels && labels[b]) || "";
 
-      // 1. UNA: Section (a-z)
       if (sectionA && sectionB) {
         const sectionCompare = sectionA.localeCompare(sectionB);
         if (sectionCompare !== 0) return sectionCompare;
@@ -112,7 +80,6 @@ const TypiUtils = {
       if (sectionA && !sectionB) return -1;
       if (!sectionA && sectionB) return 1;
 
-      // 2. PANGALAWA: Annotation (a-z)
       if (labelA && labelB) {
         const labelCompare = labelA.localeCompare(labelB);
         if (labelCompare !== 0) return labelCompare;
@@ -120,16 +87,10 @@ const TypiUtils = {
       if (labelA && !labelB) return -1;
       if (!labelA && labelB) return 1;
 
-      // 3. PANGATLO: ID (a-z)
       return a.localeCompare(b);
     });
   },
 
-  /**
-   * Validate shortcut key
-   * @param {string} shortcut - Shortcut to validate
-   * @returns {Object} - { valid: boolean, message: string }
-   */
   validateShortcut(shortcut) {
     if (!shortcut || shortcut.trim() === "") {
       return { valid: false, message: "Shortcut cannot be empty" };
@@ -138,35 +99,28 @@ const TypiUtils = {
       return { valid: false, message: "Shortcut too long (max 50 characters)" };
     }
     if (shortcut.startsWith("__")) {
-      return {
-        valid: false,
-        message: "Shortcut cannot start with __ (reserved prefix)",
-      };
+      return { valid: false, message: "Shortcut cannot start with __ (reserved prefix)" };
     }
     if (/\s/.test(shortcut)) {
-      return {
-        valid: false,
-        message: "A Key plays without pause. Connect your melody using '-' or '_'.",
-      };
+      return { valid: false, message: "A Key plays without pause. Connect your melody using '-' or '_'." };
     }
     if (/[{}[\]\\|]/.test(shortcut)) {
-      return {
-        valid: false,
-        message: "Shortcut contains invalid characters: {}[]\\|",
-      };
+      return { valid: false, message: "Shortcut contains invalid characters: {}[]\\|" };
     }
     return { valid: true, message: "" };
   },
 
-  /**
-   * Calculate text statistics
-   * @param {string} text - Text to analyze
-   * @returns {Object} - { beatCount, caesura }
-   */
   calculateStats(text) {
-    // 🔥 SIGURADUHIN NA STRING ANG TEXT
-    const safeText = text || "";  // Kung undefined/null, gawing empty string
-
+    let safeText = "";
+    if (typeof text === 'string') {
+      safeText = text;
+    } else if (text !== null && text !== undefined) {
+      try {
+        safeText = String(text);
+      } catch (e) {
+        safeText = "";
+      }
+    }
     return {
       beatCount: safeText.length,
       caesura: safeText.split("\n").length,
@@ -192,21 +146,67 @@ const SoundPlayer = {
   enabled: true,
   audioContext: null,
   isPlaying: false,
+  isInitialized: false,
+  _resumed: false,
 
   init() {
-    if (!this.audioContext) {
-      this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    if (this.audioContext) {
+      return;
     }
+    try {
+      this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      this.isInitialized = true;
+    } catch (e) {
+      console.warn('Failed to create AudioContext:', e);
+    }
+  },
+
+  resumeFromGesture() {
+    return new Promise((resolve) => {
+      if (!this.audioContext) {
+        this.init();
+      }
+      if (this.audioContext && this.audioContext.state === 'suspended') {
+        this.audioContext.resume().then(() => {
+          this._resumed = true;
+          resolve(true);
+        }).catch(() => resolve(false));
+      } else {
+        this._resumed = true;
+        resolve(true);
+      }
+    });
+  },
+
+  isReady() {
+    return this.audioContext && this.audioContext.state === 'running';
+  },
+
+  _ensureAudioContext() {
+    if (!this.audioContext) {
+      this.init();
+    }
+    if (this.audioContext && this.audioContext.state === 'suspended') {
+      if (!this._resumed) {
+        console.log('🔇 AudioContext suspended. Click on the page first to enable sound.');
+        return false;
+      }
+      this.audioContext.resume().catch(() => {});
+    }
+    return this.audioContext && this.audioContext.state === 'running';
   },
 
   playInstrumentNote(freq, duration = 0.2, volume = 0.1, instrument = 'piano') {
     if (!this.enabled) return;
+    if (!this._ensureAudioContext()) {
+      console.log('AudioContext not running, sound will play on next user interaction.');
+      return;
+    }
     try {
-      this.init();
       const now = this.audioContext.currentTime;
       const osc = this.audioContext.createOscillator();
       const gain = this.audioContext.createGain();
-      
+
       const settings = {
         piano: { type: 'sine', attack: 0.005, decay: 0.05, sustain: 0.6, release: 0.15 },
         strings: { type: 'sine', attack: 0.02, decay: 0.1, sustain: 0.8, release: 0.3 },
@@ -217,17 +217,16 @@ const SoundPlayer = {
         rise: { type: 'sine', attack: 0.01, decay: 0.1, sustain: 0.7, release: 0.2 },
         fall: { type: 'sine', attack: 0.01, decay: 0.1, sustain: 0.5, release: 0.3 },
       };
-      
+
       const inst = settings[instrument] || settings.piano;
-      
       osc.type = inst.type;
       osc.frequency.value = freq;
-      
+
       gain.gain.setValueAtTime(0, now);
       gain.gain.linearRampToValueAtTime(volume, now + inst.attack);
       gain.gain.exponentialRampToValueAtTime(volume * inst.sustain, now + inst.decay);
       gain.gain.exponentialRampToValueAtTime(0.001, now + duration + inst.release);
-      
+
       if (instrument === 'piano' || instrument === 'strings' || instrument === 'rise') {
         const harmonic = this.audioContext.createOscillator();
         const hGain = this.audioContext.createGain();
@@ -239,7 +238,7 @@ const SoundPlayer = {
         harmonic.start(now);
         harmonic.stop(now + duration + inst.release);
       }
-      
+
       osc.connect(gain);
       gain.connect(this.audioContext.destination);
       osc.start(now);
@@ -273,10 +272,7 @@ const SoundPlayer = {
     playNext();
   },
 
-  // ==========================================
   // 🎵 EXPANSION SOUNDS
-  // ==========================================
-
   playOrchestralExpansion() {
     const melody = [523.25, 659.25, 783.99, 1046.50];
     const instruments = ['piano', 'piano', 'strings', 'flute'];
@@ -308,10 +304,7 @@ const SoundPlayer = {
     expansions[Math.floor(Math.random() * expansions.length)]();
   },
 
-  // ==========================================
   // 🎵 INTERACTION SOUNDS
-  // ==========================================
-
   playAddSound() {
     this.playSequence([523.25, 659.25, 783.99, 1046.50], ['piano', 'bell', 'piano', 'bell'], 80);
   },
@@ -356,18 +349,11 @@ const SoundPlayer = {
     this.playInstrumentNote(659.25, 0.06, 0.04, 'bell');
   },
 
-  // ==========================================
-  // 🎵 ERROR SOUND
-  // ==========================================
-
   playErrorSound() {
     this.playInstrumentNote(440.00, 0.15, 0.08, 'warning');
   },
 
-  // ==========================================
-  // 🎵 POPUP OPEN/CLOSE
-  // ==========================================
-
+  // 🎵 POPUP SOUNDS
   playPopupOpenSound() {
     this.playSequence([523.25, 659.25, 783.99], ['piano', 'strings', 'bell'], 60);
   },
@@ -376,10 +362,7 @@ const SoundPlayer = {
     this.playSequence([783.99, 659.25, 523.25], ['bell', 'strings', 'piano'], 60);
   },
 
-  // ==========================================
   // 🎵 ORCHESTRA ENTRATA
-  // ==========================================
-
   playOrchestraEntrataSound() {
     this.playChord([523.25, 659.25, 783.99, 1046.50], 'piano', 0.5, 0.1);
     setTimeout(() => {
@@ -387,10 +370,7 @@ const SoundPlayer = {
     }, 200);
   },
 
-  // ==========================================
   // 🎵 TOGGLE
-  // ==========================================
-
   toggle() {
     this.enabled = !this.enabled;
     return this.enabled;

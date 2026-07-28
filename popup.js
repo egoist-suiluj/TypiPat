@@ -92,14 +92,11 @@ function performAction(text, btnElement) {
       showFeedback(btnElement);
     })
     .catch((err) => {
-      // Suppress console spam, just try fallback
-      // console.log('Standard Clipboard API failed, switching to offscreen delegate.');
       copyViaBackground(text, btnElement);
     });
 }
 
 function copyViaBackground(text, btnElement) {
-  // Delegate to Background -> Offscreen (Immune to Permission Policies)
   try {
     if (!chrome.runtime?.id) {
       fallbackCopyText(text, btnElement);
@@ -144,7 +141,6 @@ function fallbackCopyText(text, btnElement) {
 }
 
 function showFeedback(btnElement) {
-  // Visual feedback
   if (btnElement) {
     const originalText = btnElement.textContent;
     btnElement.textContent = "Scored!";
@@ -156,7 +152,6 @@ function showFeedback(btnElement) {
     }, TIMING_CONFIG.BUTTON_FEEDBACK_DURATION);
   }
 
-  // Also show toast
   TypiUtils.showNotification("Note copied to clipboard!", "success", "🎵");
 }
 
@@ -187,7 +182,6 @@ function performSearch() {
   const searchTerm = searchBox.value.toLowerCase().trim();
   const notes = document.querySelectorAll(".note-item");
 
-  // Check if search is empty
   if (!searchTerm) {
     TypiUtils.showNotification(
       "Please enter a search term to cue.",
@@ -197,7 +191,6 @@ function performSearch() {
     return;
   }
 
-  // Show/hide clear button
   if (clearBtn) {
     clearBtn.classList.add("visible");
   }
@@ -213,7 +206,6 @@ function performSearch() {
       note.classList.remove("hidden");
       matchCount++;
 
-      // Highlight first match
       if (!foundMatch) {
         note.classList.add("highlight");
         note.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -229,7 +221,6 @@ function performSearch() {
     }
   });
 
-  // Show result notification
   if (matchCount === 0) {
     TypiUtils.showNotification(
       "No matching notes found. Try a different rhythm.",
@@ -247,12 +238,10 @@ function performSearch() {
   }
 }
 
-// Search button click
 if (searchBtn) {
   searchBtn.addEventListener("click", performSearch);
 }
 
-// Enter key press
 if (searchBox) {
   searchBox.addEventListener("keypress", (e) => {
     if (e.key === "Enter") {
@@ -261,7 +250,6 @@ if (searchBox) {
   });
 }
 
-// Clear search
 if (clearBtn) {
   clearBtn.addEventListener("click", () => {
     if (searchBox) {
@@ -277,49 +265,45 @@ if (clearBtn) {
   });
 }
 
+// ==========================================
+// LOAD NOTES & SOUNDS
+// ==========================================
+
 // Load notes when popup opens
 loadNotes();
-// 🔥 MAG-REGISTER NG STORAGE CHANGE LISTENER
-chrome.storage.onChanged.addListener((changes, area) => {
-  // I-check kung may pagbabago sa shortcuts
-  const hasShortcutChanges = Object.keys(changes).some(key =>
-    !key.startsWith("__meta__") &&
-    !key.startsWith("__label__") &&
-    !key.startsWith("__section__")
-  );
 
-  if (hasShortcutChanges) {
-    console.log('🔄 Shortcuts changed, reloading notes...');
-    loadNotes();
+// 🎵 I-resume ang audio kapag nag-click ang user (ISANG BESES LANG)
+document.addEventListener('click', async function resumeAudio() {
+  if (typeof SoundPlayer !== 'undefined') {
+    // I-resume ang audio context
+    await SoundPlayer.resumeFromGesture();
+    // Pagkatapos ma-resume, i-play ang popup open sound
+    if (SoundPlayer.enabled && SoundPlayer.isReady()) {
+      SoundPlayer.playPopupOpenSound();
+    }
+    // I-remove ang listener para isang beses lang
+    document.removeEventListener('click', resumeAudio);
   }
-  // Load notes when popup opens
-  loadNotes();
+}, { once: true, capture: true });
 
-  // 🎵 Sound: Popup Open
+// 🎵 Sound: Popup Close (hindi kailangan ng user gesture)
+window.addEventListener('beforeunload', () => {
   if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
-    SoundPlayer.playPopupOpenSound();
+    SoundPlayer.playPopupCloseSound();
   }
+});
 
-  // 🎵 Popup close detection (beforeunload)
-  window.addEventListener('beforeunload', () => {
+// 🎵 Auto-refresh popup when shortcuts change
+chrome.storage.onChanged.addListener((changes) => {
+  const hasChanges = Object.keys(changes).some(key => 
+    !key.startsWith('__meta__') && 
+    !key.startsWith('__label__') && 
+    !key.startsWith('__section__')
+  );
+  if (hasChanges) {
+    loadNotes();
     if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
-      SoundPlayer.playPopupCloseSound();
+      SoundPlayer.playSearchSound();
     }
-  });
-
-  // 🎵 Storage listener for real-time updates
-  chrome.storage.onChanged.addListener((changes, area) => {
-    const hasShortcutChanges = Object.keys(changes).some(key =>
-      !key.startsWith("__meta__") &&
-      !key.startsWith("__label__") &&
-      !key.startsWith("__section__")
-    );
-    if (hasShortcutChanges) {
-      loadNotes();
-      // 🎵 Sound: Refresh
-      if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
-        SoundPlayer.playSearchSound();
-      }
-    }
-  });
+  }
 });

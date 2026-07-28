@@ -102,17 +102,16 @@ const SnippetExpander = {
     if (!success) {
       await this.insertViaClipboard(shortcut, processedReplacement);
     }
-    // 🔥 MAG-PLAY NG PIANO NOTE KUNG SUCCESSFUL
+    // Sa loob ng SnippetExpander.expand()
     if (success) {
       try {
         if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
-          // Randomly choose a melody type
-          const melodies = ['playMelody', 'playArpeggio', 'playScale'];
-          const randomMelody = melodies[Math.floor(Math.random() * melodies.length)];
+          // 🔥 I-resume muna bago mag-play
+          SoundPlayer.resume();
           SoundPlayer.playRandomExpansion();
         }
       } catch (err) {
-        // Silent fail - sound not available
+        // Silent fail
       }
     }
     return success;
@@ -806,6 +805,11 @@ const FloatingUI = {
         this.closeOverlay();
       }
     });
+    document.addEventListener('click', () => {
+      if (typeof SoundPlayer !== 'undefined') {
+        SoundPlayer.resume();
+      }
+    }, { once: false });
   },
 
   createButton() {
