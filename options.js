@@ -247,9 +247,10 @@ async function loadShortcuts() {
   const container = document.getElementById("shortcutsContainer");
   if (!container) return;
 
+  const RESERVED_SETTING_KEYS = ["soundEnabled"];
   const filteredData = {};
   for (let key in data) {
-    if (!key.startsWith("__section__")) {
+    if (!key.startsWith("__section__") && !RESERVED_SETTING_KEYS.includes(key)) {
       filteredData[key] = data[key];
     }
   }
