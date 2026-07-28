@@ -5,10 +5,11 @@ async function loadNotes() {
 
   if (!container) return;
 
-  // 🔥 I-FILTER ANG __section__ KEYS
+  // 🔥 I-FILTER ANG __section__ KEYS AT SETTINGS (hindi shortcuts)
+  const RESERVED_SETTING_KEYS = ["soundEnabled"];
   const filteredData = {};
   for (let key in data) {
-    if (!key.startsWith("__section__")) {
+    if (!key.startsWith("__section__") && !RESERVED_SETTING_KEYS.includes(key)) {
       filteredData[key] = data[key];
     }
   }
@@ -295,9 +296,9 @@ window.addEventListener('beforeunload', () => {
 
 // 🎵 Auto-refresh popup when shortcuts change
 chrome.storage.onChanged.addListener((changes) => {
-  const hasChanges = Object.keys(changes).some(key => 
-    !key.startsWith('__meta__') && 
-    !key.startsWith('__label__') && 
+  const hasChanges = Object.keys(changes).some(key =>
+    !key.startsWith('__meta__') &&
+    !key.startsWith('__label__') &&
     !key.startsWith('__section__')
   );
   if (hasChanges) {

@@ -178,6 +178,10 @@ const SoundPlayer = {
     });
   },
 
+  resume() {
+    return this.resumeFromGesture();
+  },
+
   isReady() {
     return this.audioContext && this.audioContext.state === 'running';
   },
