@@ -10,10 +10,13 @@
       box-sizing: border-box;
     }
 
+    html,
     body {
-      width: 100%;
-      min-height: 500px;
-      max-height: 600px;
+      width: 380px;
+      height: 550px;
+      /* FIXED, hindi na min/max */
+      overflow: hidden;
+      /* pinipigilan ang buong-popup scroll */
       font-family: "Georgia", "Times New Roman", serif;
       padding: 0;
       margin: 0;
@@ -39,14 +42,11 @@
 
     /* Header */
     .header {
-      padding: 20px;
+      padding: 14px 20px 12px 20px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.15);
       background: rgba(255, 255, 255, 0.2);
-      /* ← BAGO: glass */
       backdrop-filter: blur(10px);
-      /* ← BAGO: glass */
       -webkit-backdrop-filter: blur(10px);
-      /* ← BAGO: glass */
     }
 
     .header-tagline {
@@ -54,8 +54,8 @@
       color: #6a1b9a;
       font-size: 13px;
       font-style: italic;
-      line-height: 1.6;
-      margin-bottom: 15px;
+      line-height: 1.4;
+      margin-bottom: 8px;
     }
 
     .title {
@@ -64,12 +64,12 @@
       font-weight: 300;
       letter-spacing: 2px;
       text-align: center;
-      margin-bottom: 15px;
+      margin-bottom: 0;
     }
 
     /* Search Section */
     .search-section {
-      padding: 14px 20px 15px 20px;
+      padding: 10px 20px 12px 20px;
       background: rgba(255, 255, 255, 0.1);
       /* ← BAGO: glass */
       backdrop-filter: blur(8px);

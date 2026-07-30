@@ -793,9 +793,100 @@ const FloatingUI = {
     this.createButton();
     this.createOverlay();
 
-    chrome.runtime.onMessage.addListener((request) => {
-      if (request.action === "toggleOverlay") {
-        this.toggleOverlay();
+    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+      if (request.action === 'expandText') {
+        const text = request.text;
+        const activeEl = document.activeElement;
+        let inserted = false;
+
+        // --- PARAAN 1: Walang clipboard na ginagalaw (PINAKAMAGANDA) ---
+        if (activeEl) {
+          try {
+            // Fina-focus muli para sigurado
+            activeEl.focus();
+
+            // Ito ang magic: nag-iinsert ng text nang DERETSO, hindi dumadaan sa clipboard
+            const success = document.execCommand('insertText', false, text);
+
+            if (success) {
+              inserted = true;
+              console.log('✅ Text inserted via execCommand (no clipboard touched)');
+              sendResponse({ success: true });
+              return true; // Tapos na, exit agad
+            }
+          } catch (execError) {
+            // Kung nag-fail ang execCommand (hal. sa contenteditable na may restrictions)
+            console.warn('⚠️ execCommand failed, trying fallback...', execError);
+          }
+        }
+
+        // --- Clipboard Fallback (na may PROPER UNDO grouping) ---
+        if (!inserted) {
+          (async () => {
+            let originalClipboard = '';
+            try {
+              originalClipboard = await navigator.clipboard.readText();
+            } catch (readError) {
+              console.log('No existing clipboard text to save.');
+            }
+
+            try {
+              // I-save ang kasalukuyang selection para ma-restore later
+              const selection = window.getSelection();
+              const range = selection.getRangeAt(0);
+
+              // Simulan ang undo transaction (para isang undo lang ang kailangan)
+              document.execCommand('beginUndoTransaction');
+
+              // Tanggalin ang selected text (ang shortcut)
+              document.execCommand('delete');
+
+              // I-paste ang expansion text
+              await navigator.clipboard.writeText(text);
+
+              const pasteEvent = new ClipboardEvent('paste', {
+                bubbles: true,
+                cancelable: true,
+                clipboardData: new DataTransfer()
+              });
+              pasteEvent.clipboardData.setData('text/plain', text);
+
+              if (activeEl) {
+                activeEl.dispatchEvent(pasteEvent);
+              } else {
+                document.dispatchEvent(pasteEvent);
+              }
+
+              // Tapusin ang undo transaction
+              document.execCommand('endUndoTransaction');
+
+              // I-restore ang original clipboard
+              if (originalClipboard) {
+                await navigator.clipboard.writeText(originalClipboard);
+              } else {
+                await navigator.clipboard.writeText('');
+              }
+
+              sendResponse({ success: true });
+
+            } catch (clipError) {
+              console.error('❌ Clipboard method failed:', clipError);
+              // Kung nag-fail, subukan ang execCommand ulit
+              try {
+                if (activeEl) {
+                  activeEl.focus();
+                  document.execCommand('insertText', false, text);
+                  sendResponse({ success: true });
+                  return;
+                }
+              } catch (finalError) {
+                console.error('🔥 All methods failed:', finalError);
+              }
+              sendResponse({ success: false, error: clipError.message });
+            }
+          })();
+          return true;
+        }
       }
     });
 
