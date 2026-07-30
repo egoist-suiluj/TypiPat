@@ -1,7 +1,8 @@
 {
   "manifest_version": 3,
   "name": "TypiPat",
-  "version": "2.0.0",
+  "version": "3.0.0",
+  "version_name": "3.0.0 - Harmony Update",
   "description": "Orchestrate your day into harmony. Your quiet rhythm — composing peace with every keystroke.",
   "permissions": [
     "storage",
@@ -49,7 +50,6 @@
       "resources": [
         "options.html",
         "popup.html",
-        "popup.css",
         "iPat.png",
         "utils.js",
         "storage-helper.js",
