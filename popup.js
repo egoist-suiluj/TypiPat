@@ -156,21 +156,105 @@ function showFeedback(btnElement) {
   TypiUtils.showNotification("Note copied to clipboard!", "success", "🎵");
 }
 
-// Open options page
+// ==========================================
+// OPEN OPTIONS PAGE - RELIABLE VERSION
+// ==========================================
 const openOptionsBtn = document.getElementById("openOptions");
 if (openOptionsBtn) {
-  openOptionsBtn.addEventListener("click", () => {
+  openOptionsBtn.addEventListener("click", async () => {
+    console.log('🎵 Orchestra Entrata clicked');
+    
+    // I-play ang sound (kung available)
     try {
-      if (chrome.runtime?.id) {
-        chrome.runtime.openOptionsPage();
-        // 🎵 Sound: Orchestra Entrata
-        if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
-          SoundPlayer.playOrchestraEntrataSound();
-        }
+      if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
+        await SoundPlayer.resume();
+        SoundPlayer.playOrchestraEntrataSound();
       }
-    } catch (err) { }
+    } catch (err) {
+      console.warn('Sound play failed:', err);
+    }
+    
+    // 🔥 PRIMARY: Direct openOptionsPage
+    function openOptionsDirect() {
+      return new Promise((resolve) => {
+        try {
+          if (!chrome.runtime?.id) {
+            resolve(false);
+            return;
+          }
+          
+          chrome.runtime.openOptionsPage(() => {
+            if (chrome.runtime.lastError) {
+              console.warn('openOptionsPage error:', chrome.runtime.lastError.message);
+              resolve(false);
+            } else {
+              console.log('✅ Options page opened directly');
+              resolve(true);
+            }
+          });
+        } catch (err) {
+          console.warn('openOptionsPage exception:', err);
+          resolve(false);
+        }
+      });
+    }
+    
+    // 🔥 FALLBACK: chrome.tabs.create
+    function openOptionsFallback() {
+      try {
+        const optionsUrl = chrome.runtime.getURL('options.html');
+        chrome.tabs.create({ url: optionsUrl, active: true }, (tab) => {
+          if (chrome.runtime.lastError) {
+            console.error('Fallback failed:', chrome.runtime.lastError);
+            showReloadMessage();
+          } else {
+            console.log('✅ Options opened via fallback tab');
+          }
+        });
+      } catch (err) {
+        console.error('Fallback exception:', err);
+        showReloadMessage();
+      }
+    }
+    
+    function showReloadMessage() {
+      TypiUtils.showNotification(
+        'Extension needs refresh. Please reload the page.',
+        'error',
+        '⚠️'
+      );
+    }
+    
+    // Execute
+    const success = await openOptionsDirect();
+    if (!success) {
+      openOptionsFallback();
+    }
   });
 }
+
+// ==========================================
+// CHECK EXTENSION CONTEXT
+// ==========================================
+function checkExtensionContext() {
+  try {
+    if (!chrome.runtime?.id) {
+      console.warn('Extension context invalid, reloading...');
+      TypiUtils.showNotification('Refreshing extension connection...', 'info', '🔄');
+      setTimeout(() => window.location.reload(), 1000);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.warn('Context check failed:', err);
+    return false;
+  }
+}
+
+// I-check agad pag-load ng popup
+document.addEventListener('DOMContentLoaded', () => {
+  checkExtensionContext();
+});
 
 // Search functionality
 const searchBox = document.getElementById("searchBox");

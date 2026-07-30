@@ -388,21 +388,37 @@ async function loadShortcuts() {
   container.appendChild(table);
   addActionListeners();
 
+  // ==========================================
+  // 🔥 POST-SAVE FOCUS - DITO NA NAKALAGAY
+  // ==========================================
   if (postSaveFocusShortcut) {
     const seek = postSaveFocusShortcut.toLowerCase();
-    requestAnimationFrame(() => {
+    console.log('🔍 Looking for:', seek);
+    
+    // Gumamit ng setTimeout para siguradong na-render na ang DOM
+    setTimeout(() => {
       const rows = container.querySelectorAll("tbody tr");
       let target = null;
       rows.forEach((r) => {
-        if (r.getAttribute("data-shortcut") === seek) target = r;
+        const shortcut = r.getAttribute("data-shortcut");
+        if (shortcut === seek) {
+          target = r;
+        }
       });
+      
       if (target) {
+        console.log('✅ Found target:', seek);
         target.scrollIntoView({ behavior: "smooth", block: "center" });
         const cls = UI_CONFIG.focusHighlightClass;
         target.classList.add(cls);
         setTimeout(() => target.classList.remove(cls), UI_CONFIG.focusHighlightDuration);
+      } else {
+        console.log('⚠️ Target not found:', seek);
+        // Kung hindi mahanap, mag-scroll sa top
+        window.scrollTo({ top: 0, behavior: "smooth" });
       }
-    });
+    }, 100);
+    
     postSaveFocusShortcut = null;
   }
 }
@@ -567,7 +583,6 @@ if (floatingBtn) {
 }
 
 // Add Button (Compose)
-const addBtn = document.getElementById("addBtn");
 if (addBtn) {
   addBtn.addEventListener("click", () => {
     const shortcutInput = document.getElementById("shortcutInput");
@@ -587,22 +602,9 @@ if (addBtn) {
       return;
     }
 
-    if (!shortcut || !replacement) {
-      TypiUtils.showNotification("Missing Key or Manuscript.", "error", "⚠️");
-      // 🎵 Sound: Error
-      if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
-        SoundPlayer.playErrorSound();
-      }
-      return;
-    }
-
     const validation = TypiUtils.validateShortcut(shortcut);
     if (!validation.valid) {
       TypiUtils.showNotification(validation.message, "error", "⚠️");
-      // 🎵 Sound: Error
-      if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
-        SoundPlayer.playErrorSound();
-      }
       return;
     }
 
@@ -617,28 +619,33 @@ if (addBtn) {
         if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
           SoundPlayer.playErrorSound();
         }
+        // 🔥 FIX: Huwag i-clear ang form para makita ng user ang error
         return;
       }
 
       postSaveFocusShortcut = shortcut;
-      TypiStorage.save(shortcut, replacement, label || null, section || null).then(() => {
-        TypiUtils.showNotification("Success! Score Complete.", "success", "✅");
-        shortcutInput.value = "";
-        if (labelInput) labelInput.value = "";
-        replacementInput.value = "";
-        if (sectionInput) sectionInput.value = "";
-        loadShortcuts();
-        // 🎵 Sound: Add
-        if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
-          SoundPlayer.playAddSound();
-        }
-      });
+      TypiStorage.save(shortcut, replacement, label || null, section || null)
+        .then(() => {
+          TypiUtils.showNotification("Success! Score Complete.", "success", "✅");
+          shortcutInput.value = "";
+          if (labelInput) labelInput.value = "";
+          replacementInput.value = "";
+          if (sectionInput) sectionInput.value = "";
+          loadShortcuts();
+          // 🎵 Sound: Add
+          if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
+            SoundPlayer.playAddSound();
+          }
+        })
+        .catch((error) => {
+          console.error('Add error:', error);
+          TypiUtils.showNotification(`Save failed: ${error.message || 'Unknown error'}`, "error", "⚠️");
+        });
     });
   });
 }
 
 // Save Button (Edit)
-const saveBtn = document.getElementById("saveBtn");
 if (saveBtn) {
   saveBtn.addEventListener("click", () => {
     const shortcutInput = document.getElementById("shortcutInput");
@@ -659,6 +666,7 @@ if (saveBtn) {
       return;
     }
 
+    // 🔥 VALIDATION: Gamitin ang TypiUtils.validateShortcut
     const validation = TypiUtils.validateShortcut(newShortcut);
     if (!validation.valid) {
       TypiUtils.showNotification(validation.message, "error", "⚠️");
@@ -682,6 +690,10 @@ if (saveBtn) {
         if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
           SoundPlayer.playErrorSound();
         }
+
+        // 🔥 FIX: I-set pa rin ang postSaveFocusShortcut para sa navigation
+        postSaveFocusShortcut = originalShortcut;
+        loadShortcuts(); // I-reload ang listahan para makita ang error state
         return;
       }
 
@@ -697,16 +709,27 @@ function performSave(originalShortcut, newShortcut, replacement, label, section)
     )
     : TypiStorage.save(newShortcut, replacement, label || null, section || null);
 
-  savePromise.then(() => {
-    TypiUtils.showNotification("Theme saved successfully!", "success", "✅");
-    postSaveFocusShortcut = newShortcut;
-    exitEditMode();
-    loadShortcuts();
-    // 🎵 Sound: Edit/Theme
-    if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
-      SoundPlayer.playEditSound();
-    }
-  });
+  savePromise
+    .then(() => {
+      TypiUtils.showNotification("Theme saved successfully!", "success", "✅");
+      postSaveFocusShortcut = newShortcut;
+      exitEditMode();
+      loadShortcuts();
+      // 🎵 Sound: Edit/Theme
+      if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
+        SoundPlayer.playEditSound();
+      }
+    })
+    .catch((error) => {
+      // 🔥 FIX: I-handle ang error at i-navigate pa rin
+      console.error('Save error:', error);
+      TypiUtils.showNotification(`Save failed: ${error.message || 'Unknown error'}`, "error", "⚠️");
+
+      // I-set ang focus sa original shortcut para makita pa rin
+      postSaveFocusShortcut = originalShortcut;
+      exitEditMode();
+      loadShortcuts();
+    });
 }
 
 // Discard Button
