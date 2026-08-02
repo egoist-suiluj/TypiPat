@@ -426,8 +426,22 @@ async function loadShortcuts() {
       e.stopPropagation();
       const sh = toggleText.getAttribute('data-shortcut');
       const currentOrder = await getPinnedOrder();
+      const isPinning = !currentOrder.includes(sh);
+
+      // 🔥 Check limit bago mag-pin
+      if (isPinning && currentOrder.length >= 12) {
+        TypiUtils.showNotification("🚫 Scale Overflow: Unpin a note to sustain a new tone.", "error", "⚠️");
+        return;
+      }
+
+      // 🔥 Gumamit ng existing togglePin function (hindi binago)
       const newOrder = togglePin(sh, currentOrder);
       await setPinnedOrder(newOrder);
+
+      // 🔥 Mag-notify (gamit ang bagong function)
+      showPinNotification(sh, isPinning, currentOrder, newOrder);
+
+      // Re-render
       loadShortcuts();
     });
     fermataDiv.appendChild(toggleText);

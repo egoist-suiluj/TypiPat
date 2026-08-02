@@ -57,7 +57,7 @@ const TypiUtils = {
       if (key.startsWith("__label__")) {
         const shortcutKey = key.replace("__label__", "");
         labels[shortcutKey] = data[key];
-      } else if (key.startsWith("__meta__")) {
+      } else if (key.startsWith("__meta__") || key.startsWith("__section__")) {
         continue;
       } else {
         shortcuts[key] = data[key];
@@ -394,7 +394,7 @@ const CHROMATIC_NOTES = [
   { note: '[ C# ]', icon: '♪', color: '#FF4500', bg: '#FF4500' },
   { note: '[ D ]',  icon: '♫', color: '#FF8C00', bg: '#FF8C00' },
   { note: '[ D# ]', icon: '♬', color: '#FFA500', bg: '#FFA500' },
-  { note: '[ E ]',  icon: '♩', color: '#FFD700', bg: '#FFD700' },
+  { note: '[ E ]',  icon: '♩', color: '#D4AF37', bg: '#D4AF37' },
   { note: '[ F ]',  icon: '♪', color: '#9ACD32', bg: '#9ACD32' },
   { note: '[ F# ]', icon: '♫', color: '#008000', bg: '#008000' },
   { note: '[ G ]',  icon: '♬', color: '#008080', bg: '#008080' },
@@ -444,3 +444,90 @@ function getChromaticDataForSlot(slot) {
   return CHROMATIC_NOTES[slot];
 }
 
+// ==========================================
+// PIN SOUND NOTIFICATIONS
+// ==========================================
+
+function playPinSound(isPinning, isFull, wasFull) {
+  try {
+    if (typeof SoundPlayer === 'undefined' || !SoundPlayer.enabled) return;
+    
+    if (isPinning) {
+      // 🔥 Pag-pin: mag-play ng ascending notes (positive, engaging)
+      SoundPlayer.playSequence([523.25, 659.25, 783.99], ['piano', 'bell', 'piano'], 80);
+      
+      if (isFull) {
+        // 🔥 Full scale: mas festive
+        setTimeout(() => {
+          SoundPlayer.playChord([523.25, 659.25, 783.99, 1046.50], 'piano', 0.5, 0.1);
+        }, 300);
+      }
+    } else {
+      // 🔥 Pag-unpin: mag-play ng descending notes (release)
+      SoundPlayer.playSequence([783.99, 659.25, 523.25], ['piano', 'bell', 'piano'], 80);
+      
+      if (wasFull) {
+        // 🔥 Scale broken: sadder sound
+        setTimeout(() => {
+          SoundPlayer.playSequence([523.25, 440.00, 392.00], ['flute', 'strings', 'flute'], 120);
+        }, 300);
+      }
+    }
+  } catch (err) {
+    // Silent fail - huwag sirain ang UI
+    console.warn('Sound play failed:', err);
+  }
+}
+
+// ==========================================
+// PIN NOTIFICATIONS WITH SOUND
+// ==========================================
+
+function showPinNotification(shortcut, isPinning, currentOrder, newOrder) {
+  // Kunin ang tamang slot AFTER ng pagbabago
+  let slotIndex;
+  let noteDisplay;
+  let isFull = false;
+  let wasFull = false;
+  
+  if (isPinning) {
+    // Pag nag-pin: kunin ang index ng bagong pin sa newOrder
+    slotIndex = newOrder.indexOf(shortcut);
+    const chroma = slotIndex !== -1 && slotIndex < 12 ? getChromaticDataForSlot(slotIndex) : null;
+    noteDisplay = chroma ? `${chroma.icon} ${chroma.note}` : shortcut;
+    
+    // ✅ SUCCESS: Green
+    TypiUtils.showNotification(`𝄐 Fermata Engaged: ${noteDisplay} sustained at the top.`, "success", "𝄐");
+    
+    // Check kung full scale na (12/12)
+    isFull = (newOrder.length === 12);
+    if (isFull) {
+      setTimeout(() => {
+        TypiUtils.showNotification("🎼 Full Chromatic Scale Achieved! All 12 notes are currently sustained.", "success", "🎼");
+      }, 600);
+    }
+    
+    // 🎵 I-play ang sound para sa pin
+    playPinSound(true, isFull, false);
+    
+  } else {
+    // Pag nag-unpin: kunin ang index ng in-unpin sa currentOrder (bago alisin)
+    slotIndex = currentOrder.indexOf(shortcut);
+    const chroma = slotIndex !== -1 && slotIndex < 12 ? getChromaticDataForSlot(slotIndex) : null;
+    noteDisplay = chroma ? `${chroma.icon} ${chroma.note}` : shortcut;
+    
+    // ℹ️ INFO: Blue/Purple
+    wasFull = (currentOrder.length === 12);
+    TypiUtils.showNotification(`𝄐 Fermata Released: ${noteDisplay} returned to the score.`, "info", "𝄐");
+    
+    // Mag-notify kung na-break ang 12
+    if (wasFull) {
+      setTimeout(() => {
+        TypiUtils.showNotification("🎶 Scale Broken: Chromatic harmony is now incomplete.", "warning", "🎶");
+      }, 600);
+    }
+    
+    // 🎵 I-play ang sound para sa unpin
+    playPinSound(false, false, wasFull);
+  }
+}

@@ -5,22 +5,22 @@ async function loadNotes() {
 
   if (!container) return;
 
-  // 🔥 I-FILTER ANG __section__ KEYS AT SETTINGS (hindi shortcuts)
-  const RESERVED_SETTING_KEYS = ["soundEnabled"];
+  const pinnedOrder = await getPinnedOrder();
+
+  // 🔥 FILTER: I-block ang __pinned_order__, __meta__, at reserved settings
+  const RESERVED_SETTING_KEYS = ["soundEnabled", "enabled"];
   const filteredData = {};
   for (let key in data) {
-    if (!key.startsWith("__section__") && !RESERVED_SETTING_KEYS.includes(key)) {
-      filteredData[key] = data[key];
+    if (key === "__pinned_order__" || key.startsWith("__meta__") || RESERVED_SETTING_KEYS.includes(key)) {
+      continue;
     }
+    filteredData[key] = data[key];
   }
 
-  // Use shared utility to parse storage data
   const { shortcuts, labels } = TypiUtils.parseStorageData(filteredData);
 
-  // Clear container safely
   container.textContent = "";
 
-  // Check if there are shortcuts
   if (Object.keys(shortcuts).length === 0) {
     const emptyState = document.createElement("div");
     emptyState.className = "empty-state";
@@ -29,18 +29,48 @@ async function loadNotes() {
     return;
   }
 
-  // Use shared utility to sort shortcuts
-  const sortedShortcuts = TypiUtils.sortShortcutsByLabel(shortcuts, labels);
+  // 🔥 SORT: Pinned first, then unpinned (na may "Untitled" sa dulo)
+  const unpinned = [];
+  const pinnedMap = {};
+  for (let key in shortcuts) {
+    const idx = pinnedOrder.indexOf(key);
+    if (idx !== -1) {
+      pinnedMap[key] = idx;
+    } else {
+      unpinned.push(key);
+    }
+  }
+  const pinnedKeys = Object.keys(pinnedMap).sort((a, b) => pinnedMap[a] - pinnedMap[b]);
 
-  // Build notes using createElement (XSS-safe)
+  // 🔥 FIX: "Untitled" goes to the end (tulad ng sa options)
+  unpinned.sort((a, b) => {
+    const labelA = (labels[a] || "").toLowerCase();
+    const labelB = (labels[b] || "").toLowerCase();
+
+    const isUntitledA = labelA === "" || labelA === "untitled";
+    const isUntitledB = labelB === "" || labelB === "untitled";
+
+    if (isUntitledA && isUntitledB) return a.localeCompare(b);
+    if (isUntitledA) return 1;  // Untitled goes to the end
+    if (isUntitledB) return -1; // Untitled goes to the end
+
+    return labelA.localeCompare(labelB);
+  });
+
+  const sortedShortcuts = [...pinnedKeys, ...unpinned];
+
   sortedShortcuts.forEach((shortcut) => {
     const label = labels[shortcut] || "Untitled";
+    const isPinned = pinnedOrder.includes(shortcut);
+    const slot = isPinned ? pinnedOrder.indexOf(shortcut) : null;
+    const chroma = slot !== null ? getChromaticDataForSlot(slot) : null;
 
     const noteItem = document.createElement("div");
     noteItem.className = "note-item";
     noteItem.setAttribute("data-shortcut", shortcut.toLowerCase());
     noteItem.setAttribute("data-label", label.toLowerCase());
     noteItem.setAttribute("data-text", shortcuts[shortcut]);
+    if (isPinned) noteItem.classList.add("pinned");
 
     const noteHeader = document.createElement("div");
     noteHeader.className = "note-header";
@@ -56,6 +86,12 @@ async function loadNotes() {
     const noteLabel = document.createElement("div");
     noteLabel.className = "note-label";
     noteLabel.textContent = shortcut;
+    if (isPinned) {
+      noteLabel.style.color = '#E65100';
+      noteLabel.style.fontWeight = 'bold';
+    } else {
+      noteLabel.style.color = '#6a1b9a';
+    }
     noteContent.appendChild(noteLabel);
 
     noteHeader.appendChild(noteContent);
@@ -66,6 +102,41 @@ async function loadNotes() {
     noteHeader.appendChild(performBtn);
 
     noteItem.appendChild(noteHeader);
+
+    // 🔥 BADGE (sa ILALIM ng key)
+    if (isPinned && chroma) {
+      const badgeContainer = document.createElement("div");
+      badgeContainer.style.cssText = "display: flex; justify-content: flex-start; margin-top: 2px; padding-left: 4px;";
+
+      const badge = document.createElement("div");
+      badge.style.cssText = `
+        padding: 1px 8px;
+        border-radius: 16px;
+        background: ${chroma.bg};
+        color: white;
+        font-size: 9px;
+        font-weight: bold;
+        border: 1.5px solid rgba(0,0,0,0.25);
+        font-family: "Georgia", serif;
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        flex-shrink: 0;
+        opacity: 0.85;
+      `;
+      const iconSpan = document.createElement("span");
+      iconSpan.textContent = chroma.icon;
+      iconSpan.style.fontSize = "10px";
+      badge.appendChild(iconSpan);
+      const noteSpan = document.createElement("span");
+      noteSpan.textContent = chroma.note;
+      noteSpan.style.fontSize = "8px";
+      badge.appendChild(noteSpan);
+
+      badgeContainer.appendChild(badge);
+      noteItem.appendChild(badgeContainer);
+    }
+
     container.appendChild(noteItem);
   });
 
@@ -78,7 +149,6 @@ function addPerformListeners() {
     const btn = item.querySelector(".perform-btn");
     const text = item.getAttribute("data-text");
 
-    // Row Click Handler
     item.addEventListener("click", (e) => {
       performAction(text, btn);
     });
@@ -86,7 +156,6 @@ function addPerformListeners() {
 }
 
 function performAction(text, btnElement) {
-  // Try modern API first
   navigator.clipboard
     .writeText(text)
     .then(() => {
@@ -157,14 +226,13 @@ function showFeedback(btnElement) {
 }
 
 // ==========================================
-// OPEN OPTIONS PAGE - RELIABLE VERSION
+// OPEN OPTIONS PAGE
 // ==========================================
 const openOptionsBtn = document.getElementById("openOptions");
 if (openOptionsBtn) {
   openOptionsBtn.addEventListener("click", async () => {
     console.log('🎵 Orchestra Entrata clicked');
     
-    // I-play ang sound (kung available)
     try {
       if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
         await SoundPlayer.resume();
@@ -174,7 +242,6 @@ if (openOptionsBtn) {
       console.warn('Sound play failed:', err);
     }
     
-    // 🔥 PRIMARY: Direct openOptionsPage
     function openOptionsDirect() {
       return new Promise((resolve) => {
         try {
@@ -182,7 +249,6 @@ if (openOptionsBtn) {
             resolve(false);
             return;
           }
-          
           chrome.runtime.openOptionsPage(() => {
             if (chrome.runtime.lastError) {
               console.warn('openOptionsPage error:', chrome.runtime.lastError.message);
@@ -199,7 +265,6 @@ if (openOptionsBtn) {
       });
     }
     
-    // 🔥 FALLBACK: chrome.tabs.create
     function openOptionsFallback() {
       try {
         const optionsUrl = chrome.runtime.getURL('options.html');
@@ -225,7 +290,6 @@ if (openOptionsBtn) {
       );
     }
     
-    // Execute
     const success = await openOptionsDirect();
     if (!success) {
       openOptionsFallback();
@@ -251,12 +315,13 @@ function checkExtensionContext() {
   }
 }
 
-// I-check agad pag-load ng popup
 document.addEventListener('DOMContentLoaded', () => {
   checkExtensionContext();
 });
 
-// Search functionality
+// ==========================================
+// SEARCH FUNCTIONALITY
+// ==========================================
 const searchBox = document.getElementById("searchBox");
 const searchBtn = document.getElementById("searchBtn");
 const clearBtn = document.getElementById("clearSearch");
@@ -354,36 +419,31 @@ if (clearBtn) {
 // LOAD NOTES & SOUNDS
 // ==========================================
 
-// Load notes when popup opens
 loadNotes();
 
-// 🎵 I-resume ang audio kapag nag-click ang user (ISANG BESES LANG)
 document.addEventListener('click', async function resumeAudio() {
   if (typeof SoundPlayer !== 'undefined') {
-    // I-resume ang audio context
     await SoundPlayer.resumeFromGesture();
-    // Pagkatapos ma-resume, i-play ang popup open sound
     if (SoundPlayer.enabled && SoundPlayer.isReady()) {
       SoundPlayer.playPopupOpenSound();
     }
-    // I-remove ang listener para isang beses lang
     document.removeEventListener('click', resumeAudio);
   }
 }, { once: true, capture: true });
 
-// 🎵 Sound: Popup Close (hindi kailangan ng user gesture)
 window.addEventListener('beforeunload', () => {
   if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
     SoundPlayer.playPopupCloseSound();
   }
 });
 
-// 🎵 Auto-refresh popup when shortcuts change
+// Auto-refresh popup when shortcuts change
 chrome.storage.onChanged.addListener((changes) => {
   const hasChanges = Object.keys(changes).some(key =>
     !key.startsWith('__meta__') &&
     !key.startsWith('__label__') &&
-    !key.startsWith('__section__')
+    !key.startsWith('__section__') &&
+    key !== '__pinned_order__'
   );
   if (hasChanges) {
     loadNotes();
