@@ -390,18 +390,18 @@ const SoundPlayer = {
 // ==========================================
 
 const CHROMATIC_NOTES = [
-  { note: '{ C }',  icon: '♩', color: '#FF0000', bg: '#FF0000' },
-  { note: '{ C# }', icon: '♪', color: '#FF4500', bg: '#FF4500' },
-  { note: '{ D }',  icon: '♫', color: '#FF8C00', bg: '#FF8C00' },
-  { note: '{ D# }', icon: '♬', color: '#FFA500', bg: '#FFA500' },
-  { note: '{ E }',  icon: '♩', color: '#D4AF37', bg: '#D4AF37' },
-  { note: '{ F }',  icon: '♪', color: '#9ACD32', bg: '#9ACD32' },
-  { note: '{ F# }', icon: '♫', color: '#008000', bg: '#008000' },
-  { note: '{ G }',  icon: '♬', color: '#008080', bg: '#008080' },
-  { note: '{ G# }', icon: '♩', color: '#0000FF', bg: '#0000FF' },
-  { note: '{ A }',  icon: '♪', color: '#4B0082', bg: '#4B0082' },
-  { note: '{ A# }', icon: '♫', color: '#800080', bg: '#800080' },
-  { note: '{ B }',  icon: '♬', color: '#FF00FF', bg: '#FF00FF' }
+  { note: '{   C   }',  icon: '♩', color: '#FF0000', bg: '#FF0000' },
+  { note: '{   C#   }', icon: '♪', color: '#FF4500', bg: '#FF4500' },
+  { note: '{   D   }',  icon: '♫', color: '#FF8C00', bg: '#FF8C00' },
+  { note: '{   D#   }', icon: '♬', color: '#FFA500', bg: '#FFA500' },
+  { note: '{   E   }',  icon: '♩', color: '#D4AF37', bg: '#D4AF37' },
+  { note: '{   F   }',  icon: '♪', color: '#9ACD32', bg: '#9ACD32' },
+  { note: '{   F#   }', icon: '♫', color: '#008000', bg: '#008000' },
+  { note: '{   G   }',  icon: '♬', color: '#008080', bg: '#008080' },
+  { note: '{   G#   }', icon: '♩', color: '#0000FF', bg: '#0000FF' },
+  { note: '{   A   }',  icon: '♪', color: '#4B0082', bg: '#4B0082' },
+  { note: '{   A#   }', icon: '♫', color: '#800080', bg: '#800080' },
+  { note: '{   B   }',  icon: '♬', color: '#FF00FF', bg: '#FF00FF' }
 ];
 
 function getPinnedOrder() {
