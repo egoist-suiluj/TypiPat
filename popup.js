@@ -501,10 +501,7 @@ window.addEventListener('beforeunload', () => {
 // Auto-refresh popup when shortcuts change
 chrome.storage.onChanged.addListener((changes) => {
   const hasChanges = Object.keys(changes).some(key =>
-    !key.startsWith('__meta__') &&
-    !key.startsWith('__label__') &&
-    !key.startsWith('__section__')
-    
+    !key.startsWith('__meta__')
   );
   if (hasChanges) {
     loadNotes();
