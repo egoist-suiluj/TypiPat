@@ -240,17 +240,20 @@ if (modalCancel) {
 }
 
 // ==========================================
-// LOAD SHORTCUTS
+// LOAD SHORTCUTS - FIXED (Simple lang)
 // ==========================================
 async function loadShortcuts() {
   const data = await TypiStorage.loadAll();
   const container = document.getElementById("shortcutsContainer");
   if (!container) return;
 
-  const RESERVED_SETTING_KEYS = ["soundEnabled"];
+  const pinnedOrder = await getPinnedOrder();
+
+  // 🔥 FILTER: I-block lang ang __pinned_order__, __meta__, at reserved settings
+  const RESERVED_SETTING_KEYS = ["soundEnabled", "enabled"];
   const filteredData = {};
   for (let key in data) {
-    if (!key.startsWith("__section__") && !RESERVED_SETTING_KEYS.includes(key)) {
+    if (key !== "__pinned_order__" && !key.startsWith("__meta__") && !RESERVED_SETTING_KEYS.includes(key)) {
       filteredData[key] = data[key];
     }
   }
@@ -274,7 +277,37 @@ async function loadShortcuts() {
     return;
   }
 
-  const sortedShortcuts = TypiUtils.sortShortcutsByLabel(shortcuts, labels, sections);
+  // SORT: Pinned first, then unpinned
+  const unpinned = [];
+  const pinnedMap = {};
+  for (let key in shortcuts) {
+    const idx = pinnedOrder.indexOf(key);
+    if (idx !== -1) {
+      pinnedMap[key] = idx;
+    } else {
+      unpinned.push(key);
+    }
+  }
+
+  const pinnedKeys = Object.keys(pinnedMap).sort((a, b) => pinnedMap[a] - pinnedMap[b]);
+
+  // Unpinned: sort by label, "Untitled" goes to the end
+  unpinned.sort((a, b) => {
+    const labelA = (labels[a] || "").toLowerCase();
+    const labelB = (labels[b] || "").toLowerCase();
+
+    const isUntitledA = labelA === "" || labelA === "untitled";
+    const isUntitledB = labelB === "" || labelB === "untitled";
+
+    if (isUntitledA && isUntitledB) return a.localeCompare(b);
+    if (isUntitledA) return 1;
+    if (isUntitledB) return -1;
+
+    return labelA.localeCompare(labelB);
+  });
+
+  const sortedShortcuts = [...pinnedKeys, ...unpinned];
+
   const table = document.createElement("table");
   table.className = "shortcuts-table";
 
@@ -295,48 +328,147 @@ async function loadShortcuts() {
     const label = labels[shortcut] || "";
     const section = data[`__section__${shortcut}`] || "";
     const stats = TypiUtils.calculateStats(shortcuts[shortcut]);
+    const isPinned = pinnedOrder.includes(shortcut);
+    const slot = isPinned ? pinnedOrder.indexOf(shortcut) : null;
+    const chroma = slot !== null ? getChromaticDataForSlot(slot) : null;
 
     const tr = document.createElement("tr");
     tr.setAttribute("data-shortcut", shortcut.toLowerCase());
     tr.setAttribute("data-label", label.toLowerCase());
     tr.setAttribute("data-section", section.toLowerCase());
+    if (isPinned) tr.classList.add("pinned");
 
+    // ---- First column: Rhythm ----
     const td1 = document.createElement("td");
-    td1.textContent = shortcut;
+    td1.style.cssText = "vertical-align: middle; padding: 10px 8px; text-align: center; height: 100px;";
+
+    const colContainer = document.createElement("div");
+    colContainer.style.cssText = "display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 80px;";
+
+    // Key + Badge row (sa gitna)
+    const topRow = document.createElement("div");
+    topRow.style.cssText = "display: flex; align-items: center; justify-content: center; gap: 8px; flex: 1;";
+
+    // 🔥 BADGE (sa PINAKA TAAS na KALIWA)
+    if (isPinned && chroma) {
+      const badgeWrapper = document.createElement("div");
+      badgeWrapper.style.cssText = "width: 100%; display: flex; justify-content: flex-start; margin-bottom: 4px;";
+
+      const badge = document.createElement("div");
+      badge.style.cssText = `
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: ${chroma.bg};
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    border: 2px solid rgba(0,0,0,0.3);
+    font-family: "Georgia", serif;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  `;
+      const iconSpan = document.createElement("span");
+      iconSpan.textContent = chroma.icon;
+      iconSpan.style.fontSize = "12px";
+      badge.appendChild(iconSpan);
+      const noteSpan = document.createElement("span");
+      noteSpan.textContent = chroma.note;
+      noteSpan.style.fontSize = "10px";
+      badge.appendChild(noteSpan);
+
+      badgeWrapper.appendChild(badge);
+      colContainer.appendChild(badgeWrapper); // ← UNAHIN ITO
+    }
+
+    // Key (sa gitna)
+    const keyDiv = document.createElement("div");
+    keyDiv.style.cssText = "font-weight: 500; font-size: 16px; text-align: center;";
+    if (isPinned) {
+      keyDiv.style.color = '#E65100';
+      keyDiv.style.fontWeight = 'bold';
+    } else {
+      keyDiv.style.color = '#6a1b9a';
+    }
+    keyDiv.textContent = shortcut;
+    topRow.appendChild(keyDiv);
+
+    colContainer.appendChild(topRow);
+
+    // Fermata (sa pinakababa)
+    const fermataDiv = document.createElement("div");
+    fermataDiv.style.cssText = "display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: auto; padding-top: 6px; font-size: 12px;";
+    const fermataIcon = document.createElement("span");
+    fermataIcon.textContent = "🎶";
+    fermataIcon.style.fontSize = "13px";
+    fermataDiv.appendChild(fermataIcon);
+    const fermataLabel = document.createElement("span");
+    fermataLabel.textContent = "Fermata";
+    fermataLabel.style.fontWeight = "500";
+    fermataLabel.style.fontSize = "11px";
+    fermataDiv.appendChild(fermataLabel);
+    const toggleText = document.createElement("span");
+    toggleText.textContent = isPinned ? "[ON]" : "[OFF]";
+    toggleText.style.cssText = `
+  font-weight: bold;
+  cursor: pointer;
+  padding: 1px 8px;
+  border-radius: 12px;
+  background: ${isPinned ? '#FFD700' : '#e0e0e0'};
+  color: ${isPinned ? '#333' : '#666'};
+  transition: background 0.2s;
+  user-select: none;
+  font-size: 11px;
+`;
+    toggleText.setAttribute('data-shortcut', shortcut);
+    toggleText.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const sh = toggleText.getAttribute('data-shortcut');
+      const currentOrder = await getPinnedOrder();
+      const newOrder = togglePin(sh, currentOrder);
+      await setPinnedOrder(newOrder);
+      loadShortcuts();
+    });
+    fermataDiv.appendChild(toggleText);
+    colContainer.appendChild(fermataDiv);
+
+    td1.appendChild(colContainer);
     tr.appendChild(td1);
 
+    // ---- Second column: Symphony & Harmony Notes ----
     const td2 = document.createElement("td");
     td2.className = "replacement-cell";
     td2.style.cssText = "display: flex; flex-direction: column; align-items: stretch;";
 
-    const topRow = document.createElement("div");
-    topRow.style.cssText = "display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 5px;";
+    const labelRow = document.createElement("div");
+    labelRow.style.cssText = "display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 5px;";
 
     const labelDisplay = label || "Untitled";
     const labelBadge = document.createElement("div");
     labelBadge.className = "label-badge";
     labelBadge.textContent = "📌 " + labelDisplay;
-    topRow.appendChild(labelBadge);
+    labelRow.appendChild(labelBadge);
 
     if (section) {
       const sectionBadge = document.createElement("span");
       sectionBadge.className = "section-badge-right";
       sectionBadge.textContent = "📂 " + section;
       sectionBadge.style.cssText = `
-        padding: 4px 14px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 600;
-        background: linear-gradient(135deg, #fff8e7 0%, #ffecb3 100%);
-        color: #4a148c;
-        border: 2px solid #ffd54f;
-        font-family: "Georgia", "Times New Roman", serif;
-        margin-top: -18px;
-      `;
-      topRow.appendChild(sectionBadge);
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    background: linear-gradient(135deg, #fff8e7 0%, #ffecb3 100%);
+    color: #4a148c;
+    border: 2px solid #ffd54f;
+    font-family: "Georgia", "Times New Roman", serif;
+    margin-top: -18px;
+  `;
+      labelRow.appendChild(sectionBadge);
     }
 
-    td2.appendChild(topRow);
+    td2.appendChild(labelRow);
 
     const replacementContent = document.createElement("div");
     replacementContent.className = "replacement-content";
@@ -388,14 +520,10 @@ async function loadShortcuts() {
   container.appendChild(table);
   addActionListeners();
 
-  // ==========================================
-  // 🔥 POST-SAVE FOCUS - DITO NA NAKALAGAY
-  // ==========================================
+  // Post-save focus
   if (postSaveFocusShortcut) {
     const seek = postSaveFocusShortcut.toLowerCase();
     console.log('🔍 Looking for:', seek);
-    
-    // Gumamit ng setTimeout para siguradong na-render na ang DOM
     setTimeout(() => {
       const rows = container.querySelectorAll("tbody tr");
       let target = null;
@@ -405,7 +533,6 @@ async function loadShortcuts() {
           target = r;
         }
       });
-      
       if (target) {
         console.log('✅ Found target:', seek);
         target.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -414,11 +541,9 @@ async function loadShortcuts() {
         setTimeout(() => target.classList.remove(cls), UI_CONFIG.focusHighlightDuration);
       } else {
         console.log('⚠️ Target not found:', seek);
-        // Kung hindi mahanap, mag-scroll sa top
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
     }, 100);
-    
     postSaveFocusShortcut = null;
   }
 }
@@ -703,32 +828,37 @@ if (saveBtn) {
 }
 
 function performSave(originalShortcut, newShortcut, replacement, label, section) {
-  const savePromise = originalShortcut !== newShortcut
+  const isRename = originalShortcut !== newShortcut;
+  const savePromise = isRename
     ? TypiStorage.remove(originalShortcut).then(() =>
       TypiStorage.save(newShortcut, replacement, label || null, section || null)
     )
     : TypiStorage.save(newShortcut, replacement, label || null, section || null);
 
   savePromise
-    .then(() => {
+    .then(async () => {
+      // 🔥 FIX: i-carry over ang pin status pag nag-rename
+      if (isRename) {
+        const currentOrder = await getPinnedOrder();
+        const idx = currentOrder.indexOf(originalShortcut);
+        if (idx !== -1) {
+          currentOrder[idx] = newShortcut;
+          await setPinnedOrder(currentOrder);
+        }
+      }
+
       TypiUtils.showNotification("Theme saved successfully!", "success", "✅");
       postSaveFocusShortcut = newShortcut;
       exitEditMode();
-      loadShortcuts();
-      // 🎵 Sound: Edit/Theme
       if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
         SoundPlayer.playEditSound();
       }
     })
     .catch((error) => {
-      // 🔥 FIX: I-handle ang error at i-navigate pa rin
       console.error('Save error:', error);
       TypiUtils.showNotification(`Save failed: ${error.message || 'Unknown error'}`, "error", "⚠️");
-
-      // I-set ang focus sa original shortcut para makita pa rin
       postSaveFocusShortcut = originalShortcut;
       exitEditMode();
-      loadShortcuts();
     });
 }
 
@@ -764,7 +894,9 @@ function exitEditMode() {
   isEditMode = false;
 
   if (lastEditedShortcut) {
-    postSaveFocusShortcut = lastEditedShortcut;
+    if (!postSaveFocusShortcut) {           // 🔥 huwag i-overwrite kung meron nang naka-set
+      postSaveFocusShortcut = lastEditedShortcut;
+    }
     lastEditedShortcut = null;
     loadShortcuts();
   }
