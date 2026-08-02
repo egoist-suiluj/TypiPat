@@ -449,7 +449,7 @@ async function loadShortcuts() {
     fermataIcon.style.fontSize = "13px";
     fermataDiv.appendChild(fermataIcon);
     const fermataLabel = document.createElement("span");
-    fermataLabel.textContent = "Fermata";
+    fermataLabel.textContent = "Fermata 𝄐";
     fermataLabel.style.fontWeight = "500";
     fermataLabel.style.fontSize = "11px";
     fermataDiv.appendChild(fermataLabel);
