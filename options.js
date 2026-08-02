@@ -452,6 +452,7 @@ async function loadShortcuts() {
     fermataLabel.textContent = "Fermata 𝄐";
     fermataLabel.style.fontWeight = "500";
     fermataLabel.style.fontSize = "11px";
+    fermataLabel.style.color = '#DAA520';
     fermataDiv.appendChild(fermataLabel);
     const toggleText = document.createElement("span");
     toggleText.textContent = isPinned ? "[ON]" : "[OFF]";

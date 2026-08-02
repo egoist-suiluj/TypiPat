@@ -154,25 +154,31 @@
       /* ← BAGO: glass */
     }
 
+    /* Note item - may transition para smooth */
     .note-item {
       background: rgba(255, 255, 255, 0.15);
-      /* ← BAGO: glass */
       backdrop-filter: blur(8px);
-      /* ← BAGO: glass */
       -webkit-backdrop-filter: blur(8px);
-      /* ← BAGO: glass */
       border-radius: 12px;
       padding: 15px;
       margin-bottom: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      border: 2px solid transparent;
+      /* ← Para hindi mag-jump ang layout */
       box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-      transition: all 0.3s;
+      transition: all 0.25s ease;
+      /* ← Smooth transition */
       border-left: 4px solid rgba(156, 39, 176, 0.4);
+      cursor: pointer;
+      /* ← Para magbago ang cursor */
     }
 
     .note-item:hover {
-      background: rgba(255, 255, 255, 0.25);
-      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.08);
+      border-color: #E84393;
+      /* ← Soft Berry Pink */
+      background: rgba(232, 67, 147, 0.05);
+      /* ← Very light pink tint */
+      box-shadow: 0 6px 20px rgba(232, 67, 147, 0.18);
+      /* ← Warm pink glow */
       transform: translateY(-2px);
     }
 
