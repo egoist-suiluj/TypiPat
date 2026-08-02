@@ -19,6 +19,15 @@ async function loadNotes() {
 
   const { shortcuts, labels } = TypiUtils.parseStorageData(filteredData);
 
+  // Kunin ang sections mula sa original data
+  const sections = {};
+  for (let key in data) {
+    if (key.startsWith("__section__")) {
+      const shortcutKey = key.replace("__section__", "");
+      sections[shortcutKey] = data[key];
+    }
+  }
+
   container.textContent = "";
 
   if (Object.keys(shortcuts).length === 0) {
@@ -29,21 +38,47 @@ async function loadNotes() {
     return;
   }
 
-  // 🔥 SORT: Pinned first, then unpinned (na may "Untitled" sa dulo)
+  // ==========================================
+  // SORTING: Pinned first, then by section, then no section
+  // ==========================================
+
+  // 1. Paghiwalayin ang pinned at unpinned
+  const pinned = [];
   const unpinned = [];
-  const pinnedMap = {};
+
   for (let key in shortcuts) {
-    const idx = pinnedOrder.indexOf(key);
-    if (idx !== -1) {
-      pinnedMap[key] = idx;
+    if (pinnedOrder.includes(key)) {
+      pinned.push(key);
     } else {
       unpinned.push(key);
     }
   }
-  const pinnedKeys = Object.keys(pinnedMap).sort((a, b) => pinnedMap[a] - pinnedMap[b]);
 
-  // 🔥 FIX: "Untitled" goes to the end (tulad ng sa options)
-  unpinned.sort((a, b) => {
+  // 2. I-sort ang pinned base sa pinnedOrder
+  pinned.sort((a, b) => pinnedOrder.indexOf(a) - pinnedOrder.indexOf(b));
+
+  // 3. I-sort ang unpinned: may section muna, then walang section
+  const withSection = [];
+  const withoutSection = [];
+
+  for (let key of unpinned) {
+    const section = sections[key] || "";
+    if (section.trim() !== "") {
+      withSection.push(key);
+    } else {
+      withoutSection.push(key);
+    }
+  }
+
+  // 4. I-sort ang may section: by section name, then by label
+  withSection.sort((a, b) => {
+    const sectionA = (sections[a] || "").toLowerCase();
+    const sectionB = (sections[b] || "").toLowerCase();
+
+    if (sectionA !== sectionB) {
+      return sectionA.localeCompare(sectionB);
+    }
+
     const labelA = (labels[a] || "").toLowerCase();
     const labelB = (labels[b] || "").toLowerCase();
 
@@ -51,16 +86,37 @@ async function loadNotes() {
     const isUntitledB = labelB === "" || labelB === "untitled";
 
     if (isUntitledA && isUntitledB) return a.localeCompare(b);
-    if (isUntitledA) return 1;  // Untitled goes to the end
-    if (isUntitledB) return -1; // Untitled goes to the end
+    if (isUntitledA) return 1;  // Untitled sa dulo ng section group
+    if (isUntitledB) return -1;
 
     return labelA.localeCompare(labelB);
   });
 
-  const sortedShortcuts = [...pinnedKeys, ...unpinned];
+  // 5. I-sort ang walang section: by label, "Untitled" sa pinakadulo
+  withoutSection.sort((a, b) => {
+    const labelA = (labels[a] || "").toLowerCase();
+    const labelB = (labels[b] || "").toLowerCase();
+
+    const isUntitledA = labelA === "" || labelA === "untitled";
+    const isUntitledB = labelB === "" || labelB === "untitled";
+
+    if (isUntitledA && isUntitledB) return a.localeCompare(b);
+    if (isUntitledA) return 1;  // Untitled sa pinakadulo
+    if (isUntitledB) return -1;
+
+    return labelA.localeCompare(labelB);
+  });
+
+  // 6. Pagsamahin: pinned + withSection + withoutSection
+  const sortedShortcuts = [...pinned, ...withSection, ...withoutSection];
+
+  // ==========================================
+  // RENDER
+  // ==========================================
 
   sortedShortcuts.forEach((shortcut) => {
     const label = labels[shortcut] || "Untitled";
+    const section = sections[shortcut] || "";
     const isPinned = pinnedOrder.includes(shortcut);
     const slot = isPinned ? pinnedOrder.indexOf(shortcut) : null;
     const chroma = slot !== null ? getChromaticDataForSlot(slot) : null;
@@ -69,6 +125,7 @@ async function loadNotes() {
     noteItem.className = "note-item";
     noteItem.setAttribute("data-shortcut", shortcut.toLowerCase());
     noteItem.setAttribute("data-label", label.toLowerCase());
+    noteItem.setAttribute("data-section", section.toLowerCase());
     noteItem.setAttribute("data-text", shortcuts[shortcut]);
     if (isPinned) noteItem.classList.add("pinned");
 
@@ -78,11 +135,13 @@ async function loadNotes() {
     const noteContent = document.createElement("div");
     noteContent.className = "note-content";
 
+    // 🔥 LABEL (Annotation) - same position
     const noteRhythm = document.createElement("div");
     noteRhythm.className = "note-rhythm";
     noteRhythm.textContent = label;
     noteContent.appendChild(noteRhythm);
 
+    // 🔥 KEY - may kulay depende sa pin status
     const noteLabel = document.createElement("div");
     noteLabel.className = "note-label";
     noteLabel.textContent = shortcut;
@@ -90,12 +149,14 @@ async function loadNotes() {
       noteLabel.style.color = '#E65100';
       noteLabel.style.fontWeight = 'bold';
     } else {
-      noteLabel.style.color = '#6a1b9a';
+      noteLabel.style.color = '#555555';
+      noteLabel.style.fontWeight = 'bold';
     }
     noteContent.appendChild(noteLabel);
 
     noteHeader.appendChild(noteContent);
 
+    // Perform button (same position)
     const performBtn = document.createElement("button");
     performBtn.className = "perform-btn";
     performBtn.textContent = "Perform";
@@ -103,7 +164,7 @@ async function loadNotes() {
 
     noteItem.appendChild(noteHeader);
 
-    // 🔥 BADGE (sa ILALIM ng key)
+    // 🔥 BADGE (sa ilalim ng key - maliit)
     if (isPinned && chroma) {
       const badgeContainer = document.createElement("div");
       badgeContainer.style.cssText = "display: flex; justify-content: flex-start; margin-top: 2px; padding-left: 4px;";
@@ -442,8 +503,8 @@ chrome.storage.onChanged.addListener((changes) => {
   const hasChanges = Object.keys(changes).some(key =>
     !key.startsWith('__meta__') &&
     !key.startsWith('__label__') &&
-    !key.startsWith('__section__') &&
-    key !== '__pinned_order__'
+    !key.startsWith('__section__')
+    
   );
   if (hasChanges) {
     loadNotes();

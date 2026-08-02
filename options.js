@@ -240,7 +240,7 @@ if (modalCancel) {
 }
 
 // ==========================================
-// LOAD SHORTCUTS - FIXED (Simple lang)
+// LOAD SHORTCUTS - WITH SECTION SORTING
 // ==========================================
 async function loadShortcuts() {
   const data = await TypiStorage.loadAll();
@@ -277,22 +277,47 @@ async function loadShortcuts() {
     return;
   }
 
-  // SORT: Pinned first, then unpinned
+  // ==========================================
+  // SORTING: Pinned first, then by section, then no section
+  // ==========================================
+
+  // 1. Paghiwalayin ang pinned at unpinned
+  const pinned = [];
   const unpinned = [];
-  const pinnedMap = {};
+
   for (let key in shortcuts) {
-    const idx = pinnedOrder.indexOf(key);
-    if (idx !== -1) {
-      pinnedMap[key] = idx;
+    if (pinnedOrder.includes(key)) {
+      pinned.push(key);
     } else {
       unpinned.push(key);
     }
   }
 
-  const pinnedKeys = Object.keys(pinnedMap).sort((a, b) => pinnedMap[a] - pinnedMap[b]);
+  // 2. I-sort ang pinned base sa pinnedOrder
+  pinned.sort((a, b) => pinnedOrder.indexOf(a) - pinnedOrder.indexOf(b));
 
-  // Unpinned: sort by label, "Untitled" goes to the end
-  unpinned.sort((a, b) => {
+  // 3. I-sort ang unpinned: may section muna, then walang section
+  const withSection = [];
+  const withoutSection = [];
+
+  for (let key of unpinned) {
+    const section = sections[key] || "";
+    if (section.trim() !== "") {
+      withSection.push(key);
+    } else {
+      withoutSection.push(key);
+    }
+  }
+
+  // 4. I-sort ang may section: by section name, then by label
+  withSection.sort((a, b) => {
+    const sectionA = (sections[a] || "").toLowerCase();
+    const sectionB = (sections[b] || "").toLowerCase();
+
+    if (sectionA !== sectionB) {
+      return sectionA.localeCompare(sectionB);
+    }
+
     const labelA = (labels[a] || "").toLowerCase();
     const labelB = (labels[b] || "").toLowerCase();
 
@@ -300,13 +325,33 @@ async function loadShortcuts() {
     const isUntitledB = labelB === "" || labelB === "untitled";
 
     if (isUntitledA && isUntitledB) return a.localeCompare(b);
-    if (isUntitledA) return 1;
+    if (isUntitledA) return 1;  // Untitled sa dulo ng section group
     if (isUntitledB) return -1;
 
     return labelA.localeCompare(labelB);
   });
 
-  const sortedShortcuts = [...pinnedKeys, ...unpinned];
+  // 5. I-sort ang walang section: by label, "Untitled" sa pinakadulo
+  withoutSection.sort((a, b) => {
+    const labelA = (labels[a] || "").toLowerCase();
+    const labelB = (labels[b] || "").toLowerCase();
+
+    const isUntitledA = labelA === "" || labelA === "untitled";
+    const isUntitledB = labelB === "" || labelB === "untitled";
+
+    if (isUntitledA && isUntitledB) return a.localeCompare(b);
+    if (isUntitledA) return 1;  // Untitled sa pinakadulo
+    if (isUntitledB) return -1;
+
+    return labelA.localeCompare(labelB);
+  });
+
+  // 6. Pagsamahin: pinned + withSection + withoutSection
+  const sortedShortcuts = [...pinned, ...withSection, ...withoutSection];
+
+  // ==========================================
+  // RENDER TABLE
+  // ==========================================
 
   const table = document.createElement("table");
   table.className = "shortcuts-table";
@@ -356,19 +401,19 @@ async function loadShortcuts() {
 
       const badge = document.createElement("div");
       badge.style.cssText = `
-    padding: 3px 10px;
-    border-radius: 20px;
-    background: ${chroma.bg};
-    color: white;
-    font-size: 11px;
-    font-weight: bold;
-    border: 2px solid rgba(0,0,0,0.3);
-    font-family: "Georgia", serif;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    flex-shrink: 0;
-  `;
+        padding: 3px 10px;
+        border-radius: 20px;
+        background: ${chroma.bg};
+        color: white;
+        font-size: 11px;
+        font-weight: bold;
+        border: 2px solid rgba(0,0,0,0.3);
+        font-family: "Georgia", serif;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        flex-shrink: 0;
+      `;
       const iconSpan = document.createElement("span");
       iconSpan.textContent = chroma.icon;
       iconSpan.style.fontSize = "12px";
@@ -379,7 +424,7 @@ async function loadShortcuts() {
       badge.appendChild(noteSpan);
 
       badgeWrapper.appendChild(badge);
-      colContainer.appendChild(badgeWrapper); // ← UNAHIN ITO
+      colContainer.appendChild(badgeWrapper);
     }
 
     // Key (sa gitna)
@@ -411,16 +456,16 @@ async function loadShortcuts() {
     const toggleText = document.createElement("span");
     toggleText.textContent = isPinned ? "[ON]" : "[OFF]";
     toggleText.style.cssText = `
-  font-weight: bold;
-  cursor: pointer;
-  padding: 1px 8px;
-  border-radius: 12px;
-  background: ${isPinned ? '#FFD700' : '#e0e0e0'};
-  color: ${isPinned ? '#333' : '#666'};
-  transition: background 0.2s;
-  user-select: none;
-  font-size: 11px;
-`;
+      font-weight: bold;
+      cursor: pointer;
+      padding: 1px 8px;
+      border-radius: 12px;
+      background: ${isPinned ? '#FFD700' : '#e0e0e0'};
+      color: ${isPinned ? '#333' : '#666'};
+      transition: background 0.2s;
+      user-select: none;
+      font-size: 11px;
+    `;
     toggleText.setAttribute('data-shortcut', shortcut);
     toggleText.addEventListener('click', async (e) => {
       e.stopPropagation();
@@ -428,20 +473,14 @@ async function loadShortcuts() {
       const currentOrder = await getPinnedOrder();
       const isPinning = !currentOrder.includes(sh);
 
-      // 🔥 Check limit bago mag-pin
       if (isPinning && currentOrder.length >= 12) {
         TypiUtils.showNotification("🚫 Scale Overflow: Unpin a note to sustain a new tone.", "error", "⚠️");
         return;
       }
 
-      // 🔥 Gumamit ng existing togglePin function (hindi binago)
       const newOrder = togglePin(sh, currentOrder);
       await setPinnedOrder(newOrder);
-
-      // 🔥 Mag-notify (gamit ang bagong function)
       showPinNotification(sh, isPinning, currentOrder, newOrder);
-
-      // Re-render
       loadShortcuts();
     });
     fermataDiv.appendChild(toggleText);
@@ -469,16 +508,16 @@ async function loadShortcuts() {
       sectionBadge.className = "section-badge-right";
       sectionBadge.textContent = "📂 " + section;
       sectionBadge.style.cssText = `
-    padding: 4px 14px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    background: linear-gradient(135deg, #fff8e7 0%, #ffecb3 100%);
-    color: #4a148c;
-    border: 2px solid #ffd54f;
-    font-family: "Georgia", "Times New Roman", serif;
-    margin-top: -18px;
-  `;
+        padding: 4px 14px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        background: linear-gradient(135deg, #fff8e7 0%, #ffecb3 100%);
+        color: #4a148c;
+        border: 2px solid #ffd54f;
+        font-family: "Georgia", "Times New Roman", serif;
+        margin-top: -18px;
+      `;
       labelRow.appendChild(sectionBadge);
     }
 
