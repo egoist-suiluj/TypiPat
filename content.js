@@ -1005,6 +1005,53 @@ const FloatingUI = {
   },
 };
 
+// ==========================================
+// EXTENSION CONTEXT WATCHER
+// ==========================================
+function showContextInvalidatedBanner() {
+  if (document.getElementById("typipat-context-banner")) return; // huwag paulit-ulit
+
+  const banner = document.createElement("div");
+  banner.id = "typipat-context-banner";
+  banner.style.cssText = `
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 2147483647;
+    background: #fff3e0;
+    border: 1px solid #ffb74d;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-family: Georgia, serif;
+    font-size: 13px;
+    color: #4a148c;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  `;
+  banner.innerHTML = `
+    <span>🎵 TypiPat needs a page refresh to keep working.</span>
+  `;
+  const btn = document.createElement("button");
+  btn.textContent = "Refresh";
+  btn.style.cssText = `
+    background: #7b1fa2; color: white; border: none;
+    border-radius: 8px; padding: 6px 14px; cursor: pointer;
+    font-weight: 600; font-family: Georgia, serif;
+  `;
+  btn.onclick = () => window.location.reload();
+  banner.appendChild(btn);
+  document.body.appendChild(banner);
+}
+
+// Check every 30s kung buhay pa ang connection sa extension
+setInterval(() => {
+  if (!chrome.runtime?.id) {
+    showContextInvalidatedBanner();
+  }
+}, 30000);
+
 // Initialize FloatingUI
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", () => FloatingUI.init());

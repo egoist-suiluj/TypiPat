@@ -164,6 +164,61 @@ async function loadNotes() {
 
     noteItem.appendChild(noteHeader);
 
+    // 🔥 SECTION BADGE - Soft Lavender Tint (Theme Match)
+    if (section.trim() !== "") {
+      const badgeContainer = document.createElement("div");
+      badgeContainer.style.cssText = `
+    position: absolute;
+    bottom: 6px;
+    right: 16px;
+    display: flex;
+    justify-content: flex-end;
+  `;
+
+      const badge = document.createElement("div");
+      badge.style.cssText = `
+    padding: 3px 12px;
+    border-radius: 20px;
+    background: #F0EBFC; /* ← Soft Lavender Tint */
+    color: #6B5B95;
+    font-size: 9px;
+    font-weight: 600;
+    font-family: "Georgia", serif;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+    opacity: 0.9;
+    letter-spacing: 0.5px;
+    box-shadow: 0 1px 3px rgba(107, 91, 149, 0.08); /* ← Subtle purple shadow */
+    border: 1px solid rgba(126, 105, 171, 0.2);     /* ← Matching border */
+    transition: all 0.2s ease;
+  `;
+
+      // 📁 Folder icon
+      const iconSpan = document.createElement("span");
+      iconSpan.textContent = "📁";
+      iconSpan.style.cssText = `
+    font-size: 10px;
+    filter: drop-shadow(0 1px 1px rgba(0,0,0,0.05));
+  `;
+      badge.appendChild(iconSpan);
+
+      // Section name
+      const textSpan = document.createElement("span");
+      textSpan.textContent = section;
+      textSpan.style.cssText = `
+    font-size: 9px;
+    font-weight: 600;
+    color: #6B5B95; /* ← Muted Purple para malinis basahin */
+    letter-spacing: 0.3px;
+  `;
+      badge.appendChild(textSpan);
+
+      badgeContainer.appendChild(badge);
+      noteItem.appendChild(badgeContainer);
+    }
+
     // 🔥 BADGE (sa ilalim ng key - maliit)
     if (isPinned && chroma) {
       const badgeContainer = document.createElement("div");
@@ -293,7 +348,14 @@ const openOptionsBtn = document.getElementById("openOptions");
 if (openOptionsBtn) {
   openOptionsBtn.addEventListener("click", async () => {
     console.log('🎵 Orchestra Entrata clicked');
-    
+
+    // 🔥 CHECK EXTENSION CONTEXT MUNA (IDAGDAG ITO)
+    if (!chrome.runtime?.id) {
+      console.warn('Extension context invalid, reloading popup...');
+      TypiUtils.showNotification('Extension is refreshing. Please reopen popup.', 'error', '⚠️');
+      return;
+    }
+
     try {
       if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
         await SoundPlayer.resume();
@@ -302,11 +364,13 @@ if (openOptionsBtn) {
     } catch (err) {
       console.warn('Sound play failed:', err);
     }
-    
+
     function openOptionsDirect() {
       return new Promise((resolve) => {
         try {
+          // 🔥 DOUBLE CHECK BAGO TUMAWAG NG API (IDAGDAG ITO)
           if (!chrome.runtime?.id) {
+            console.warn('Context lost before openOptionsPage');
             resolve(false);
             return;
           }
@@ -325,9 +389,16 @@ if (openOptionsBtn) {
         }
       });
     }
-    
+
     function openOptionsFallback() {
       try {
+        // 🔥 CHECK CONTEXT BAGO GUMAWA NG TAB (IDAGDAG ITO)
+        if (!chrome.runtime?.id) {
+          console.warn('Context lost in fallback');
+          showReloadMessage();
+          return;
+        }
+
         const optionsUrl = chrome.runtime.getURL('options.html');
         chrome.tabs.create({ url: optionsUrl, active: true }, (tab) => {
           if (chrome.runtime.lastError) {
@@ -342,7 +413,7 @@ if (openOptionsBtn) {
         showReloadMessage();
       }
     }
-    
+
     function showReloadMessage() {
       TypiUtils.showNotification(
         'Extension needs refresh. Please reload the page.',
@@ -350,7 +421,7 @@ if (openOptionsBtn) {
         '⚠️'
       );
     }
-    
+
     const success = await openOptionsDirect();
     if (!success) {
       openOptionsFallback();

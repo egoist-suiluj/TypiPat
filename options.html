@@ -1547,6 +1547,48 @@
         transform: translateX(5px);
       }
     }
+
+    /* ========================================== */
+    /* MUSICAL BACKGROUND OVERLAY */
+    /* ========================================== */
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+
+      background-image: url("music-overlay.png");
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-position: center;
+
+      opacity: 1;
+
+      pointer-events: none;
+
+      z-index: 0;
+
+      animation: musicFloat 12s ease-in-out infinite;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+    }
+
+    @keyframes musicFloat {
+      0% {
+        transform: translateY(0px);
+      }
+
+      50% {
+        transform: translateY(-8px);
+      }
+
+      100% {
+        transform: translateY(0px);
+      }
+    }
   </style>
 </head>
 

@@ -53,7 +53,8 @@
         "iPat.png",
         "utils.js",
         "storage-helper.js",
-        "popup.js"
+        "popup.js",
+        "images/music-overlay.png"
       ],
       "matches": ["<all_urls>"]
     }
