@@ -1,1816 +1,2039 @@
 <!doctype html>
 <html>
-
-<head>
-  <meta charset="UTF-8" />
-  <title>TypiPat: The Rhythmic Index</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    input::placeholder,
-    textarea::placeholder {
-      color: #a5a5c7;
-      opacity: 1;
-    }
-
-    body {
-      font-family: "Georgia", "Times New Roman", serif;
-      max-width: 1200px;
-      margin: 40px auto;
-      padding: 20px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-    }
-
-    .container {
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      padding: 40px;
-      border-radius: 15px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-    }
-
-    .header-tagline {
-      text-align: center;
-      color: #6a1b9a;
-      font-size: 16px;
-      font-style: italic;
-      line-height: 1.8;
-      padding: 15px 0;
-      margin-bottom: 25px;
-    }
-
-    .footer-quote {
-      text-align: center;
-      color: #6a1b9a;
-      font-size: 15px;
-      font-style: italic;
-      line-height: 1.8;
-      padding: 20px 24px;
-      margin-top: 30px;
-      background: rgba(255, 255, 255, 0.25);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-radius: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-      transition: all 0.3s ease;
-    }
-
-    .footer-quote.visible {
-      opacity: 1;
-    }
-
-    .footer-quote:hover {
-      background: rgba(255, 255, 255, 0.35);
-      box-shadow: 0 8px 30px rgba(102, 126, 234, 0.06);
-    }
-
-    /* ========================================== */
-    /* DEDICATION SECTION - PARA KAY PATRICIA */
-    /* ========================================== */
-
-    .dedication-section {
-      margin-top: 50px;
-      padding-top: 30px;
-      border-top: 1px solid rgba(123, 31, 162, 0.08);
-      text-align: center;
-    }
-
-    .dedication-divider {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-      margin-bottom: 28px;
-    }
-
-    .dedication-divider-line {
-      width: 60px;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(123, 31, 162, 0.2), transparent);
-    }
-
-    .dedication-divider-icon {
-      font-size: 18px;
-      color: rgba(123, 31, 162, 0.3);
-      animation: pulseIcon 3s ease-in-out infinite;
-    }
-
-    .dedication-divider-icon:nth-child(1) {
-      animation-delay: 0s;
-    }
-
-    .dedication-divider-icon:nth-child(3) {
-      animation-delay: 0.5s;
-    }
-
-    .dedication-divider-icon:nth-child(5) {
-      animation-delay: 1s;
-    }
-
-    /* ========================================== */
-    /* SOUND TOGGLE - Piano Notes */
-    /* ========================================== */
-    .sound-toggle-section {
-      text-align: center;
-      margin-top: 20px;
-      padding: 15px;
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .sound-toggle-label {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      cursor: pointer;
-      font-family: "Georgia", serif;
-      font-size: 14px;
-      color: #6a1b9a;
-    }
-
-    .sound-toggle-label input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
-      accent-color: #9c27b0;
-      cursor: pointer;
-    }
-
-    @keyframes pulseIcon {
-
-      0%,
-      100% {
-        opacity: 0.3;
-        transform: scale(1);
+  <head>
+    <meta charset="UTF-8" />
+    <title>TypiPat: The Rhythmic Index</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
       }
 
-      50% {
+      input::placeholder,
+      textarea::placeholder {
+        color: #a5a5c7;
+        opacity: 1;
+      }
+
+      body {
+        font-family: "Georgia", "Times New Roman", serif;
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+      }
+
+      .container {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 40px;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+      }
+
+      .header-tagline {
+        text-align: center;
+        color: #6a1b9a;
+        font-size: 16px;
+        font-style: italic;
+        line-height: 1.8;
+        padding: 15px 0;
+        margin-bottom: 25px;
+      }
+
+      .footer-quote {
+        text-align: center;
+        color: #6a1b9a;
+        font-size: 15px;
+        font-style: italic;
+        line-height: 1.8;
+        padding: 20px 24px;
+        margin-top: 30px;
+        background: rgba(255, 255, 255, 0.25);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        transition: all 0.3s ease;
+      }
+
+      .footer-quote.visible {
+        opacity: 1;
+      }
+
+      .footer-quote:hover {
+        background: rgba(255, 255, 255, 0.35);
+        box-shadow: 0 8px 30px rgba(102, 126, 234, 0.06);
+      }
+
+      /* ========================================== */
+      /* DEDICATION SECTION - PARA KAY PATRICIA */
+      /* ========================================== */
+
+      .dedication-section {
+        margin-top: 50px;
+        padding-top: 30px;
+        border-top: 1px solid rgba(123, 31, 162, 0.08);
+        text-align: center;
+      }
+
+      .dedication-divider {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        margin-bottom: 28px;
+      }
+
+      .dedication-divider-line {
+        width: 60px;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(123, 31, 162, 0.2),
+          transparent
+        );
+      }
+
+      .dedication-divider-icon {
+        font-size: 18px;
+        color: rgba(123, 31, 162, 0.3);
+        animation: pulseIcon 3s ease-in-out infinite;
+      }
+
+      .dedication-divider-icon:nth-child(1) {
+        animation-delay: 0s;
+      }
+
+      .dedication-divider-icon:nth-child(3) {
+        animation-delay: 0.5s;
+      }
+
+      .dedication-divider-icon:nth-child(5) {
+        animation-delay: 1s;
+      }
+
+      /* ========================================== */
+      /* SOUND TOGGLE - Piano Notes */
+      /* ========================================== */
+      .sound-toggle-section {
+        text-align: center;
+        margin-top: 20px;
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .sound-toggle-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        font-family: "Georgia", serif;
+        font-size: 14px;
+        color: #6a1b9a;
+      }
+
+      .sound-toggle-label input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: #9c27b0;
+        cursor: pointer;
+      }
+
+      @keyframes pulseIcon {
+        0%,
+        100% {
+          opacity: 0.3;
+          transform: scale(1);
+        }
+
+        50% {
+          opacity: 0.8;
+          transform: scale(1.1);
+        }
+      }
+
+      .dedication-text {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      .dedication-quote {
+        font-size: 20px;
+        font-style: italic;
+        color: #6a1b9a;
+        line-height: 1.8;
+        margin-bottom: 20px;
+        font-weight: 300;
+        letter-spacing: 0.5px;
+      }
+
+      .dedication-ornament {
+        font-size: 18px;
+        color: rgba(123, 31, 162, 0.25);
+        letter-spacing: 8px;
+        margin-bottom: 24px;
+      }
+
+      .dedication-message {
+        font-size: 15px;
+        color: #7b1fa2;
+        line-height: 2;
+        margin-bottom: 20px;
+        font-style: italic;
         opacity: 0.8;
-        transform: scale(1.1);
       }
-    }
-
-    .dedication-text {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 0 20px;
-    }
-
-    .dedication-quote {
-      font-size: 20px;
-      font-style: italic;
-      color: #6a1b9a;
-      line-height: 1.8;
-      margin-bottom: 20px;
-      font-weight: 300;
-      letter-spacing: 0.5px;
-    }
-
-    .dedication-ornament {
-      font-size: 18px;
-      color: rgba(123, 31, 162, 0.25);
-      letter-spacing: 8px;
-      margin-bottom: 24px;
-    }
-
-    .dedication-message {
-      font-size: 15px;
-      color: #7b1fa2;
-      line-height: 2;
-      margin-bottom: 20px;
-      font-style: italic;
-      opacity: 0.8;
-    }
-
-    .dedication-signature {
-      font-size: 18px;
-      color: #4a148c;
-      font-weight: 600;
-      letter-spacing: 2px;
-      font-style: italic;
-      margin-top: 8px;
-    }
-
-    .dedication-signature::before {
-      content: '♩ ';
-      font-size: 16px;
-      color: rgba(123, 31, 162, 0.2);
-    }
-
-    .dedication-signature::after {
-      content: ' ♩';
-      font-size: 16px;
-      color: rgba(123, 31, 162, 0.2);
-    }
-
-    h1 {
-      color: #4a148c;
-      margin-top: 0;
-      font-size: 32px;
-      font-weight: 300;
-      letter-spacing: 2px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid rgba(123, 31, 162, 0.2);
-      padding: 20px 24px;
-      margin-bottom: 30px;
-      position: sticky;
-      top: 0;
-      background: rgba(255, 255, 255, 0.7);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-radius: 12px 12px 0 0;
-      z-index: 100;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-    }
-
-    .search-container {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      max-width: 550px;
-      margin-left: auto;
-      background: rgba(255, 255, 255, 0.3);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      padding: 4px 4px 4px 16px;
-      border-radius: 30px;
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-      transition: all 0.3s ease;
-    }
-
-    .search-container:focus-within {
-      background: rgba(255, 255, 255, 0.45);
-      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.08);
-      border-color: rgba(123, 31, 162, 0.15);
-    }
-
-    .search-box {
-      flex: 1;
-      padding: 10px 0;
-      border: none;
-      background: transparent;
-      font-size: 14px;
-      font-family: "Georgia", serif;
-      color: #4a148c;
-      outline: none;
-      min-width: 200px;
-    }
-
-    .search-box::placeholder {
-      color: rgba(74, 20, 140, 0.4);
-      font-style: italic;
-    }
-
-    .search-box:focus {
-      outline: none;
-    }
-
-    .search-btn,
-    .clear-search {
-      padding: 12px 20px;
-      border: none;
-      border-radius: 25px;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 600;
-      transition: transform 0.2s;
-      color: white;
-    }
-
-    .search-btn {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      font-size: 14px;
-      padding: 12px 25px;
-      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.25);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .search-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(102, 126, 234, 0.35);
-    }
-
-    .search-btn:active {
-      transform: scale(0.97);
-    }
-
-    .clear-search {
-      background: #e91e63;
-      display: none;
-    }
-
-    .clear-search.visible {
-      display: block;
-    }
-
-    .clear-search:hover {
-      transform: scale(1.05);
-    }
-
-    .section {
-      margin-bottom: 40px;
-      padding-bottom: 30px;
-      border-bottom: 1px solid #e1bee7;
-    }
-
-    .section:last-child {
-      border-bottom: none;
-    }
-
-    h2 {
-      color: #6a1b9a;
-      font-size: 24px;
-      font-weight: 300;
-      margin-bottom: 20px;
-      letter-spacing: 1px;
-    }
-
-    .section-caption {
-      color: #9c27b0;
-      font-size: 13px;
-      font-style: italic;
-      margin-top: -15px;
-      margin-bottom: 20px;
-    }
-
-    .add-form {
-      display: grid;
-      grid-template-columns: 200px 1fr;
-      gap: 15px;
-      margin-bottom: 20px;
-      align-items: start;
-      background: rgba(255, 255, 255, 0.35);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      padding: 24px;
-      border-radius: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-      transition: all 0.3s ease;
-    }
-
-    .add-form:hover {
-      background: rgba(255, 255, 255, 0.45);
-      box-shadow: 0 8px 30px rgba(102, 126, 234, 0.06);
-    }
-
-    .form-label {
-      color: #6a1b9a;
-      font-size: 13px;
-      font-weight: 600;
-      margin-bottom: 5px;
-      letter-spacing: 0.5px;
-    }
-
-    .add-form input[type="text"] {
-      padding: 12px;
-      border: 1px solid rgba(156, 39, 176, 0.15);
-      border-radius: 8px;
-      font-size: 14px;
-      font-family: "Georgia", serif;
-      transition: all 0.3s;
-      width: 100%;
-      box-sizing: border-box;
-      background: rgba(255, 255, 255, 0.5);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      color: #4a148c;
-    }
-
-    .add-form input[type="text"]:focus {
-      outline: none;
-      border-color: #9c27b0;
-      box-shadow: 0 0 0 3px rgba(156, 39, 176, 0.08);
-      background: rgba(255, 255, 255, 0.7);
-    }
-
-    .add-form input#shortcutInput {
-      grid-column: 1;
-      grid-row: 1;
-    }
-
-    .add-form input#sectionInput {
-      grid-column: 1;
-      grid-row: 2;
-    }
-
-    .add-form .label-input-wrapper {
-      grid-column: 2;
-      grid-row: 1 / 3;
-      width: 100%;
-    }
-
-    .textarea-container {
-      grid-column: 2;
-      grid-row: 3;
-      position: relative;
-    }
-
-    .add-form textarea {
-      padding: 15px 60px 15px 15px;
-      border: 1px solid rgba(156, 39, 176, 0.15);
-      border-radius: 8px;
-      font-size: 15px;
-      min-height: 200px;
-      width: 100%;
-      resize: vertical;
-      line-height: 1.8;
-      white-space: pre-wrap;
-      font-family: "Georgia", serif;
-      transition: all 0.3s;
-      box-sizing: border-box;
-      background: rgba(255, 255, 255, 0.5);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      color: #4a148c;
-    }
-
-    .add-form textarea:focus {
-      outline: none;
-      border-color: #9c27b0;
-      box-shadow: 0 0 0 3px rgba(156, 39, 176, 0.08);
-      background: rgba(255, 255, 255, 0.7);
-    }
-
-    .orchestrate-btn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 42px;
-      height: 42px;
-      cursor: pointer;
-      font-size: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-      z-index: 10;
-    }
-
-    .orchestrate-btn:hover {
-      transform: scale(1.15);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
-    }
-
-    .add-form button#addBtn {
-      grid-column: 2;
-      grid-row: 4;
-      width: 180px;
-      padding: 12px 20px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      border-radius: 25px;
-      cursor: pointer;
-      font-size: 15px;
-      font-weight: 600;
-      justify-self: start;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      letter-spacing: 1px;
-      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.25);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .add-form button#addBtn::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
-      transition: left 0.5s ease;
-    }
-
-    .add-form button#addBtn:hover::before {
-      left: 100%;
-    }
-
-    .add-form button#addBtn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(102, 126, 234, 0.35);
-    }
-
-    .add-form button#addBtn:active {
-      transform: scale(0.97);
-    }
-
-    .save-btn {
-      grid-column: 2;
-      grid-row: 4;
-      padding: 12px 20px;
-      border: none;
-      border-radius: 25px;
-      cursor: pointer;
-      font-size: 15px;
-      font-weight: 600;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      letter-spacing: 1px;
-      color: white;
-      background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
-      justify-self: start;
-      margin-right: 10px;
-      box-shadow: 0 4px 16px rgba(76, 175, 80, 0.25);
-    }
-
-    .save-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(76, 175, 80, 0.35);
-    }
-
-    .save-btn:active {
-      transform: scale(0.97);
-    }
-
-    .discard-btn {
-      grid-column: 2;
-      grid-row: 4;
-      padding: 12px 20px;
-      border: none;
-      border-radius: 25px;
-      cursor: pointer;
-      font-size: 15px;
-      font-weight: 600;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      letter-spacing: 1px;
-      color: white;
-      background: linear-gradient(135deg, #f44336 0%, #da190b 100%);
-      justify-self: start;
-      margin-left: 190px;
-      box-shadow: 0 4px 16px rgba(244, 67, 54, 0.25);
-    }
-
-    .discard-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(244, 67, 54, 0.35);
-    }
-
-    .discard-btn:active {
-      transform: scale(0.97);
-    }
-
-    .export-import-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      grid-column: 1;
-      grid-row: 3 / 5;
-      align-self: start;
-    }
-
-    .export-btn {
-      padding: 12px 15px;
-      font-size: 14px;
-      border-radius: 25px;
-      cursor: pointer;
-      border: none;
-      color: white;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      font-family: "Georgia", serif;
-      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-      box-shadow: 0 4px 16px rgba(245, 87, 108, 0.25);
-    }
-
-    .export-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(245, 87, 108, 0.35);
-    }
-
-    .export-btn:active {
-      transform: scale(0.97);
-    }
-
-    .import-btn {
-      padding: 12px 15px;
-      font-size: 14px;
-      border-radius: 25px;
-      cursor: pointer;
-      border: none;
-      color: white;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      font-family: "Georgia", serif;
-      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-      box-shadow: 0 4px 16px rgba(79, 172, 254, 0.25);
-    }
-
-    .import-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(79, 172, 254, 0.35);
-    }
-
-    .import-btn:active {
-      transform: scale(0.97);
-    }
-
-    .shortcuts-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-      background: rgba(255, 255, 255, 0.3);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-radius: 16px;
-      overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-    }
-
-    .shortcuts-table th {
-      background: linear-gradient(135deg, rgba(102, 126, 234, 0.85), rgba(118, 75, 162, 0.85));
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      color: white;
-      padding: 16px 20px;
-      text-align: left;
-      font-weight: 600;
-      border: none;
-      letter-spacing: 1px;
-      font-size: 15px;
-    }
-
-    .shortcuts-table th:first-child {
-      border-radius: 16px 0 0 0;
-      text-align: center;
-    }
-
-    .shortcuts-table th:last-child {
-      border-radius: 0 16px 0 0;
-      padding-left: 45px;
-    }
-
-    .shortcuts-table td {
-      padding: 20px 15px;
-      background: rgba(255, 255, 255, 0.3);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      transition: background 0.3s ease;
-      border-bottom: 1px solid rgba(156, 39, 176, 0.25);
-    }
-
-    .shortcuts-table tr:hover {
-      background: #f3e5f5;
-    }
-
-    .shortcuts-table tr:last-child td {
-      border-bottom: none;
-    }
-
-    .shortcuts-table tbody tr:first-child td {
-      border-top: 1px solid rgba(156, 39, 176, 0.08);
-    }
-
-    .shortcuts-table tr:hover td {
-      background: rgba(243, 229, 245, 0.5);
-    }
-
-    .shortcuts-table tr:last-child td:first-child {
-      border-radius: 0 0 0 16px;
-    }
-
-    .shortcuts-table tr:last-child td:last-child {
-      border-radius: 0 0 16px 0;
-    }
-
-    .shortcuts-table tr.highlight {
-      background: #fff9c4 !important;
-      animation: highlightPulse 2s ease-in-out;
-    }
-
-    .shortcuts-table tr.flash-focus {
-      animation: flashPulse 1.8s ease-in-out;
-      background: linear-gradient(90deg,
+
+      .dedication-signature {
+        font-size: 18px;
+        color: #4a148c;
+        font-weight: 600;
+        letter-spacing: 2px;
+        font-style: italic;
+        margin-top: 8px;
+      }
+
+      .dedication-signature::before {
+        content: "♩ ";
+        font-size: 16px;
+        color: rgba(123, 31, 162, 0.2);
+      }
+
+      .dedication-signature::after {
+        content: " ♩";
+        font-size: 16px;
+        color: rgba(123, 31, 162, 0.2);
+      }
+
+      h1 {
+        color: #4a148c;
+        margin-top: 0;
+        font-size: 32px;
+        font-weight: 300;
+        letter-spacing: 2px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid rgba(123, 31, 162, 0.2);
+        padding: 20px 24px;
+        margin-bottom: 30px;
+        position: sticky;
+        top: 0;
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-radius: 12px 12px 0 0;
+        z-index: 100;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      }
+
+      .search-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        max-width: 550px;
+        margin-left: auto;
+        background: rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        padding: 4px 4px 4px 16px;
+        border-radius: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        transition: all 0.3s ease;
+      }
+
+      .search-container:focus-within {
+        background: rgba(255, 255, 255, 0.45);
+        box-shadow: 0 4px 20px rgba(102, 126, 234, 0.08);
+        border-color: rgba(123, 31, 162, 0.15);
+      }
+
+      .search-box {
+        flex: 1;
+        padding: 10px 0;
+        border: none;
+        background: transparent;
+        font-size: 14px;
+        font-family: "Georgia", serif;
+        color: #4a148c;
+        outline: none;
+        min-width: 200px;
+      }
+
+      .search-box::placeholder {
+        color: rgba(74, 20, 140, 0.4);
+        font-style: italic;
+      }
+
+      .search-box:focus {
+        outline: none;
+      }
+
+      .search-btn,
+      .clear-search {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 600;
+        transition: transform 0.2s;
+        color: white;
+      }
+
+      .search-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        font-size: 14px;
+        padding: 12px 25px;
+        box-shadow: 0 4px 16px rgba(102, 126, 234, 0.25);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .search-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(102, 126, 234, 0.35);
+      }
+
+      .search-btn:active {
+        transform: scale(0.97);
+      }
+
+      .clear-search {
+        background: #e91e63;
+        display: none;
+      }
+
+      .clear-search.visible {
+        display: block;
+      }
+
+      .clear-search:hover {
+        transform: scale(1.05);
+      }
+
+      .section {
+        margin-bottom: 40px;
+        padding-bottom: 30px;
+        border-bottom: 1px solid #e1bee7;
+      }
+
+      .section:last-child {
+        border-bottom: none;
+      }
+
+      h2 {
+        color: #6a1b9a;
+        font-size: 24px;
+        font-weight: 300;
+        margin-bottom: 20px;
+        letter-spacing: 1px;
+      }
+
+      .section-caption {
+        color: #9c27b0;
+        font-size: 13px;
+        font-style: italic;
+        margin-top: -15px;
+        margin-bottom: 20px;
+      }
+
+      .add-form {
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        gap: 15px;
+        margin-bottom: 20px;
+        align-items: start;
+        background: rgba(255, 255, 255, 0.35);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        padding: 24px;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        transition: all 0.3s ease;
+      }
+
+      .add-form:hover {
+        background: rgba(255, 255, 255, 0.45);
+        box-shadow: 0 8px 30px rgba(102, 126, 234, 0.06);
+      }
+
+      .form-label {
+        color: #6a1b9a;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 5px;
+        letter-spacing: 0.5px;
+      }
+
+      .add-form input[type="text"] {
+        padding: 12px;
+        border: 1px solid rgba(156, 39, 176, 0.15);
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: "Georgia", serif;
+        transition: all 0.3s;
+        width: 100%;
+        box-sizing: border-box;
+        background: rgba(255, 255, 255, 0.5);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        color: #4a148c;
+      }
+
+      .add-form input[type="text"]:focus {
+        outline: none;
+        border-color: #9c27b0;
+        box-shadow: 0 0 0 3px rgba(156, 39, 176, 0.08);
+        background: rgba(255, 255, 255, 0.7);
+      }
+
+      .add-form input#shortcutInput {
+        grid-column: 1;
+        grid-row: 1;
+      }
+
+      .add-form input#sectionInput {
+        grid-column: 1;
+        grid-row: 2;
+      }
+
+      .add-form .label-input-wrapper {
+        grid-column: 2;
+        grid-row: 1 / 3;
+        width: 100%;
+      }
+
+      .textarea-container {
+        grid-column: 2;
+        grid-row: 3;
+        position: relative;
+      }
+
+      .add-form textarea {
+        padding: 15px 60px 15px 15px;
+        border: 1px solid rgba(156, 39, 176, 0.15);
+        border-radius: 8px;
+        font-size: 15px;
+        min-height: 200px;
+        width: 100%;
+        resize: vertical;
+        line-height: 1.8;
+        white-space: pre-wrap;
+        font-family: "Georgia", serif;
+        transition: all 0.3s;
+        box-sizing: border-box;
+        background: rgba(255, 255, 255, 0.5);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        color: #4a148c;
+      }
+
+      .add-form textarea:focus {
+        outline: none;
+        border-color: #9c27b0;
+        box-shadow: 0 0 0 3px rgba(156, 39, 176, 0.08);
+        background: rgba(255, 255, 255, 0.7);
+      }
+
+      .orchestrate-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 42px;
+        height: 42px;
+        cursor: pointer;
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        z-index: 10;
+      }
+
+      .orchestrate-btn:hover {
+        transform: scale(1.15);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+      }
+
+      .add-form button#addBtn {
+        grid-column: 2;
+        grid-row: 4;
+        width: 180px;
+        padding: 12px 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: 600;
+        justify-self: start;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        letter-spacing: 1px;
+        box-shadow: 0 4px 16px rgba(102, 126, 234, 0.25);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .add-form button#addBtn::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.15),
+          transparent
+        );
+        transition: left 0.5s ease;
+      }
+
+      .add-form button#addBtn:hover::before {
+        left: 100%;
+      }
+
+      .add-form button#addBtn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(102, 126, 234, 0.35);
+      }
+
+      .add-form button#addBtn:active {
+        transform: scale(0.97);
+      }
+
+      .save-btn {
+        grid-column: 2;
+        grid-row: 4;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: 600;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        letter-spacing: 1px;
+        color: white;
+        background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+        justify-self: start;
+        margin-right: 10px;
+        box-shadow: 0 4px 16px rgba(76, 175, 80, 0.25);
+      }
+
+      .save-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(76, 175, 80, 0.35);
+      }
+
+      .save-btn:active {
+        transform: scale(0.97);
+      }
+
+      .discard-btn {
+        grid-column: 2;
+        grid-row: 4;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: 600;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        letter-spacing: 1px;
+        color: white;
+        background: linear-gradient(135deg, #f44336 0%, #da190b 100%);
+        justify-self: start;
+        margin-left: 190px;
+        box-shadow: 0 4px 16px rgba(244, 67, 54, 0.25);
+      }
+
+      .discard-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(244, 67, 54, 0.35);
+      }
+
+      .discard-btn:active {
+        transform: scale(0.97);
+      }
+
+      .export-import-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        grid-column: 1;
+        grid-row: 3 / 5;
+        align-self: start;
+      }
+
+      .export-btn {
+        padding: 12px 15px;
+        font-size: 14px;
+        border-radius: 25px;
+        cursor: pointer;
+        border: none;
+        color: white;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        font-family: "Georgia", serif;
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        box-shadow: 0 4px 16px rgba(245, 87, 108, 0.25);
+      }
+
+      .export-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(245, 87, 108, 0.35);
+      }
+
+      .export-btn:active {
+        transform: scale(0.97);
+      }
+
+      .import-btn {
+        padding: 12px 15px;
+        font-size: 14px;
+        border-radius: 25px;
+        cursor: pointer;
+        border: none;
+        color: white;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        font-family: "Georgia", serif;
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        box-shadow: 0 4px 16px rgba(79, 172, 254, 0.25);
+      }
+
+      .import-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(79, 172, 254, 0.35);
+      }
+
+      .import-btn:active {
+        transform: scale(0.97);
+      }
+
+      .shortcuts-table th {
+        background: linear-gradient(
+          135deg,
+          rgba(102, 126, 234, 0.85),
+          rgba(118, 75, 162, 0.85)
+        );
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        color: white;
+        padding: 16px 20px;
+        text-align: left;
+        font-weight: 600;
+        border: none;
+        letter-spacing: 1px;
+        font-size: 15px;
+      }
+
+      .shortcuts-table th:first-child {
+        border-radius: 16px 0 0 0;
+        text-align: center;
+      }
+
+      .shortcuts-table th:last-child {
+        border-radius: 0 16px 0 0;
+        padding-left: 45px;
+      }
+
+      .shortcuts-table td {
+        padding: 20px 15px;
+        background: rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        transition: background 0.3s ease;
+        border-bottom: 1px solid rgba(156, 39, 176, 0.25);
+      }
+
+      .shortcuts-table tr:hover {
+        background: #f3e5f5;
+      }
+
+      .shortcuts-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .shortcuts-table tbody tr:first-child td {
+        border-top: 1px solid rgba(156, 39, 176, 0.08);
+      }
+
+      .shortcuts-table tr:hover td {
+        background: rgba(243, 229, 245, 0.5);
+      }
+
+      .shortcuts-table tr:last-child td:first-child {
+        border-radius: 0 0 0 16px;
+      }
+
+      .shortcuts-table tr:last-child td:last-child {
+        border-radius: 0 0 16px 0;
+      }
+
+      .shortcuts-table tr.highlight {
+        background: #fff9c4 !important;
+        animation: highlightPulse 2s ease-in-out;
+      }
+
+      .shortcuts-table tr.flash-focus {
+        animation: flashPulse 1.8s ease-in-out;
+        background: linear-gradient(
+          90deg,
           rgba(255, 249, 196, 0.95),
-          rgba(255, 244, 200, 0.6));
-      border-left: 6px solid rgba(156, 39, 176, 0.85);
-      transition: background 0.3s ease, box-shadow 0.25s ease;
-    }
-
-    @keyframes flashPulse {
-      0% {
-        box-shadow: 0 0 0 6px rgba(156, 39, 176, 0.12) inset;
+          rgba(255, 244, 200, 0.6)
+        );
+        border-left: 6px solid rgba(156, 39, 176, 0.85);
+        transition:
+          background 0.3s ease,
+          box-shadow 0.25s ease;
       }
 
-      30% {
-        box-shadow: 0 0 0 10px rgba(156, 39, 176, 0.18) inset;
+      /* I-reset ang table para sa card effect */
+.shortcuts-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 12px;
+  margin-top: 20px;
+  background: transparent;
+}
+
+/* Gawing card ang bawat row - TRANSPARENT */
+.shortcuts-table tbody tr {
+  display: table-row;
+  background: transparent;  /* ← TRANSPARENT */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.25s ease;
+}
+
+/* Border at separator gamit ang cell borders */
+.shortcuts-table tbody tr td {
+  border-top: 1px solid rgba(156, 39, 176, 0.15);
+  border-bottom: 1px solid rgba(156, 39, 176, 0.15);
+  padding: 14px 12px;
+  background: transparent !important;
+  vertical-align: middle;
+
+  /* 🎼 ADD THIS LINE FOR STAFF LINES: */
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 7px,
+    rgba(156, 39, 176, 0.04) 8px,
+    transparent 9px
+  ) !important
+}
+
+/* Unang cell - left border at rounded corners */
+.shortcuts-table tbody tr td:first-child {
+  border-left: 1.5px solid rgba(156, 39, 176, 0.2);
+  border-radius: 12px 0 0 12px;
+  width: 180px;
+  min-width: 150px;
+  text-align: center;
+  padding-left: 16px;
+
+  /* 🎼 ADD THIS LINE FOR BARLINE: */
+  border-right: 2px solid rgba(156, 39, 176, 0.15);
+}
+
+/* Huling cell - right border at rounded corners */
+.shortcuts-table tbody tr td:last-child {
+  border-right: 1.5px solid rgba(156, 39, 176, 0.2);
+  border-radius: 0 12px 12px 0;
+  padding-right: 16px;
+  padding-left: 20px;
+}
+
+/* Alisin ang top border ng unang row */
+.shortcuts-table tbody tr:first-child td {
+  border-top: 1.5px solid rgba(156, 39, 176, 0.2);
+}
+
+/* Hover effect */
+.shortcuts-table tbody tr:hover td {
+  border-color: rgba(156, 39, 176, 0.4);
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Table head - walang babaguhin */
+.shortcuts-table thead {
+  background: transparent;
+}
+
+.shortcuts-table thead th {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.85), rgba(118, 75, 162, 0.85));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: white;
+  padding: 16px 20px;
+  border: none;
+  text-align: left;
+  font-weight: 600;
+  letter-spacing: 1px;
+  font-size: 15px;
+}
+
+.shortcuts-table thead th:first-child {
+  border-radius: 16px 0 0 16px;
+  text-align: center;
+  width: 180px;
+}
+
+.shortcuts-table thead th:last-child {
+  border-radius: 0 16px 16px 0;
+  padding-left: 45px;
+}
+
+/* Pinned rows - gold accent */
+.shortcuts-table tbody tr.pinned td:first-child {
+  border-left-color: var(--note-color, #FFD700);
+  border-left-width: 4px;
+}
+
+.shortcuts-table tbody tr.pinned td {
+  border-color: rgba(255, 215, 0, 0.25);
+}
+
+.shortcuts-table tbody tr.pinned:hover td {
+  border-color: var(--note-color, #FFD700);
+}
+
+      @keyframes flashPulse {
+        0% {
+          box-shadow: 0 0 0 6px rgba(156, 39, 176, 0.12) inset;
+        }
+
+        30% {
+          box-shadow: 0 0 0 10px rgba(156, 39, 176, 0.18) inset;
+        }
+
+        70% {
+          box-shadow: 0 0 0 4px rgba(156, 39, 176, 0.08) inset;
+        }
+
+        100% {
+          box-shadow: 0 0 0 0 rgba(156, 39, 176, 0) inset;
+        }
       }
 
-      70% {
-        box-shadow: 0 0 0 4px rgba(156, 39, 176, 0.08) inset;
+      @keyframes highlightPulse {
+        0% {
+          background: #ffeb3b;
+        }
+
+        100% {
+          background: #fff9c4;
+        }
       }
 
-      100% {
-        box-shadow: 0 0 0 0 rgba(156, 39, 176, 0) inset;
-      }
-    }
-
-    @keyframes highlightPulse {
-      0% {
-        background: #ffeb3b;
+      .shortcuts-table tr.hidden {
+        display: none;
       }
 
-      100% {
-        background: #fff9c4;
-      }
-    }
-
-    .shortcuts-table tr.hidden {
-      display: none;
-    }
-
-    .shortcuts-table td:nth-child(1) {
-      font-weight: bold;
-      color: #6a1b9a;
-      font-size: 16px;
-      width: 180px;
-      letter-spacing: 0.5px;
-      vertical-align: middle;
-      text-align: center;
-    }
-
-    .shortcuts-table td:nth-child(2) {
-      white-space: pre-wrap;
-      word-break: break-word;
-      vertical-align: top;
-      padding: 20px 30px 20px 45px !important;
-    }
-
-    .label-badge {
-      display: block !important;
-      background: rgba(255, 243, 224, 0.6);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      color: #e65100;
-      padding: 6px 15px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-      margin: 0 0 15px 0 !important;
-      border: 1px solid rgba(255, 183, 77, 0.2);
-      width: fit-content;
-    }
-
-    .section-badge {
-      display: inline-block !important;
-      background: rgba(232, 234, 246, 0.6);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      color: #283593;
-      padding: 4px 14px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 600;
-      margin: 0 0 10px 0 !important;
-      border: 1px solid rgba(144, 202, 249, 0.2);
-      width: fit-content;
-    }
-
-    .replacement-content {
-      font-family: "Georgia", serif;
-      font-size: 14px;
-      font-weight: 400;
-      line-height: 1.8;
-      color: #424242;
-      margin: 0 0 10px 0 !important;
-      padding: 0 !important;
-      word-wrap: break-word;
-      overflow-wrap: break-word;
-    }
-
-    .replacement-stats {
-      display: flex;
-      gap: 20px;
-      font-size: 11px;
-      color: #9c27b0;
-      margin: 10px 0 15px 0;
-      font-weight: 600;
-      justify-content: flex-end;
-    }
-
-    .stat-item {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .button-group {
-      display: flex;
-      gap: 10px;
-      margin: 0 !important;
-      padding: 0 !important;
-      align-items: center;
-      justify-content: flex-end;
-    }
-
-    .action-btn {
-      padding: 10px 18px;
-      font-size: 13px;
-      margin: 0;
-      flex: 0 0 auto;
-      border: none;
-      border-radius: 20px;
-      cursor: pointer;
-      color: white;
-      font-weight: 600;
-      transition: transform 0.2s;
-      letter-spacing: 0.5px;
-    }
-
-    .action-btn:hover {
-      transform: scale(1.05);
-    }
-
-    .copy-btn {
-      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    }
-
-    .edit-btn {
-      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    }
-
-    .delete-btn {
-      background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-    }
-
-    .copy-btn.copied {
-      background: #4caf50;
-    }
-
-    .status-message {
-      padding: 12px;
-      margin-top: 15px;
-      border-radius: 8px;
-      display: none;
-      font-size: 14px;
-    }
-
-    .status-message.success {
-      background: #c8e6c9;
-      color: #2e7d32;
-      border-left: 4px solid #4caf50;
-    }
-
-    .status-message.error {
-      background: #ffcdd2;
-      color: #c62828;
-      border-left: 4px solid #f44336;
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 60px;
-      color: #9c27b0;
-      font-style: italic;
-      font-size: 16px;
-    }
-
-    #importFile {
-      display: none;
-    }
-
-    @keyframes modalSlideIn {
-      from {
-        transform: translateY(-50px);
-        opacity: 0;
+      .shortcuts-table td:nth-child(1) {
+        font-weight: bold;
+        color: #6a1b9a;
+        font-size: 16px;
+        width: 180px;
+        letter-spacing: 0.5px;
+        vertical-align: middle;
+        text-align: center;
       }
 
-      to {
-        transform: translateY(0);
-        opacity: 1;
-      }
-    }
-
-    .modal-title {
-      color: #6a1b9a;
-      font-size: 22px;
-      font-weight: 600;
-      margin-bottom: 20px;
-      text-align: center;
-      letter-spacing: 1px;
-    }
-
-    .modal-message {
-      color: #424242;
-      font-size: 15px;
-      line-height: 1.8;
-      margin-bottom: 25px;
-      text-align: center;
-    }
-
-    .modal-detail {
-      background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
-      padding: 15px;
-      border-radius: 8px;
-      margin-bottom: 25px;
-      border-left: 4px solid #9c27b0;
-    }
-
-    .modal-detail-label {
-      color: #6a1b9a;
-      font-size: 12px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 5px;
-    }
-
-    .modal-detail-value {
-      color: #424242;
-      font-size: 15px;
-      font-weight: 500;
-      word-wrap: break-word;
-    }
-
-    .modal-buttons {
-      display: flex;
-      gap: 15px;
-      justify-content: center;
-    }
-
-    .modal-btn {
-      padding: 12px 30px;
-      border: none;
-      border-radius: 25px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.2s;
-      letter-spacing: 0.5px;
-    }
-
-    .modal-btn:hover {
-      transform: scale(1.05);
-    }
-
-    .modal-btn-confirm {
-      background: linear-gradient(135deg, #f44336 0%, #da190b 100%);
-      color: white;
-    }
-
-    .modal-btn-cancel {
-      background: linear-gradient(135deg, #9e9e9e 0%, #757575 100%);
-      color: white;
-    }
-
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
+      .shortcuts-table td:nth-child(2) {
+        white-space: pre-wrap;
+        word-break: break-word;
+        vertical-align: top;
+        padding: 20px 30px 20px 45px !important;
       }
 
-      to {
-        opacity: 1;
-      }
-    }
-
-    .composer-content {
-      background: rgba(255, 255, 255, 0.7);
-      backdrop-filter: blur(30px);
-      -webkit-backdrop-filter: blur(30px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 16px;
-      width: 85%;
-      height: 75%;
-      max-height: 90vh;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-      display: flex;
-      flex-direction: column;
-      animation: scaleIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-      position: relative;
-      overflow: hidden;
-    }
-
-    @keyframes scaleIn {
-      from {
-        transform: scale(0.7);
-        opacity: 0;
+      .label-badge {
+        display: block !important;
+        background: rgba(255, 243, 224, 0.6);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        color: #e65100;
+        padding: 6px 15px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        margin: 0 0 15px 0 !important;
+        border: 1px solid rgba(255, 183, 77, 0.2);
+        width: fit-content;
       }
 
-      to {
-        transform: scale(1);
-        opacity: 1;
+      .section-badge {
+        display: inline-block !important;
+        background: rgba(232, 234, 246, 0.6);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        color: #283593;
+        padding: 4px 14px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        margin: 0 0 10px 0 !important;
+        border: 1px solid rgba(144, 202, 249, 0.2);
+        width: fit-content;
       }
-    }
 
-    .composer-body::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-image: repeating-linear-gradient(transparent,
+      .replacement-content {
+        font-family: "Georgia", serif;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 1.8;
+        color: #424242;
+        margin: 0 0 10px 0 !important;
+        padding: 0 !important;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+      }
+
+      .replacement-stats {
+        display: flex;
+        gap: 20px;
+        font-size: 11px;
+        color: #9c27b0;
+        margin: 10px 0 15px 0;
+        font-weight: 600;
+        justify-content: flex-end;
+      }
+
+      .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 10px;
+        margin: 0 !important;
+        padding: 0 !important;
+        align-items: center;
+        justify-content: flex-end;
+      }
+
+      .action-btn {
+        padding: 10px 18px;
+        font-size: 13px;
+        margin: 0;
+        flex: 0 0 auto;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        color: white;
+        font-weight: 600;
+        transition: transform 0.2s;
+        letter-spacing: 0.5px;
+      }
+
+      .action-btn:hover {
+        transform: scale(1.05);
+      }
+
+      .copy-btn {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      }
+
+      .edit-btn {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      }
+
+      .delete-btn {
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+      }
+
+      .copy-btn.copied {
+        background: #4caf50;
+      }
+
+      .status-message {
+        padding: 12px;
+        margin-top: 15px;
+        border-radius: 8px;
+        display: none;
+        font-size: 14px;
+      }
+
+      .status-message.success {
+        background: #c8e6c9;
+        color: #2e7d32;
+        border-left: 4px solid #4caf50;
+      }
+
+      .status-message.error {
+        background: #ffcdd2;
+        color: #c62828;
+        border-left: 4px solid #f44336;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 60px;
+        color: #9c27b0;
+        font-style: italic;
+        font-size: 16px;
+      }
+
+      #importFile {
+        display: none;
+      }
+
+      @keyframes modalSlideIn {
+        from {
+          transform: translateY(-50px);
+          opacity: 0;
+        }
+
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      .modal-title {
+        color: #6a1b9a;
+        font-size: 22px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        text-align: center;
+        letter-spacing: 1px;
+      }
+
+      .modal-message {
+        color: #424242;
+        font-size: 15px;
+        line-height: 1.8;
+        margin-bottom: 25px;
+        text-align: center;
+      }
+
+      .modal-detail {
+        background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        border-left: 4px solid #9c27b0;
+      }
+
+      .modal-detail-label {
+        color: #6a1b9a;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 5px;
+      }
+
+      .modal-detail-value {
+        color: #424242;
+        font-size: 15px;
+        font-weight: 500;
+        word-wrap: break-word;
+      }
+
+      .modal-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+      }
+
+      .modal-btn {
+        padding: 12px 30px;
+        border: none;
+        border-radius: 25px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s;
+        letter-spacing: 0.5px;
+      }
+
+      .modal-btn:hover {
+        transform: scale(1.05);
+      }
+
+      .modal-btn-confirm {
+        background: linear-gradient(135deg, #f44336 0%, #da190b 100%);
+        color: white;
+      }
+
+      .modal-btn-cancel {
+        background: linear-gradient(135deg, #9e9e9e 0%, #757575 100%);
+        color: white;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+
+        to {
+          opacity: 1;
+        }
+      }
+
+      .composer-content {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(30px);
+        -webkit-backdrop-filter: blur(30px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 16px;
+        width: 85%;
+        height: 75%;
+        max-height: 90vh;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        display: flex;
+        flex-direction: column;
+        animation: scaleIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        position: relative;
+        overflow: hidden;
+      }
+
+      @keyframes scaleIn {
+        from {
+          transform: scale(0.7);
+          opacity: 0;
+        }
+
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      .composer-body::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: repeating-linear-gradient(
+          transparent,
           transparent 48px,
           rgba(156, 39, 176, 0.04) 48px,
-          rgba(156, 39, 176, 0.04) 49px);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .composer-header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 20px 30px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-shrink: 0;
-    }
-
-    .composer-title {
-      font-size: 24px;
-      font-weight: 300;
-      letter-spacing: 2px;
-    }
-
-    .composer-close {
-      background: rgba(255, 255, 255, 0.2);
-      border: none;
-      color: white;
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      cursor: pointer;
-      font-size: 20px;
-      transition: all 0.3s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .composer-close:hover {
-      background: rgba(255, 255, 255, 0.3);
-      transform: rotate(90deg);
-    }
-
-    .composer-body {
-      flex: 1;
-      padding: 25px 30px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      overflow-y: auto;
-      position: relative;
-    }
-
-    .composer-field {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .composer-label {
-      color: #6a1b9a;
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-    }
-
-    .composer-input {
-      padding: 10px 15px;
-      border: 2px solid #e1bee7;
-      border-radius: 8px;
-      font-size: 14px;
-      font-family: "Georgia", serif;
-      transition: all 0.3s;
-      background: white;
-    }
-
-    .composer-input:focus {
-      outline: none;
-      border-color: #9c27b0;
-      box-shadow: 0 0 10px rgba(156, 39, 176, 0.2);
-    }
-
-    .composer-textarea-wrapper {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      z-index: 1;
-    }
-
-    .composer-textarea {
-      flex: 1;
-      padding: 15px;
-      border: 2px solid #e1bee7;
-      border-radius: 8px;
-      font-size: 15px;
-      width: 100%;
-      resize: none;
-      line-height: 1.8;
-      white-space: pre-wrap;
-      font-family: "Georgia", serif;
-      transition: all 0.3s;
-      background: white;
-      min-height: 500px;
-    }
-
-    .composer-textarea:focus {
-      outline: none;
-      border-color: #9c27b0;
-      box-shadow: 0 0 15px rgba(156, 39, 176, 0.15);
-    }
-
-    .composer-row {
-      display: flex;
-      gap: 15px;
-      align-items: flex-start;
-    }
-
-    .composer-row .composer-field {
-      flex: 1;
-    }
-
-    .composer-row #composerKeyField {
-      flex: 0 0 200px;
-      max-width: 200px;
-    }
-
-    .find-replace {
-      display: flex;
-      gap: 15px;
-      margin-bottom: 15px;
-      align-items: center;
-      position: relative;
-      z-index: 1;
-    }
-
-    .find-replace input {
-      flex: 1;
-      min-width: 150px;
-      padding: 10px 15px;
-      border: 2px solid #e1bee7;
-      border-radius: 8px;
-      font-size: 14px;
-      font-family: "Georgia", serif;
-      transition: all 0.3s;
-      background: white;
-    }
-
-    .find-replace input:focus {
-      outline: none;
-      border-color: #9c27b0;
-      box-shadow: 0 0 10px rgba(156, 39, 176, 0.2);
-    }
-
-    .find-replace-btn {
-      padding: 10px 20px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-      transition: transform 0.2s;
-      white-space: nowrap;
-    }
-
-    .find-replace-btn:hover {
-      transform: scale(1.05);
-    }
-
-    .composer-stats {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px 15px;
-      background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
-      border-radius: 8px;
-      font-size: 12px;
-      color: #6a1b9a;
-      font-weight: 600;
-      position: relative;
-      z-index: 1;
-    }
-
-    .composer-stats-left,
-    .composer-stats-right {
-      display: flex;
-      gap: 20px;
-    }
-
-    .stat-label {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .composer-footer {
-      padding: 18px 30px;
-      background: white;
-      border-top: 2px solid #e1bee7;
-      display: flex;
-      justify-content: flex-end;
-      gap: 12px;
-      flex-shrink: 0;
-    }
-
-    .composer-btn {
-      padding: 12px 28px;
-      border: none;
-      border-radius: 25px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.2s;
-      letter-spacing: 1px;
-    }
-
-    .composer-btn:hover {
-      transform: scale(1.05);
-    }
-
-    .composer-btn-save {
-      background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
-      color: white;
-    }
-
-    .composer-btn-cancel {
-      background: linear-gradient(135deg, #f44336 0%, #da190b 100%);
-      color: white;
-    }
-
-    .composer-annotation-box {
-      margin: 12px 0 8px 0;
-      padding: 0;
-      display: block;
-    }
-
-    .composer-annotation-box .composer-label {
-      display: block;
-      margin-bottom: 8px;
-      font-size: 0.95em;
-      color: #6a1b9a;
-    }
-
-    .composer-annotation-box .composer-input {
-      width: 100%;
-      padding: 10px 12px;
-      border: 2px solid #e1bee7;
-      border-radius: 8px;
-      font-size: 14px;
-      font-family: "Georgia", serif;
-      background: white;
-      color: #333;
-      box-sizing: border-box;
-    }
-
-    .composer-annotation-box .composer-input:focus {
-      outline: none;
-      border-color: #9c27b0;
-      box-shadow: 0 0 8px rgba(156, 39, 176, 0.12);
-    }
-
-    .floating-compose {
-      position: fixed;
-      bottom: 30px;
-      right: 30px;
-      width: 70px;
-      height: 70px;
-      border-radius: 50%;
-      border: none;
-      cursor: pointer;
-      z-index: 1000;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      font-size: 28px;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      box-shadow:
-        0 8px 32px rgba(102, 126, 234, 0.2),
-        inset 0 1px 0 rgba(255, 255, 255, 0.15);
-      color: #4a148c;
-    }
-
-    .floating-compose::before {
-      content: '';
-      position: absolute;
-      top: -2px;
-      left: -2px;
-      right: -2px;
-      bottom: -2px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      z-index: -1;
-      opacity: 0.15;
-      filter: blur(10px);
-      transition: opacity 0.3s ease;
-    }
-
-
-    .floating-compose:hover {
-      transform: scale(1.1);
-      box-shadow:
-        0 12px 40px rgba(102, 126, 234, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-      border-color: rgba(255, 255, 255, 0.4);
-    }
-
-    .floating-compose:hover::before {
-      opacity: 0.25;
-    }
-
-    .floating-compose:active {
-      transform: scale(0.92);
-    }
-
-    .floating-compose.visible {
-      display: flex;
-    }
-
-    .notification-toast {
-      position: fixed;
-      top: 120px;
-      left: 50%;
-      transform: translateX(-50%) translateY(-100px);
-      background: rgba(255, 255, 255, 0.7);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-left: 5px solid #9c27b0;
-      border-radius: 16px;
-      padding: 18px 30px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-      z-index: 10001;
-      opacity: 0;
-      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      max-width: 400px;
-    }
-
-    .notification-toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-
-    .notification-toast.error {
-      border-left-color: #f44336;
-    }
-
-    .notification-icon {
-      font-size: 24px;
-    }
-
-    .notification-message {
-      color: #424242;
-      font-size: 15px;
-      font-weight: 500;
-      line-height: 1.4;
-    }
-
-    .notification-toast.error {
-      border-left-color: #f44336;
-    }
-
-    .notification-toast.success {
-      border-left-color: #4caf50;
-    }
-
-    .modal-overlay,
-    .composer-modal,
-    .cadence-modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.4);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      z-index: 9999;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .modal-overlay.active,
-    .composer-modal.active,
-    .cadence-modal.active {
-      display: flex;
-    }
-
-    .modal-content,
-    .cadence-modal-content {
-      background: rgba(255, 255, 255, 0.7);
-      backdrop-filter: blur(30px);
-      -webkit-backdrop-filter: blur(30px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 16px;
-      padding: 35px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-      animation: modalSlideIn 0.3s ease-out;
-    }
-
-    .cadence-modal-header {
-      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-      padding: 20px 25px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .cadence-modal-icon {
-      font-size: 28px;
-    }
-
-    .cadence-modal-title {
-      color: white;
-      font-size: 20px;
-      font-weight: 600;
-      margin: 0;
-      letter-spacing: 0.5px;
-      font-family: "Georgia", "Times New Roman", serif;
-    }
-
-    .cadence-modal-body {
-      padding: 25px 25px 15px 25px;
-    }
-
-    .cadence-modal-message {
-      color: #424242;
-      font-size: 15px;
-      margin: 0 0 5px 0;
-      line-height: 1.6;
-      font-family: "Georgia", "Times New Roman", serif;
-    }
-
-    .cadence-modal-input {
-      width: 100%;
-      min-width: 300px;
-      padding: 12px 16px;
-      border: 2px solid #e1bee7;
-      border-radius: 10px;
-      font-size: 15px;
-      font-family: "Georgia", "Times New Roman", serif;
-      transition: all 0.3s;
-      box-sizing: border-box;
-    }
-
-    .cadence-modal-input:focus {
-      outline: none;
-      border-color: #9c27b0;
-      box-shadow: 0 0 10px rgba(156, 39, 176, 0.2);
-    }
-
-    .cadence-modal-error {
-      color: #f44336;
-      font-size: 13px;
-      margin: 10px 0 0 0;
-      font-family: "Georgia", "Times New Roman", serif;
-      animation: shake 0.3s ease;
-    }
-
-    .cadence-modal-footer {
-      padding: 15px 25px 25px 25px;
-      display: flex;
-      gap: 12px;
-      justify-content: flex-end;
-    }
-
-    .cadence-btn {
-      padding: 10px 28px;
-      border: none;
-      border-radius: 25px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
-      font-family: "Georgia", "Times New Roman", serif;
-      letter-spacing: 0.5px;
-    }
-
-    .cadence-btn:hover {
-      transform: scale(1.05);
-    }
-
-    .cadence-btn-cancel {
-      background: #e0e0e0;
-      color: #424242;
-    }
-
-    .cadence-btn-cancel:hover {
-      background: #bdbdbd;
-    }
-
-    .cadence-btn-confirm {
-      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-      color: white;
-    }
-
-    .cadence-btn-confirm:hover {
-      box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
-    }
-
-    @keyframes shake {
-
-      0%,
-      100% {
-        transform: translateX(0);
+          rgba(156, 39, 176, 0.04) 49px
+        );
+        pointer-events: none;
+        z-index: 0;
       }
 
-      25% {
-        transform: translateX(-5px);
+      .composer-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-shrink: 0;
       }
 
-      75% {
-        transform: translateX(5px);
-      }
-    }
-
-    /* ========================================== */
-    /* MUSICAL BACKGROUND OVERLAY */
-    /* ========================================== */
-
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-
-      background-image: url("music-overlay.png");
-      background-repeat: no-repeat;
-      background-size: cover;
-      background-position: center;
-
-      opacity: 1;
-
-      pointer-events: none;
-
-      z-index: 0;
-
-      animation: musicFloat 12s ease-in-out infinite;
-    }
-
-    .container {
-      position: relative;
-      z-index: 1;
-    }
-
-    @keyframes musicFloat {
-      0% {
-        transform: translateY(0px);
+      .composer-title {
+        font-size: 24px;
+        font-weight: 300;
+        letter-spacing: 2px;
       }
 
-      50% {
-        transform: translateY(-8px);
+      .composer-close {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 20px;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
 
-      100% {
-        transform: translateY(0px);
+      .composer-close:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: rotate(90deg);
       }
-    }
-  </style>
-</head>
 
-<body>
-  <div id="notificationToast" class="notification-toast">
-    <span class="notification-icon" id="notificationIcon">🎵</span>
-    <span class="notification-message" id="notificationMessage"></span>
-  </div>
+      .composer-body {
+        flex: 1;
+        padding: 25px 30px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        overflow-y: auto;
+        position: relative;
+      }
 
-  <div id="confirmModal" class="modal-overlay">
-    <div class="modal-content">
-      <div class="modal-title">🎵 Abolish This Composition?</div>
-      <div class="modal-message">
-        This will permanently remove this note from your collection. This action cannot be undone.
-      </div>
-      <div id="modalDetails"></div>
-      <div class="modal-buttons">
-        <button id="modalConfirm" class="modal-btn modal-btn-confirm">Abolish</button>
-        <button id="modalCancel" class="modal-btn modal-btn-cancel">Sustain</button>
+      .composer-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .composer-label {
+        color: #6a1b9a;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+      }
+
+      .composer-input {
+        padding: 10px 15px;
+        border: 2px solid #e1bee7;
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: "Georgia", serif;
+        transition: all 0.3s;
+        background: white;
+      }
+
+      .composer-input:focus {
+        outline: none;
+        border-color: #9c27b0;
+        box-shadow: 0 0 10px rgba(156, 39, 176, 0.2);
+      }
+
+      .composer-textarea-wrapper {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        z-index: 1;
+      }
+
+      .composer-textarea {
+        flex: 1;
+        padding: 15px;
+        border: 2px solid #e1bee7;
+        border-radius: 8px;
+        font-size: 15px;
+        width: 100%;
+        resize: none;
+        line-height: 1.8;
+        white-space: pre-wrap;
+        font-family: "Georgia", serif;
+        transition: all 0.3s;
+        background: white;
+        min-height: 500px;
+      }
+
+      .composer-textarea:focus {
+        outline: none;
+        border-color: #9c27b0;
+        box-shadow: 0 0 15px rgba(156, 39, 176, 0.15);
+      }
+
+      .composer-row {
+        display: flex;
+        gap: 15px;
+        align-items: flex-start;
+      }
+
+      .composer-row .composer-field {
+        flex: 1;
+      }
+
+      .composer-row #composerKeyField {
+        flex: 0 0 200px;
+        max-width: 200px;
+      }
+
+      .find-replace {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 15px;
+        align-items: center;
+        position: relative;
+        z-index: 1;
+      }
+
+      .find-replace input {
+        flex: 1;
+        min-width: 150px;
+        padding: 10px 15px;
+        border: 2px solid #e1bee7;
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: "Georgia", serif;
+        transition: all 0.3s;
+        background: white;
+      }
+
+      .find-replace input:focus {
+        outline: none;
+        border-color: #9c27b0;
+        box-shadow: 0 0 10px rgba(156, 39, 176, 0.2);
+      }
+
+      .find-replace-btn {
+        padding: 10px 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        transition: transform 0.2s;
+        white-space: nowrap;
+      }
+
+      .find-replace-btn:hover {
+        transform: scale(1.05);
+      }
+
+      .composer-stats {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 15px;
+        background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+        border-radius: 8px;
+        font-size: 12px;
+        color: #6a1b9a;
+        font-weight: 600;
+        position: relative;
+        z-index: 1;
+      }
+
+      .composer-stats-left,
+      .composer-stats-right {
+        display: flex;
+        gap: 20px;
+      }
+
+      .stat-label {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .composer-footer {
+        padding: 18px 30px;
+        background: white;
+        border-top: 2px solid #e1bee7;
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        flex-shrink: 0;
+      }
+
+      .composer-btn {
+        padding: 12px 28px;
+        border: none;
+        border-radius: 25px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s;
+        letter-spacing: 1px;
+      }
+
+      .composer-btn:hover {
+        transform: scale(1.05);
+      }
+
+      .composer-btn-save {
+        background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+        color: white;
+      }
+
+      .composer-btn-cancel {
+        background: linear-gradient(135deg, #f44336 0%, #da190b 100%);
+        color: white;
+      }
+
+      .composer-annotation-box {
+        margin: 12px 0 8px 0;
+        padding: 0;
+        display: block;
+      }
+
+      .composer-annotation-box .composer-label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 0.95em;
+        color: #6a1b9a;
+      }
+
+      .composer-annotation-box .composer-input {
+        width: 100%;
+        padding: 10px 12px;
+        border: 2px solid #e1bee7;
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: "Georgia", serif;
+        background: white;
+        color: #333;
+        box-sizing: border-box;
+      }
+
+      .composer-annotation-box .composer-input:focus {
+        outline: none;
+        border-color: #9c27b0;
+        box-shadow: 0 0 8px rgba(156, 39, 176, 0.12);
+      }
+
+      .floating-compose {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        border: none;
+        cursor: pointer;
+        z-index: 1000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        box-shadow:
+          0 8px 32px rgba(102, 126, 234, 0.2),
+          inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        color: #4a148c;
+      }
+
+      .floating-compose::before {
+        content: "";
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        z-index: -1;
+        opacity: 0.15;
+        filter: blur(10px);
+        transition: opacity 0.3s ease;
+      }
+
+      .floating-compose:hover {
+        transform: scale(1.1);
+        box-shadow:
+          0 12px 40px rgba(102, 126, 234, 0.3),
+          inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.4);
+      }
+
+      .floating-compose:hover::before {
+        opacity: 0.25;
+      }
+
+      .floating-compose:active {
+        transform: scale(0.92);
+      }
+
+      .floating-compose.visible {
+        display: flex;
+      }
+
+      .notification-toast {
+        position: fixed;
+        top: 120px;
+        left: 50%;
+        transform: translateX(-50%) translateY(-100px);
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-left: 5px solid #9c27b0;
+        border-radius: 16px;
+        padding: 18px 30px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        z-index: 10001;
+        opacity: 0;
+        transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        max-width: 400px;
+      }
+
+      .notification-toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+
+      .notification-toast.error {
+        border-left-color: #f44336;
+      }
+
+      .notification-icon {
+        font-size: 24px;
+      }
+
+      .notification-message {
+        color: #424242;
+        font-size: 15px;
+        font-weight: 500;
+        line-height: 1.4;
+      }
+
+      .notification-toast.error {
+        border-left-color: #f44336;
+      }
+
+      .notification-toast.success {
+        border-left-color: #4caf50;
+      }
+
+      .modal-overlay,
+      .composer-modal,
+      .cadence-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .modal-overlay.active,
+      .composer-modal.active,
+      .cadence-modal.active {
+        display: flex;
+      }
+
+      .modal-content,
+      .cadence-modal-content {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(30px);
+        -webkit-backdrop-filter: blur(30px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 16px;
+        padding: 35px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        animation: modalSlideIn 0.3s ease-out;
+      }
+
+      .cadence-modal-header {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        padding: 20px 25px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .cadence-modal-icon {
+        font-size: 28px;
+      }
+
+      .cadence-modal-title {
+        color: white;
+        font-size: 20px;
+        font-weight: 600;
+        margin: 0;
+        letter-spacing: 0.5px;
+        font-family: "Georgia", "Times New Roman", serif;
+      }
+
+      .cadence-modal-body {
+        padding: 25px 25px 15px 25px;
+      }
+
+      .cadence-modal-message {
+        color: #424242;
+        font-size: 15px;
+        margin: 0 0 5px 0;
+        line-height: 1.6;
+        font-family: "Georgia", "Times New Roman", serif;
+      }
+
+      .cadence-modal-input {
+        width: 100%;
+        min-width: 300px;
+        padding: 12px 16px;
+        border: 2px solid #e1bee7;
+        border-radius: 10px;
+        font-size: 15px;
+        font-family: "Georgia", "Times New Roman", serif;
+        transition: all 0.3s;
+        box-sizing: border-box;
+      }
+
+      .cadence-modal-input:focus {
+        outline: none;
+        border-color: #9c27b0;
+        box-shadow: 0 0 10px rgba(156, 39, 176, 0.2);
+      }
+
+      .cadence-modal-error {
+        color: #f44336;
+        font-size: 13px;
+        margin: 10px 0 0 0;
+        font-family: "Georgia", "Times New Roman", serif;
+        animation: shake 0.3s ease;
+      }
+
+      .cadence-modal-footer {
+        padding: 15px 25px 25px 25px;
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+      }
+
+      .cadence-btn {
+        padding: 10px 28px;
+        border: none;
+        border-radius: 25px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-family: "Georgia", "Times New Roman", serif;
+        letter-spacing: 0.5px;
+      }
+
+      .cadence-btn:hover {
+        transform: scale(1.05);
+      }
+
+      .cadence-btn-cancel {
+        background: #e0e0e0;
+        color: #424242;
+      }
+
+      .cadence-btn-cancel:hover {
+        background: #bdbdbd;
+      }
+
+      .cadence-btn-confirm {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+      }
+
+      .cadence-btn-confirm:hover {
+        box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+      }
+
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+
+        25% {
+          transform: translateX(-5px);
+        }
+
+        75% {
+          transform: translateX(5px);
+        }
+      }
+
+      /* ========================================== */
+      /* MUSICAL BACKGROUND OVERLAY */
+      /* ========================================== */
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+
+        background-image: url("music-overlay.png");
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center;
+
+        opacity: 1;
+
+        pointer-events: none;
+
+        z-index: 0;
+
+        animation: musicFloat 12s ease-in-out infinite;
+      }
+
+      .container {
+        position: relative;
+        z-index: 1;
+      }
+
+      @keyframes musicFloat {
+        0% {
+          transform: translateY(0px);
+        }
+
+        50% {
+          transform: translateY(-8px);
+        }
+
+        100% {
+          transform: translateY(0px);
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="notificationToast" class="notification-toast">
+      <span class="notification-icon" id="notificationIcon">🎵</span>
+      <span class="notification-message" id="notificationMessage"></span>
+    </div>
+
+    <div id="confirmModal" class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-title">🎵 Abolish This Composition?</div>
+        <div class="modal-message">
+          This will permanently remove this note from your collection. This
+          action cannot be undone.
+        </div>
+        <div id="modalDetails"></div>
+        <div class="modal-buttons">
+          <button id="modalConfirm" class="modal-btn modal-btn-confirm">
+            Abolish
+          </button>
+          <button id="modalCancel" class="modal-btn modal-btn-cancel">
+            Sustain
+          </button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div id="composerModal" class="composer-modal">
-    <div class="composer-content">
-      <div class="composer-header">
-        <div class="composer-title">🎼 TypiPat Composer Studio</div>
-        <button class="composer-close" id="composerClose">✕</button>
-      </div>
-
-      <div class="composer-body">
-        <div class="composer-row" id="composerKeyFieldContainer" style="display: flex;">
-          <div class="composer-field" id="composerKeyField" style="max-width: 200px;">
-            <label class="composer-label">Key (Rhythm)</label>
-            <input type="text" class="composer-input" id="composerKey" placeholder="e.g., brb" />
-          </div>
-
-          <div class="composer-field" style="max-width: 200px;">
-            <label class="composer-label">Section (Optional)</label>
-            <input type="text" class="composer-input" id="composerSection" placeholder="e.g., Email, Support..." />
-          </div>
-
-          <div class="composer-field">
-            <label class="composer-label">Annotation (Optional)</label>
-            <input type="text" class="composer-input" id="composerAnnotation"
-              placeholder="e.g., Entire sonata from memories" />
-          </div>
+    <div id="composerModal" class="composer-modal">
+      <div class="composer-content">
+        <div class="composer-header">
+          <div class="composer-title">🎼 TypiPat Composer Studio</div>
+          <button class="composer-close" id="composerClose">✕</button>
         </div>
 
-        <div class="composer-annotation-box" id="arrangeAnnotationBox" style="display: none;">
-          <div style="display: flex; gap: 12px;">
-            <div style="flex: 1;">
-              <label class="composer-label">Annotation (Arrange Notes)</label>
-              <input type="text" class="composer-input" id="composerAnnotationArrange"
-                placeholder="Add notes about this arrangement..." />
+        <div class="composer-body">
+          <div
+            class="composer-row"
+            id="composerKeyFieldContainer"
+            style="display: flex"
+          >
+            <div
+              class="composer-field"
+              id="composerKeyField"
+              style="max-width: 200px"
+            >
+              <label class="composer-label">Key (Rhythm)</label>
+              <input
+                type="text"
+                class="composer-input"
+                id="composerKey"
+                placeholder="e.g., brb"
+              />
             </div>
-            <div style="flex: 1;">
+
+            <div class="composer-field" style="max-width: 200px">
               <label class="composer-label">Section (Optional)</label>
-              <input type="text" class="composer-input" id="composerSectionArrange"
-                placeholder="e.g., Email, Support..." />
+              <input
+                type="text"
+                class="composer-input"
+                id="composerSection"
+                placeholder="e.g., Email, Support..."
+              />
+            </div>
+
+            <div class="composer-field">
+              <label class="composer-label">Annotation (Optional)</label>
+              <input
+                type="text"
+                class="composer-input"
+                id="composerAnnotation"
+                placeholder="e.g., Entire sonata from memories"
+              />
+            </div>
+          </div>
+
+          <div
+            class="composer-annotation-box"
+            id="arrangeAnnotationBox"
+            style="display: none"
+          >
+            <div style="display: flex; gap: 12px">
+              <div style="flex: 1">
+                <label class="composer-label">Annotation (Arrange Notes)</label>
+                <input
+                  type="text"
+                  class="composer-input"
+                  id="composerAnnotationArrange"
+                  placeholder="Add notes about this arrangement..."
+                />
+              </div>
+              <div style="flex: 1">
+                <label class="composer-label">Section (Optional)</label>
+                <input
+                  type="text"
+                  class="composer-input"
+                  id="composerSectionArrange"
+                  placeholder="e.g., Email, Support..."
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="find-replace" id="findReplaceSection">
+            <input type="text" id="findInput" placeholder="Tune to" />
+            <input type="text" id="replaceInput" placeholder="Apply pitch..." />
+            <button class="find-replace-btn" id="replaceBtn">
+              Transpose All
+            </button>
+          </div>
+
+          <div class="composer-textarea-wrapper">
+            <label class="composer-label">Manuscript</label>
+            <textarea
+              class="composer-textarea"
+              id="composerTextarea"
+              placeholder="Compose your musical text pattern here..."
+            ></textarea>
+          </div>
+
+          <div class="composer-stats">
+            <div class="composer-stats-left">
+              <span class="stat-label"
+                >📊 Beat Count: <strong id="composerBeatCount">0</strong></span
+              >
+              <span class="stat-label"
+                >📏 Caesura: <strong id="composerCaesura">0</strong></span
+              >
             </div>
           </div>
         </div>
 
-        <div class="find-replace" id="findReplaceSection">
-          <input type="text" id="findInput" placeholder="Tune to" />
-          <input type="text" id="replaceInput" placeholder="Apply pitch..." />
-          <button class="find-replace-btn" id="replaceBtn">Transpose All</button>
+        <div class="composer-footer">
+          <button class="composer-btn composer-btn-cancel" id="composerCancel">
+            Variance
+          </button>
+          <button class="composer-btn composer-btn-save" id="composerSave">
+            Theme
+          </button>
+          <button
+            class="composer-btn composer-btn-save"
+            id="composerFinalize"
+            style="display: none"
+          >
+            Finalize Arrangement
+          </button>
         </div>
+      </div>
+    </div>
 
-        <div class="composer-textarea-wrapper">
-          <label class="composer-label">Manuscript</label>
-          <textarea class="composer-textarea" id="composerTextarea"
-            placeholder="Compose your musical text pattern here..."></textarea>
+    <button id="floatingCompose" class="floating-compose">🎵</button>
+
+    <div class="container">
+      <div class="header-tagline">
+        "For you—who understands music deeply yet keeps it quietly
+        hidden—TypiPat becomes a soft, rhythmic nudge. It turns your tired day
+        into a small, gentle harmony."
+      </div>
+
+      <h1>
+        <span>🎼 TypiPat: The Rhythmic Index</span>
+        <div class="search-container">
+          <input
+            type="text"
+            id="searchBox"
+            class="search-box"
+            placeholder="Search rhythm or harmony..."
+          />
+          <button id="searchBtn" class="search-btn">Cue</button>
+          <button id="clearSearch" class="clear-search">Mute</button>
         </div>
+      </h1>
 
-        <div class="composer-stats">
-          <div class="composer-stats-left">
-            <span class="stat-label">📊 Beat Count: <strong id="composerBeatCount">0</strong></span>
-            <span class="stat-label">📏 Caesura: <strong id="composerCaesura">0</strong></span>
+      <div class="section">
+        <h2>🎶 Add New Notes Compositions</h2>
+        <div class="add-form">
+          <div>
+            <div class="form-label">Key</div>
+            <input
+              type="text"
+              id="shortcutInput"
+              placeholder="Key (e.g., //notes)"
+            />
+          </div>
+
+          <div>
+            <div class="form-label">Annotation (Optional)</div>
+            <input
+              type="text"
+              id="labelInput"
+              placeholder="e.g., Entire sonata from memories"
+            />
+          </div>
+
+          <div style="grid-column: 1; grid-row: 2">
+            <div class="form-label">Section (Optional)</div>
+            <input
+              type="text"
+              id="sectionInput"
+              placeholder="e.g., Email, Support..."
+            />
+          </div>
+
+          <div
+            class="textarea-container"
+            style="grid-column: 2; grid-row: 2 / 4"
+          >
+            <div class="form-label">Manuscript</div>
+            <textarea
+              id="replacementInput"
+              placeholder="e.g., 'I who lives in harmony with myself lives in harmony'"
+              rows="6"
+            ></textarea>
+            <button
+              class="orchestrate-btn"
+              id="orchestrateBtn"
+              title="Expand to Composer Studio"
+            >
+              ⛶
+            </button>
+          </div>
+
+          <button id="addBtn">Compose</button>
+          <button id="saveBtn" class="save-btn" style="display: none">
+            Theme
+          </button>
+          <button id="discardBtn" class="discard-btn" style="display: none">
+            Variance
+          </button>
+
+          <div class="export-import-buttons">
+            <button id="exportBtn" class="export-btn">Cadence</button>
+            <button id="importBtn" class="import-btn">Entrata</button>
           </div>
         </div>
+        <div id="addStatus" class="status-message"></div>
       </div>
 
-      <div class="composer-footer">
-        <button class="composer-btn composer-btn-cancel" id="composerCancel">Variance</button>
-        <button class="composer-btn composer-btn-save" id="composerSave">Theme</button>
-        <button class="composer-btn composer-btn-save" id="composerFinalize" style="display: none">
-          Finalize Arrangement
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <button id="floatingCompose" class="floating-compose">🎵</button>
-
-  <div class="container">
-    <div class="header-tagline">
-      "For you—who understands music deeply yet keeps it quietly hidden—TypiPat becomes a soft, rhythmic nudge. It turns
-      your tired day into a small, gentle harmony."
-    </div>
-
-    <h1>
-      <span>🎼 TypiPat: The Rhythmic Index</span>
-      <div class="search-container">
-        <input type="text" id="searchBox" class="search-box" placeholder="Search rhythm or harmony..." />
-        <button id="searchBtn" class="search-btn">Cue</button>
-        <button id="clearSearch" class="clear-search">Mute</button>
-      </div>
-    </h1>
-
-    <div class="section">
-      <h2>🎶 Add New Notes Compositions</h2>
-      <div class="add-form">
-        <div>
-          <div class="form-label">Key</div>
-          <input type="text" id="shortcutInput" placeholder="Key (e.g., //notes)" />
+      <div class="section">
+        <h2>🎵 Rhythm & Notes</h2>
+        <div class="section-caption">
+          Your collection of crafted musical text patterns.
         </div>
-
-        <div>
-          <div class="form-label">Annotation (Optional)</div>
-          <input type="text" id="labelInput" placeholder="e.g., Entire sonata from memories" />
-        </div>
-
-        <div style="grid-column: 1; grid-row: 2;">
-          <div class="form-label">Section (Optional)</div>
-          <input type="text" id="sectionInput" placeholder="e.g., Email, Support..." />
-        </div>
-
-        <div class="textarea-container" style="grid-column: 2; grid-row: 2 / 4;">
-          <div class="form-label">Manuscript</div>
-          <textarea id="replacementInput" placeholder="e.g., 'I who lives in harmony with myself lives in harmony'"
-            rows="6"></textarea>
-          <button class="orchestrate-btn" id="orchestrateBtn" title="Expand to Composer Studio">⛶</button>
-        </div>
-
-        <button id="addBtn">Compose</button>
-        <button id="saveBtn" class="save-btn" style="display: none;">Theme</button>
-        <button id="discardBtn" class="discard-btn" style="display: none;">Variance</button>
-
-        <div class="export-import-buttons">
-          <button id="exportBtn" class="export-btn">Cadence</button>
-          <button id="importBtn" class="import-btn">Entrata</button>
+        <div id="shortcutsContainer">
+          <div class="empty-state">Silence. Introduce your first Note.</div>
         </div>
       </div>
-      <div id="addStatus" class="status-message"></div>
-    </div>
 
-    <div class="section">
-      <h2>🎵 Rhythm & Notes</h2>
-      <div class="section-caption">
-        Your collection of crafted musical text patterns.
-      </div>
-      <div id="shortcutsContainer">
-        <div class="empty-state">Silence. Introduce your first Note.</div>
-      </div>
-    </div>
+      <input type="file" id="importFile" accept=".json" />
+      <div id="importStatus" class="status-message"></div>
 
-    <input type="file" id="importFile" accept=".json" />
-    <div id="importStatus" class="status-message"></div>
+      <!-- ==================================================== -->
+      <!-- DEDICATION SECTION - PARA KAY BOSS - PATRICIA VILLAS -->
+      <!-- ==================================================== -->
+      <div class="dedication-section">
+        <div class="dedication-divider">
+          <span class="dedication-divider-icon">🎵</span>
+          <span class="dedication-divider-line"></span>
+          <span class="dedication-divider-icon">♩</span>
+          <span class="dedication-divider-line"></span>
+          <span class="dedication-divider-icon">♪</span>
+        </div>
 
-    <!-- ==================================================== -->
-    <!-- DEDICATION SECTION - PARA KAY BOSS - PATRICIA VILLAS -->
-    <!-- ==================================================== -->
-    <div class="dedication-section">
-      <div class="dedication-divider">
-        <span class="dedication-divider-icon">🎵</span>
-        <span class="dedication-divider-line"></span>
-        <span class="dedication-divider-icon">♩</span>
-        <span class="dedication-divider-line"></span>
-        <span class="dedication-divider-icon">♪</span>
-      </div>
+        <div class="dedication-text">
+          <p class="dedication-quote">
+            "Find the cadence in your chaos. Every keystroke is a note,<br />
+            and every day becomes your Opus."
+          </p>
 
-      <div class="dedication-text">
-        <p class="dedication-quote">
-          "Find the cadence in your chaos. Every keystroke is a note,<br>
-          and every day becomes your Opus."
-        </p>
+          <div class="dedication-ornament">•••</div>
 
-        <div class="dedication-ornament">•••</div>
+          <p class="dedication-message">
+            Composed as a living love letter for the one who holds music<br />
+            closest to her heart. May this serve as a perpetual refrain—a
+            promise<br />
+            that the music in your life, much like my love for you, will
+            never<br />
+            fade into silence.
+          </p>
 
-        <p class="dedication-message">
-          Composed as a living love letter for the one who holds music<br>
-          closest to her heart. May this serve as a perpetual refrain—a promise<br>
-          that the music in your life, much like my love for you, will never<br>
-          fade into silence.
-        </p>
-
-        <p class="dedication-signature">— Jwu</p>
+          <p class="dedication-signature">— Jwu</p>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div id="cadenceModal" class="cadence-modal" style="display: none;">
-    <div class="cadence-modal-content">
-      <div class="cadence-modal-header">
-        <span class="cadence-modal-icon">🎵</span>
-        <h2 class="cadence-modal-title">Title Your Opus</h2>
-      </div>
-      <div class="cadence-modal-body">
-        <p class="cadence-modal-message">Designate an Album title for this exported compilation:</p>
-        <input type="text" id="cadenceAlbumInput" class="cadence-modal-input"
-          placeholder="e.g., Symphony No. 1, Office Rhythms, Daily Sonatas..." />
-        <p id="cadenceErrorMsg" class="cadence-modal-error" style="display: none;"></p>
-      </div>
-      <div class="cadence-modal-footer">
-        <button id="cadenceCancelBtn" class="cadence-btn cadence-btn-cancel">Sustain</button>
-        <button id="cadenceConfirmBtn" class="cadence-btn cadence-btn-confirm">Release</button>
+    <div id="cadenceModal" class="cadence-modal" style="display: none">
+      <div class="cadence-modal-content">
+        <div class="cadence-modal-header">
+          <span class="cadence-modal-icon">🎵</span>
+          <h2 class="cadence-modal-title">Title Your Opus</h2>
+        </div>
+        <div class="cadence-modal-body">
+          <p class="cadence-modal-message">
+            Designate an Album title for this exported compilation:
+          </p>
+          <input
+            type="text"
+            id="cadenceAlbumInput"
+            class="cadence-modal-input"
+            placeholder="e.g., Symphony No. 1, Office Rhythms, Daily Sonatas..."
+          />
+          <p
+            id="cadenceErrorMsg"
+            class="cadence-modal-error"
+            style="display: none"
+          ></p>
+        </div>
+        <div class="cadence-modal-footer">
+          <button id="cadenceCancelBtn" class="cadence-btn cadence-btn-cancel">
+            Sustain
+          </button>
+          <button
+            id="cadenceConfirmBtn"
+            class="cadence-btn cadence-btn-confirm"
+          >
+            Release
+          </button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div class="sound-toggle-section">
-    <label class="sound-toggle-label">
-      <input type="checkbox" id="soundToggle" />
-      <span class="sound-toggle-text">🎵 Enable Rhythmic Feedback</span>
-    </label>
-  </div>
+    <div class="sound-toggle-section">
+      <label class="sound-toggle-label">
+        <input type="checkbox" id="soundToggle" />
+        <span class="sound-toggle-text">🎵 Enable Rhythmic Feedback</span>
+      </label>
+    </div>
 
-  <script src="utils.js"></script>
-  <script src="storage-helper.js"></script>
-  <script src="options.js"></script>
-</body>
-
+    <script src="utils.js"></script>
+    <script src="storage-helper.js"></script>
+    <script src="options.js"></script>
+  </body>
 </html>
