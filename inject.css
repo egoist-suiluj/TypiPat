@@ -54,8 +54,8 @@
   /* Fixed Side-Stage Position */
   right: 0 !important;
   /* Fixed Right Alignment */
-  width: 380px;
-  height: 550px;
+  width: clamp(360px, 24vw, 480px);
+  height: clamp(550px, 68vh, 750px);
   border: none;
   border-radius: 12px;
   background: transparent;
