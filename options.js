@@ -1243,15 +1243,15 @@ if (importBtn && importFile) {
 
         if (renameCount > 0) {
           const proceed = window.confirm(
-            `🎵 ${renameCount} shortcut(s) ay may kaparehong pangalan sa existing mo.\n\n` +
-              `Awtomatiko silang bibigyan ng "(Reprise)" suffix para hindi mabura ang luma mo.\n\n` +
+            `🎵 ${renameCount} key(s) ay may kaparehong pangalan sa existing score, Boss.\n\n` +
+              `Awtomatiko silang bibigyan ng "(Reprise)" suffix para hindi mabura ang luma, Boss.\n\n` +
               `Gusto mo bang ituloy ang import?`,
           );
           if (!proceed) {
             TypiUtils.showNotification(
-              "Import cancelled. Walang binago.",
+              "Coda: Import cancelled. Walang binagong score.",
               "info",
-              "🎵",
+              "𝄀𝄂",
             );
             importFile.value = "";
             return;
@@ -1261,21 +1261,21 @@ if (importBtn && importFile) {
         const result = await TypiStorage.importData(renamedData);
         if (result.syncFailed) {
           TypiUtils.showNotification(
-            "Na-import locally, pero puno na ang sync storage — hindi na-sync sa ibang device.",
+            "Fortissimo Limit: Na-import locally, pero puno na ang sync storage — hindi na-sync sa ibang device.",
             "error",
             "⚠️",
           );
         } else if (renameCount > 0) {
           TypiUtils.showNotification(
-            `Imported! ${renameCount} shortcut(s) na-rename ng (Reprise) para maiwasan ang conflict.`,
+            `Reprise Added! ${renameCount} key(s) binigyan ng (Reprise) para panatilihin ang Rhythm.`,
             "success",
-            "✅",
+            "🎶",
           );
         } else {
           TypiUtils.showNotification(
-            "Score Imported Successfully!",
+            "Tutti Import Successful! Kumpleto at maayos na na-import ang lahat ng composition keys.",
             "success",
-            "✅",
+            "🎼",
           );
         }
         loadShortcuts();
