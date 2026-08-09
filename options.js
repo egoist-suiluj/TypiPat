@@ -6,20 +6,7 @@ let postSaveFocusShortcut = null;
 let lastEditedShortcut = null;
 
 function hasKeyConflict(newKey, existingKeys) {
-  for (const key of existingKeys) {
-    if (key === newKey) return true;
-    if (key.startsWith(newKey) || newKey.startsWith(key)) {
-      const shorter = key.length < newKey.length ? key : newKey;
-      const longer = key.length < newKey.length ? newKey : key;
-      if (longer.startsWith(shorter)) {
-        const nextChar = longer[shorter.length];
-        if (nextChar && /[A-Za-z0-9]/.test(nextChar)) {
-          return true;
-        }
-      }
-    }
-  }
-  return false;
+  return existingKeys.includes(newKey);
 }
 
 // UI configuration
@@ -32,7 +19,9 @@ const UI_CONFIG = {
 const composerAnnotation = document.getElementById("composerAnnotation");
 const composerKey = document.getElementById("composerKey");
 const composerKeyField = document.getElementById("composerKeyField");
-const composerKeyFieldContainer = document.getElementById("composerKeyFieldContainer");
+const composerKeyFieldContainer = document.getElementById(
+  "composerKeyFieldContainer",
+);
 const findReplaceSection = document.getElementById("findReplaceSection");
 const composerBeatCount = document.getElementById("composerBeatCount");
 const composerCaesura = document.getElementById("composerCaesura");
@@ -59,7 +48,13 @@ function updateCounters(textarea, beatElement, caesuraElement) {
 }
 
 // Open Composer Modal
-function openComposerModal(content = "", annotation = "", key = "", section = "", forEdit = false) {
+function openComposerModal(
+  content = "",
+  annotation = "",
+  key = "",
+  section = "",
+  forEdit = false,
+) {
   if (!composerTextarea || !composerAnnotation || !composerModal) return;
   composerTextarea.value = content;
   composerAnnotation.value = annotation;
@@ -68,26 +63,34 @@ function openComposerModal(content = "", annotation = "", key = "", section = ""
   if (sectionInput) sectionInput.value = section || "";
 
   if (forEdit) {
-    if (composerKeyFieldContainer) composerKeyFieldContainer.style.display = "none";
+    if (composerKeyFieldContainer)
+      composerKeyFieldContainer.style.display = "none";
     if (findReplaceSection) findReplaceSection.style.display = "flex";
     if (composerSave) composerSave.style.display = "block";
     if (composerFinalize) composerFinalize.style.display = "none";
     if (composerCancel) composerCancel.textContent = "Variance";
-    const arrangeAnnotationBox = document.getElementById("arrangeAnnotationBox");
+    const arrangeAnnotationBox = document.getElementById(
+      "arrangeAnnotationBox",
+    );
     if (arrangeAnnotationBox) {
       arrangeAnnotationBox.style.display = "block";
       const arrangeInput = document.getElementById("composerAnnotationArrange");
       if (arrangeInput) arrangeInput.value = annotation || "";
-      const sectionArrangeInput = document.getElementById("composerSectionArrange");
+      const sectionArrangeInput = document.getElementById(
+        "composerSectionArrange",
+      );
       if (sectionArrangeInput) sectionArrangeInput.value = section || "";
     }
   } else {
-    if (composerKeyFieldContainer) composerKeyFieldContainer.style.display = "flex";
+    if (composerKeyFieldContainer)
+      composerKeyFieldContainer.style.display = "flex";
     if (findReplaceSection) findReplaceSection.style.display = "none";
     if (composerSave) composerSave.style.display = "none";
     if (composerFinalize) composerFinalize.style.display = "block";
     if (composerCancel) composerCancel.textContent = "Variance";
-    const arrangeAnnotationBox = document.getElementById("arrangeAnnotationBox");
+    const arrangeAnnotationBox = document.getElementById(
+      "arrangeAnnotationBox",
+    );
     if (arrangeAnnotationBox) arrangeAnnotationBox.style.display = "none";
   }
 
@@ -141,9 +144,15 @@ if (replaceBtn && composerTextarea) {
     const findText = findInput.value;
     const replaceText = replaceInput.value;
     if (findText) {
-      composerTextarea.value = composerTextarea.value.split(findText).join(replaceText);
+      composerTextarea.value = composerTextarea.value
+        .split(findText)
+        .join(replaceText);
       updateCounters(composerTextarea, composerBeatCount, composerCaesura);
-      TypiUtils.showNotification("Text transposed successfully!", "success", "✅");
+      TypiUtils.showNotification(
+        "Text transposed successfully!",
+        "success",
+        "✅",
+      );
     }
   });
 }
@@ -165,7 +174,11 @@ if (composerFinalize) {
     if (shortcutInput) shortcutInput.value = key;
     if (sectionInput) sectionInput.value = section;
     closeComposerModal();
-    TypiUtils.showNotification("Arrangement finalized. Click Compose to save.", "success", "🎵");
+    TypiUtils.showNotification(
+      "Arrangement finalized. Click Compose to save.",
+      "success",
+      "🎵",
+    );
   });
 }
 
@@ -179,20 +192,35 @@ if (composerSave) {
     if (isEditMode) {
       const arrangeEl = document.getElementById("composerAnnotationArrange");
       annotationValue = arrangeEl ? arrangeEl.value.trim() || null : null;
-      const sectionArrangeEl = document.getElementById("composerSectionArrange");
-      sectionValue = sectionArrangeEl ? sectionArrangeEl.value.trim() || null : null;
+      const sectionArrangeEl = document.getElementById(
+        "composerSectionArrange",
+      );
+      sectionValue = sectionArrangeEl
+        ? sectionArrangeEl.value.trim() || null
+        : null;
     } else {
-      annotationValue = composerAnnotation ? composerAnnotation.value.trim() || null : null;
+      annotationValue = composerAnnotation
+        ? composerAnnotation.value.trim() || null
+        : null;
       const sectionInput = document.getElementById("composerSection");
       sectionValue = sectionInput ? sectionInput.value.trim() || null : null;
     }
     if (currentEditingShortcut) {
-      TypiStorage.save(currentEditingShortcut, content, annotationValue, sectionValue).then(() => {
-        TypiUtils.showNotification("Theme saved successfully! 🎼", "success", "✅");
+      TypiStorage.save(
+        currentEditingShortcut,
+        content,
+        annotationValue,
+        sectionValue,
+      ).then(() => {
+        TypiUtils.showNotification(
+          "Theme saved successfully! 🎼",
+          "success",
+          "✅",
+        );
         closeComposerModal();
         loadShortcuts();
         // 🎵 Sound: Edit/Theme
-        if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
+        if (typeof SoundPlayer !== "undefined" && SoundPlayer.enabled) {
           SoundPlayer.playEditSound();
         }
       });
@@ -202,7 +230,8 @@ if (composerSave) {
 
 // Composer Close/Cancel
 if (composerClose) composerClose.addEventListener("click", closeComposerModal);
-if (composerCancel) composerCancel.addEventListener("click", closeComposerModal);
+if (composerCancel)
+  composerCancel.addEventListener("click", closeComposerModal);
 
 // Confirm Modal
 function showConfirmModal(shortcut) {
@@ -216,7 +245,7 @@ function showConfirmModal(shortcut) {
       loadShortcuts();
       closeConfirmModal();
       // 🎵 Sound: Delete/Abolish
-      if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
+      if (typeof SoundPlayer !== "undefined" && SoundPlayer.enabled) {
         SoundPlayer.playDeleteSound();
       }
     });
@@ -253,7 +282,11 @@ async function loadShortcuts() {
   const RESERVED_SETTING_KEYS = ["soundEnabled", "enabled"];
   const filteredData = {};
   for (let key in data) {
-    if (key !== "__pinned_order__" && !key.startsWith("__meta__") && !RESERVED_SETTING_KEYS.includes(key)) {
+    if (
+      key !== "__pinned_order__" &&
+      !key.startsWith("__meta__") &&
+      !RESERVED_SETTING_KEYS.includes(key)
+    ) {
       filteredData[key] = data[key];
     }
   }
@@ -325,7 +358,7 @@ async function loadShortcuts() {
     const isUntitledB = labelB === "" || labelB === "untitled";
 
     if (isUntitledA && isUntitledB) return a.localeCompare(b);
-    if (isUntitledA) return 1;  // Untitled sa dulo ng section group
+    if (isUntitledA) return 1; // Untitled sa dulo ng section group
     if (isUntitledB) return -1;
 
     return labelA.localeCompare(labelB);
@@ -340,7 +373,7 @@ async function loadShortcuts() {
     const isUntitledB = labelB === "" || labelB === "untitled";
 
     if (isUntitledA && isUntitledB) return a.localeCompare(b);
-    if (isUntitledA) return 1;  // Untitled sa pinakadulo
+    if (isUntitledA) return 1; // Untitled sa pinakadulo
     if (isUntitledB) return -1;
 
     return labelA.localeCompare(labelB);
@@ -385,19 +418,23 @@ async function loadShortcuts() {
 
     // ---- First column: Rhythm ----
     const td1 = document.createElement("td");
-    td1.style.cssText = "vertical-align: middle; padding: 10px 8px; text-align: center; height: 100px;";
+    td1.style.cssText =
+      "vertical-align: middle; padding: 10px 8px; text-align: center; height: 100px;";
 
     const colContainer = document.createElement("div");
-    colContainer.style.cssText = "display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 80px;";
+    colContainer.style.cssText =
+      "display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 80px;";
 
     // Key + Badge row (sa gitna)
     const topRow = document.createElement("div");
-    topRow.style.cssText = "display: flex; align-items: center; justify-content: center; gap: 8px; flex: 1;";
+    topRow.style.cssText =
+      "display: flex; align-items: center; justify-content: center; gap: 8px; flex: 1;";
 
     // 🔥 BADGE (sa PINAKA TAAS na KALIWA)
     if (isPinned && chroma) {
       const badgeWrapper = document.createElement("div");
-      badgeWrapper.style.cssText = "width: 100%; display: flex; justify-content: flex-start; margin-bottom: 4px;";
+      badgeWrapper.style.cssText =
+        "width: 100%; display: flex; justify-content: flex-start; margin-bottom: 4px;";
 
       const badge = document.createElement("div");
       badge.style.cssText = `
@@ -429,12 +466,13 @@ async function loadShortcuts() {
 
     // Key (sa gitna)
     const keyDiv = document.createElement("div");
-    keyDiv.style.cssText = "font-weight: 500; font-size: 16px; text-align: center;";
+    keyDiv.style.cssText =
+      "font-weight: 500; font-size: 16px; text-align: center;";
     if (isPinned) {
-      keyDiv.style.color = '#E65100';
-      keyDiv.style.fontWeight = 'bold';
+      keyDiv.style.color = "#E65100";
+      keyDiv.style.fontWeight = "bold";
     } else {
-      keyDiv.style.color = '#6a1b9a';
+      keyDiv.style.color = "#6a1b9a";
     }
     keyDiv.textContent = shortcut;
     topRow.appendChild(keyDiv);
@@ -443,7 +481,8 @@ async function loadShortcuts() {
 
     // Fermata (sa pinakababa)
     const fermataDiv = document.createElement("div");
-    fermataDiv.style.cssText = "display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: auto; padding-top: 6px; font-size: 12px;";
+    fermataDiv.style.cssText =
+      "display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: auto; padding-top: 6px; font-size: 12px;";
     const fermataIcon = document.createElement("span");
     fermataIcon.textContent = "🎶";
     fermataIcon.style.fontSize = "13px";
@@ -452,7 +491,7 @@ async function loadShortcuts() {
     fermataLabel.textContent = "Fermata 𝄐";
     fermataLabel.style.fontWeight = "500";
     fermataLabel.style.fontSize = "11px";
-    fermataLabel.style.color = '#DAA520';
+    fermataLabel.style.color = "#DAA520";
     fermataDiv.appendChild(fermataLabel);
     const toggleText = document.createElement("span");
     toggleText.textContent = isPinned ? "[ON]" : "[OFF]";
@@ -461,21 +500,25 @@ async function loadShortcuts() {
       cursor: pointer;
       padding: 1px 8px;
       border-radius: 12px;
-      background: ${isPinned ? '#FFD700' : '#e0e0e0'};
-      color: ${isPinned ? '#333' : '#666'};
+      background: ${isPinned ? "#FFD700" : "#e0e0e0"};
+      color: ${isPinned ? "#333" : "#666"};
       transition: background 0.2s;
       user-select: none;
       font-size: 11px;
     `;
-    toggleText.setAttribute('data-shortcut', shortcut);
-    toggleText.addEventListener('click', async (e) => {
+    toggleText.setAttribute("data-shortcut", shortcut);
+    toggleText.addEventListener("click", async (e) => {
       e.stopPropagation();
-      const sh = toggleText.getAttribute('data-shortcut');
+      const sh = toggleText.getAttribute("data-shortcut");
       const currentOrder = await getPinnedOrder();
       const isPinning = !currentOrder.includes(sh);
 
       if (isPinning && currentOrder.length >= 12) {
-        TypiUtils.showNotification("🚫 Scale Overflow: Unpin a note to sustain a new tone.", "error", "⚠️");
+        TypiUtils.showNotification(
+          "🚫 Scale Overflow: Unpin a note to sustain a new tone.",
+          "error",
+          "⚠️",
+        );
         return;
       }
 
@@ -493,10 +536,12 @@ async function loadShortcuts() {
     // ---- Second column: Symphony & Harmony Notes ----
     const td2 = document.createElement("td");
     td2.className = "replacement-cell";
-    td2.style.cssText = "display: flex; flex-direction: column; align-items: stretch;";
+    td2.style.cssText =
+      "display: flex; flex-direction: column; align-items: stretch;";
 
     const labelRow = document.createElement("div");
-    labelRow.style.cssText = "display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 5px;";
+    labelRow.style.cssText =
+      "display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 5px;";
 
     const labelDisplay = label || "Untitled";
     const labelBadge = document.createElement("div");
@@ -577,7 +622,7 @@ async function loadShortcuts() {
   // Post-save focus
   if (postSaveFocusShortcut) {
     const seek = postSaveFocusShortcut.toLowerCase();
-    console.log('🔍 Looking for:', seek);
+    console.log("🔍 Looking for:", seek);
     setTimeout(() => {
       const rows = container.querySelectorAll("tbody tr");
       let target = null;
@@ -588,13 +633,16 @@ async function loadShortcuts() {
         }
       });
       if (target) {
-        console.log('✅ Found target:', seek);
+        console.log("✅ Found target:", seek);
         target.scrollIntoView({ behavior: "smooth", block: "center" });
         const cls = UI_CONFIG.focusHighlightClass;
         target.classList.add(cls);
-        setTimeout(() => target.classList.remove(cls), UI_CONFIG.focusHighlightDuration);
+        setTimeout(
+          () => target.classList.remove(cls),
+          UI_CONFIG.focusHighlightDuration,
+        );
       } else {
-        console.log('⚠️ Target not found:', seek);
+        console.log("⚠️ Target not found:", seek);
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
     }, 100);
@@ -616,7 +664,7 @@ function addActionListeners() {
           btn.classList.remove("copied");
         }, TIMING_CONFIG.BUTTON_FEEDBACK_DURATION);
         // 🎵 Sound: Perform
-        if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
+        if (typeof SoundPlayer !== "undefined" && SoundPlayer.enabled) {
           SoundPlayer.playPerformSound();
         }
       });
@@ -662,7 +710,7 @@ function addActionListeners() {
       isEditMode = true;
 
       // 🎵 Sound: Arrange
-      if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
+      if (typeof SoundPlayer !== "undefined" && SoundPlayer.enabled) {
         SoundPlayer.playArrangeSound();
       }
     });
@@ -696,7 +744,12 @@ function performSearch() {
     const contentEl = row.querySelector(".replacement-content");
     const content = contentEl ? contentEl.textContent.toLowerCase() : "";
 
-    if (shortcut.includes(query) || label.includes(query) || content.includes(query) || section.includes(query)) {
+    if (
+      shortcut.includes(query) ||
+      label.includes(query) ||
+      content.includes(query) ||
+      section.includes(query)
+    ) {
       row.classList.remove("hidden");
       matchCount++;
       if (!firstMatch) firstMatch = row;
@@ -706,9 +759,17 @@ function performSearch() {
   });
 
   if (matchCount === 0) {
-    TypiUtils.showNotification("No matching compositions found.", "error", "🎭");
+    TypiUtils.showNotification(
+      "No matching compositions found.",
+      "error",
+      "🎭",
+    );
   } else {
-    TypiUtils.showNotification(`Found ${matchCount} matching composition${matchCount > 1 ? "s" : ""}!`, "success", "🎵");
+    TypiUtils.showNotification(
+      `Found ${matchCount} matching composition${matchCount > 1 ? "s" : ""}!`,
+      "success",
+      "🎵",
+    );
     if (firstMatch) {
       firstMatch.scrollIntoView({ behavior: "smooth", block: "center" });
       firstMatch.classList.add("highlight");
@@ -721,7 +782,7 @@ if (searchBtn) {
   searchBtn.addEventListener("click", () => {
     performSearch();
     // 🎵 Sound: Search
-    if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
+    if (typeof SoundPlayer !== "undefined" && SoundPlayer.enabled) {
       SoundPlayer.playSearchSound();
     }
   });
@@ -738,7 +799,7 @@ if (clearBtn) {
     if (searchBox) searchBox.value = "";
     performSearch();
     // 🎵 Sound: Clear
-    if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
+    if (typeof SoundPlayer !== "undefined" && SoundPlayer.enabled) {
       SoundPlayer.playClearSound();
     }
   });
@@ -788,14 +849,21 @@ if (addBtn) {
     }
 
     TypiStorage.loadAll().then((existingData) => {
-      const existingKeys = Object.keys(existingData).filter(k =>
-        !k.startsWith("__label__") && !k.startsWith("__meta__") && !k.startsWith("__section__")
+      const existingKeys = Object.keys(existingData).filter(
+        (k) =>
+          !k.startsWith("__label__") &&
+          !k.startsWith("__meta__") &&
+          !k.startsWith("__section__"),
       );
 
       if (hasKeyConflict(shortcut, existingKeys)) {
-        TypiUtils.showNotification(`🎵 Dissonance! The Key "${shortcut}" conflicts with an existing key.`, "error", "⚠️");
+        TypiUtils.showNotification(
+          `🎵 Dissonance! The Key "${shortcut}" conflicts with an existing key.`,
+          "error",
+          "⚠️",
+        );
         // 🎵 Sound: Error
-        if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
+        if (typeof SoundPlayer !== "undefined" && SoundPlayer.enabled) {
           SoundPlayer.playErrorSound();
         }
         // 🔥 FIX: Huwag i-clear ang form para makita ng user ang error
@@ -805,20 +873,28 @@ if (addBtn) {
       postSaveFocusShortcut = shortcut;
       TypiStorage.save(shortcut, replacement, label || null, section || null)
         .then(() => {
-          TypiUtils.showNotification("Success! Score Complete.", "success", "✅");
+          TypiUtils.showNotification(
+            "Success! Score Complete.",
+            "success",
+            "✅",
+          );
           shortcutInput.value = "";
           if (labelInput) labelInput.value = "";
           replacementInput.value = "";
           if (sectionInput) sectionInput.value = "";
           loadShortcuts();
           // 🎵 Sound: Add
-          if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
+          if (typeof SoundPlayer !== "undefined" && SoundPlayer.enabled) {
             SoundPlayer.playAddSound();
           }
         })
         .catch((error) => {
-          console.error('Add error:', error);
-          TypiUtils.showNotification(`Save failed: ${error.message || 'Unknown error'}`, "error", "⚠️");
+          console.error("Add error:", error);
+          TypiUtils.showNotification(
+            `Save failed: ${error.message || "Unknown error"}`,
+            "error",
+            "⚠️",
+          );
         });
     });
   });
@@ -853,8 +929,11 @@ if (saveBtn) {
     }
 
     TypiStorage.loadAll().then((existingData) => {
-      const existingKeys = Object.keys(existingData).filter(k =>
-        !k.startsWith("__label__") && !k.startsWith("__meta__") && !k.startsWith("__section__")
+      const existingKeys = Object.keys(existingData).filter(
+        (k) =>
+          !k.startsWith("__label__") &&
+          !k.startsWith("__meta__") &&
+          !k.startsWith("__section__"),
       );
 
       if (originalShortcut === newShortcut) {
@@ -862,11 +941,15 @@ if (saveBtn) {
         return;
       }
 
-      const filteredKeys = existingKeys.filter(k => k !== originalShortcut);
+      const filteredKeys = existingKeys.filter((k) => k !== originalShortcut);
       if (hasKeyConflict(newShortcut, filteredKeys)) {
-        TypiUtils.showNotification(`🎵 Dissonance! The Key "${newShortcut}" conflicts with an existing key.`, "error", "⚠️");
+        TypiUtils.showNotification(
+          `🎵 Dissonance! The Key "${newShortcut}" conflicts with an existing key.`,
+          "error",
+          "⚠️",
+        );
         // 🎵 Sound: Error
-        if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
+        if (typeof SoundPlayer !== "undefined" && SoundPlayer.enabled) {
           SoundPlayer.playErrorSound();
         }
 
@@ -881,13 +964,29 @@ if (saveBtn) {
   });
 }
 
-function performSave(originalShortcut, newShortcut, replacement, label, section) {
+function performSave(
+  originalShortcut,
+  newShortcut,
+  replacement,
+  label,
+  section,
+) {
   const isRename = originalShortcut !== newShortcut;
   const savePromise = isRename
     ? TypiStorage.remove(originalShortcut).then(() =>
-      TypiStorage.save(newShortcut, replacement, label || null, section || null)
-    )
-    : TypiStorage.save(newShortcut, replacement, label || null, section || null);
+        TypiStorage.save(
+          newShortcut,
+          replacement,
+          label || null,
+          section || null,
+        ),
+      )
+    : TypiStorage.save(
+        newShortcut,
+        replacement,
+        label || null,
+        section || null,
+      );
 
   savePromise
     .then(async () => {
@@ -904,13 +1003,17 @@ function performSave(originalShortcut, newShortcut, replacement, label, section)
       TypiUtils.showNotification("Theme saved successfully!", "success", "✅");
       postSaveFocusShortcut = newShortcut;
       exitEditMode();
-      if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
+      if (typeof SoundPlayer !== "undefined" && SoundPlayer.enabled) {
         SoundPlayer.playEditSound();
       }
     })
     .catch((error) => {
-      console.error('Save error:', error);
-      TypiUtils.showNotification(`Save failed: ${error.message || 'Unknown error'}`, "error", "⚠️");
+      console.error("Save error:", error);
+      TypiUtils.showNotification(
+        `Save failed: ${error.message || "Unknown error"}`,
+        "error",
+        "⚠️",
+      );
       postSaveFocusShortcut = originalShortcut;
       exitEditMode();
     });
@@ -922,7 +1025,7 @@ if (discardBtn) {
   discardBtn.addEventListener("click", () => {
     exitEditMode();
     // 🎵 Sound: Variance
-    if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
+    if (typeof SoundPlayer !== "undefined" && SoundPlayer.enabled) {
       SoundPlayer.playVarianceSound();
     }
   });
@@ -948,7 +1051,8 @@ function exitEditMode() {
   isEditMode = false;
 
   if (lastEditedShortcut) {
-    if (!postSaveFocusShortcut) {           // 🔥 huwag i-overwrite kung meron nang naka-set
+    if (!postSaveFocusShortcut) {
+      // 🔥 huwag i-overwrite kung meron nang naka-set
       postSaveFocusShortcut = lastEditedShortcut;
     }
     lastEditedShortcut = null;
@@ -961,26 +1065,30 @@ const exportBtn = document.getElementById("exportBtn");
 if (exportBtn) {
   exportBtn.addEventListener("click", async () => {
     const data = await TypiStorage.loadAll();
+    const RESERVED_SETTING_KEYS = ["soundEnabled", "enabled"];
     const exportData = {};
     let hasContent = false;
     for (let key in data) {
-      if (!key.startsWith("__meta__") && !key.startsWith("__label__") && !key.startsWith("__section__")) {
+      if (
+        !key.startsWith("__meta__") &&
+        key !== "__pinned_order__" &&
+        !RESERVED_SETTING_KEYS.includes(key)
+      ) {
         exportData[key] = data[key];
         hasContent = true;
       }
     }
     if (!hasContent) {
-      TypiUtils.showNotification("Silence. No notes to export. Compose first.", "error", "🎭");
+      TypiUtils.showNotification(
+        "Silence. No notes to export. Compose first.",
+        "error",
+        "🎭",
+      );
       return;
     }
     showCadenceModal(exportData);
     // 🎵 Sound: Cadence
-    if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
-      SoundPlayer.playCadenceSound();
-    }
-    showCadenceModal(exportData);
-    // 🎵 Sound: Cadence
-    if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
+    if (typeof SoundPlayer !== "undefined" && SoundPlayer.enabled) {
       SoundPlayer.playCadenceSound();
     }
   });
@@ -1004,10 +1112,15 @@ function showCadenceModal(exportData) {
     const albumName = input.value.trim();
     if (!albumName) {
       if (errorMsg) {
-        errorMsg.textContent = "🎵 An Album requires a title to achieve Harmony.";
+        errorMsg.textContent =
+          "🎵 An Album requires a title to achieve Harmony.";
         errorMsg.style.display = "block";
       } else {
-        TypiUtils.showNotification("An Album requires a title to achieve Harmony.", "error", "🎵");
+        TypiUtils.showNotification(
+          "An Album requires a title to achieve Harmony.",
+          "error",
+          "🎵",
+        );
       }
       input.focus();
       return;
@@ -1019,13 +1132,21 @@ function showCadenceModal(exportData) {
     a.href = url;
     a.download = `${albumName} - typipat-musical-notes.json`;
     a.click();
-    TypiUtils.showNotification(`🎵 "${albumName}" composed and released!`, "success", "✅");
+    TypiUtils.showNotification(
+      `🎵 "${albumName}" composed and released!`,
+      "success",
+      "✅",
+    );
     modal.style.display = "none";
     cleanup();
   };
 
   const handleCancel = () => {
-    TypiUtils.showNotification("Score Sustained. No changes applied.", "info", "🎵");
+    TypiUtils.showNotification(
+      "Score Sustained. No changes applied.",
+      "info",
+      "🎵",
+    );
     modal.style.display = "none";
     cleanup();
   };
@@ -1057,7 +1178,7 @@ if (importBtn && importFile) {
   importBtn.addEventListener("click", () => {
     importFile.click();
     // 🎵 Sound: Entrata
-    if (typeof SoundPlayer !== 'undefined' && SoundPlayer.enabled) {
+    if (typeof SoundPlayer !== "undefined" && SoundPlayer.enabled) {
       SoundPlayer.playEntrataSound();
     }
   });
@@ -1066,13 +1187,98 @@ if (importBtn && importFile) {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       try {
         const data = JSON.parse(e.target.result);
-        TypiStorage.importData(data).then(() => {
-          TypiUtils.showNotification("Score Imported Successfully!", "success", "✅");
-          loadShortcuts();
+        const RESERVED_SETTING_KEYS = ["soundEnabled", "enabled"];
+
+        const existingData = await TypiStorage.loadAll();
+        const existingKeySet = new Set(
+          Object.keys(existingData).filter(
+            (k) =>
+              !k.startsWith("__meta__") &&
+              !k.startsWith("__label__") &&
+              !k.startsWith("__section__") &&
+              k !== "__pinned_order__" &&
+              !RESERVED_SETTING_KEYS.includes(k),
+          ),
+        );
+
+        const incomingShortcutKeys = Object.keys(data).filter(
+          (k) =>
+            !k.startsWith("__meta__") &&
+            !k.startsWith("__label__") &&
+            !k.startsWith("__section__") &&
+            k !== "__pinned_order__" &&
+            !RESERVED_SETTING_KEYS.includes(k),
+        );
+
+        // 🔥 Auto-rename ang mga kapangalan — HINDI na mag-o-overwrite ng luma
+        const renamedData = {};
+        let renameCount = 0;
+
+        incomingShortcutKeys.forEach((key) => {
+          let finalKey = key;
+          if (existingKeySet.has(key)) {
+            let attempt = key + " (Reprise)";
+            let counter = 2;
+            while (
+              existingKeySet.has(attempt) ||
+              incomingShortcutKeys.includes(attempt)
+            ) {
+              attempt = `${key} (Reprise ${counter})`;
+              counter++;
+            }
+            finalKey = attempt;
+            renameCount++;
+          }
+          renamedData[finalKey] = data[key];
+          if (data[`__label__${key}`] !== undefined) {
+            renamedData[`__label__${finalKey}`] = data[`__label__${key}`];
+          }
+          if (data[`__section__${key}`] !== undefined) {
+            renamedData[`__section__${finalKey}`] = data[`__section__${key}`];
+          }
         });
+
+        if (renameCount > 0) {
+          const proceed = window.confirm(
+            `🎵 ${renameCount} shortcut(s) ay may kaparehong pangalan sa existing mo.\n\n` +
+              `Awtomatiko silang bibigyan ng "(Reprise)" suffix para hindi mabura ang luma mo.\n\n` +
+              `Gusto mo bang ituloy ang import?`,
+          );
+          if (!proceed) {
+            TypiUtils.showNotification(
+              "Import cancelled. Walang binago.",
+              "info",
+              "🎵",
+            );
+            importFile.value = "";
+            return;
+          }
+        }
+
+        const result = await TypiStorage.importData(renamedData);
+        if (result.syncFailed) {
+          TypiUtils.showNotification(
+            "Na-import locally, pero puno na ang sync storage — hindi na-sync sa ibang device.",
+            "error",
+            "⚠️",
+          );
+        } else if (renameCount > 0) {
+          TypiUtils.showNotification(
+            `Imported! ${renameCount} shortcut(s) na-rename ng (Reprise) para maiwasan ang conflict.`,
+            "success",
+            "✅",
+          );
+        } else {
+          TypiUtils.showNotification(
+            "Score Imported Successfully!",
+            "success",
+            "✅",
+          );
+        }
+        loadShortcuts();
       } catch (err) {
         TypiUtils.showNotification("Invalid score file.", "error", "⚠️");
         console.error("Import error:", err);
@@ -1091,7 +1297,7 @@ loadShortcuts();
 // ==========================================
 const soundToggle = document.getElementById("soundToggle");
 if (soundToggle) {
-  chrome.storage.local.get(['soundEnabled'], (result) => {
+  chrome.storage.local.get(["soundEnabled"], (result) => {
     soundToggle.checked = result.soundEnabled !== false;
   });
 
@@ -1101,14 +1307,18 @@ if (soundToggle) {
     chrome.tabs.query({}, (tabs) => {
       tabs.forEach((tab) => {
         if (tab.id) {
-          chrome.tabs.sendMessage(tab.id, { action: "toggleSound", enabled: enabled }).catch(() => { });
+          chrome.tabs
+            .sendMessage(tab.id, { action: "toggleSound", enabled: enabled })
+            .catch(() => {});
         }
       });
     });
     TypiUtils.showNotification(
-      enabled ? "🎵 Harmonies Restored: Audio feedback enabled." : "🔇 Tacet Mode: Audio feedback muted.",
+      enabled
+        ? "🎵 Harmonies Restored: Audio feedback enabled."
+        : "🔇 Tacet Mode: Audio feedback muted.",
       "info",
-      enabled ? "🎵" : "🔇"
+      enabled ? "🎵" : "🔇",
     );
   });
 }

@@ -104,9 +104,6 @@ const TypiUtils = {
     if (/\s/.test(shortcut)) {
       return { valid: false, message: "A Key plays without pause. Connect your melody using '-' or '_'." };
     }
-    if (/[{}[\]\\|]/.test(shortcut)) {
-      return { valid: false, message: "Shortcut contains invalid characters: {}[]\\|" };
-    }
     return { valid: true, message: "" };
   },
 
