@@ -1342,29 +1342,30 @@ function getStorageSize(storageType, callback) {
   });
 }
 
-// Update the storage indicator UI
 function updateStorageIndicator() {
-  // Count all keys in sync storage (each key = 1 template)
-  chrome.storage.sync.get(null, function (result) {
-    // Count all keys, excluding chrome internal keys (like 'sync' etc.)
-    const allKeys = Object.keys(result);
-    // Filter out any keys that start with '_' or are chrome internal
-    const templateKeys = allKeys.filter((key) => !key.startsWith("_"));
+  const RESERVED_SETTING_KEYS = ["soundEnabled", "enabled"];
+
+  TypiStorage.loadAll().then((data) => {
+    // 🔥 Totoong bilang: pinagsamang local + sync, tamang filter
+    const templateKeys = Object.keys(data).filter(key =>
+      !key.startsWith("__meta__") && !key.startsWith("__label__") &&
+      !key.startsWith("__section__") && key !== "__pinned_order__" &&
+      !RESERVED_SETTING_KEYS.includes(key)
+    );
     const templateCount = templateKeys.length;
 
-    // Get sync storage size
+    // Sync SIZE (bytes) — ito lang dapat direkta sa chrome.storage.sync, para tama ang % ng quota
     getStorageSize(chrome.storage.sync, function (syncSize) {
-      const maxSyncSize = 102400; // 100 KB in bytes
+      const maxSyncSize = 102400;
       const percentageUsed = Math.round((syncSize / maxSyncSize) * 100);
 
-      // Determine status
       let statusText = "";
       let statusClass = "";
 
       if (percentageUsed < 60) {
         statusText = `💾 Sync: ${percentageUsed}% used`;
         statusClass = "safe";
-      } else if (percentageUsed >= 60 && percentageUsed < 85) {
+      } else if (percentageUsed < 85) {
         statusText = `💾 Sync: ${percentageUsed}% used`;
         statusClass = "warning";
       } else {
@@ -1372,7 +1373,6 @@ function updateStorageIndicator() {
         statusClass = "full";
       }
 
-      // Update UI
       const countEl = document.getElementById("templateCount");
       const statusEl = document.getElementById("storageStatus");
 
@@ -1382,13 +1382,7 @@ function updateStorageIndicator() {
         statusEl.className = "storage-status " + statusClass;
       }
 
-      // Store for tooltip
-      window._storageData = {
-        syncSize,
-        maxSyncSize,
-        percentageUsed,
-        templateCount,
-      };
+      window._storageData = { syncSize, maxSyncSize, percentageUsed, templateCount };
     });
   });
 }
@@ -1423,9 +1417,13 @@ function showStorageDetails(event) {
     const maxLocalKB = (5120).toFixed(0);
 
     // Get current template count
-    chrome.storage.sync.get(null, function (result) {
-      const allKeys = Object.keys(result).filter((key) => !key.startsWith("_"));
-      const templateCount = allKeys.length;
+    const RESERVED_SETTING_KEYS = ["soundEnabled", "enabled"];
+    TypiStorage.loadAll().then((storageData) => {
+      const templateCount = Object.keys(storageData).filter(key =>
+        !key.startsWith("__meta__") && !key.startsWith("__label__") &&
+        !key.startsWith("__section__") && key !== "__pinned_order__" &&
+        !RESERVED_SETTING_KEYS.includes(key)
+      ).length;
 
       tooltip.innerHTML = `
         <div class="storage-tooltip-row">
