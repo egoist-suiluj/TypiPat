@@ -1599,6 +1599,142 @@
         box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
       }
 
+      /* ===== COMPOSE + STORAGE INDICATOR ===== */
+      .compose-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        gap: 16px;
+        grid-column: 2;
+        grid-row: 4;
+      }
+
+      .compose-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      /* Storage Indicator - Sa kanan ng Compose */
+      .storage-indicator-wrapper {
+        display: flex;
+        align-items: center;
+      }
+
+      .storage-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-family: "Georgia", serif;
+        font-size: 12px;
+        color: #6b5b95;
+        background: rgba(240, 235, 252, 0.5);
+        padding: 5px 14px;
+        border-radius: 20px;
+        border: 1px solid rgba(126, 105, 171, 0.15);
+        cursor: pointer;
+        transition: all 0.25s ease;
+        user-select: none;
+        white-space: nowrap;
+      }
+
+      .storage-indicator:hover {
+        background: #f0ebfc;
+        border-color: rgba(126, 105, 171, 0.3);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(107, 91, 149, 0.1);
+      }
+
+      .storage-indicator:active {
+        transform: translateY(0px);
+      }
+
+      .storage-count {
+        font-weight: 700;
+        color: #7e69ab;
+        min-width: 20px;
+        text-align: center;
+      }
+
+      .storage-label {
+        font-weight: 400;
+        color: #8b7aa8;
+      }
+
+      .storage-divider {
+        color: rgba(126, 105, 171, 0.2);
+        margin: 0 2px;
+      }
+
+      .storage-status {
+        font-weight: 500;
+        transition: color 0.3s ease;
+      }
+
+      /* Status Colors */
+      .storage-status.safe {
+        color: #7bc8a4; /* Soft Green */
+      }
+
+      .storage-status.warning {
+        color: #e8c97a; /* Soft Gold */
+      }
+
+      .storage-status.full {
+        color: #d4858a; /* Soft Rose */
+      }
+
+      .storage-icon {
+        font-size: 13px;
+      }
+
+      /* Tooltip */
+      .storage-tooltip {
+        display: none;
+        position: absolute;
+        bottom: calc(100% + 10px);
+        right: 0;
+        background: #ffffff;
+        border: 1px solid rgba(126, 105, 171, 0.2);
+        border-radius: 12px;
+        padding: 12px 16px;
+        min-width: 220px;
+        box-shadow: 0 4px 20px rgba(107, 91, 149, 0.15);
+        font-family: "Georgia", serif;
+        font-size: 12px;
+        color: #4a3b5e;
+        z-index: 100;
+      }
+
+      .storage-tooltip.show {
+        display: block;
+      }
+
+      .storage-tooltip-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 4px 0;
+        border-bottom: 1px solid rgba(126, 105, 171, 0.08);
+      }
+
+      .storage-tooltip-row:last-child {
+        border-bottom: none;
+      }
+
+      .storage-tooltip-label {
+        color: #8b7aa8;
+      }
+
+      .storage-tooltip-value {
+        font-weight: 600;
+        color: #6b5b95;
+      }
+
+      .storage-indicator-wrapper {
+        position: relative;
+      }
+
       @keyframes shake {
         0%,
         100% {
@@ -1858,14 +1994,38 @@
             </button>
           </div>
 
-          <button id="addBtn">Compose</button>
-          <button id="saveBtn" class="save-btn" style="display: none">
-            Theme
-          </button>
-          <button id="discardBtn" class="discard-btn" style="display: none">
-            Variance
-          </button>
+          <!-- Button Row with Storage Indicator -->
+          <div class="compose-wrapper">
+            <!-- Left side: Compose + hidden buttons -->
+            <div class="compose-left">
+              <button id="addBtn">Compose</button>
+              <button id="saveBtn" class="save-btn" style="display: none">
+                Theme
+              </button>
+              <button id="discardBtn" class="discard-btn" style="display: none">
+                Variance
+              </button>
+            </div>
 
+            <!-- Right side: Storage Indicator (NEW) -->
+            <div class="storage-indicator-wrapper">
+              <div
+                class="storage-indicator"
+                id="storageIndicator"
+                title="Click for storage details"
+              >
+                <span class="storage-icon">📝</span>
+                <span class="storage-count" id="templateCount">0</span>
+                <span class="storage-label">templates</span>
+                <span class="storage-divider">|</span>
+                <span class="storage-status" id="storageStatus"
+                  >💾 Sync: 0% used</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Export/Import buttons (stay sa right side) -->
           <div class="export-import-buttons">
             <button id="exportBtn" class="export-btn">Cadence</button>
             <button id="importBtn" class="import-btn">Entrata</button>

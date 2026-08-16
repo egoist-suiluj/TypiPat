@@ -219,6 +219,7 @@ if (composerSave) {
         );
         closeComposerModal();
         loadShortcuts();
+        updateStorageIndicator();
         // 🎵 Sound: Edit/Theme
         if (typeof SoundPlayer !== "undefined" && SoundPlayer.enabled) {
           SoundPlayer.playEditSound();
@@ -243,6 +244,7 @@ function showConfirmModal(shortcut) {
     TypiStorage.remove(shortcut).then(() => {
       TypiUtils.showNotification("Composition Abolished.", "success", "🗑️");
       loadShortcuts();
+      updateStorageIndicator();
       closeConfirmModal();
       // 🎵 Sound: Delete/Abolish
       if (typeof SoundPlayer !== "undefined" && SoundPlayer.enabled) {
@@ -662,7 +664,7 @@ function addActionListeners() {
         setTimeout(() => {
           btn.textContent = originalText;
           btn.classList.remove("copied");
-        }, TIMING_CONFIG.BUTTON_FEEDBACK_DURATION);
+        }, TIMING_CONFIG.BUTTON_FEEDBACK_DURATION); // ✅ TAMA
         // 🎵 Sound: Perform
         if (typeof SoundPlayer !== "undefined" && SoundPlayer.enabled) {
           SoundPlayer.playPerformSound();
@@ -823,6 +825,7 @@ if (floatingBtn) {
 }
 
 // Add Button (Compose)
+const addBtn = document.getElementById("addBtn");
 if (addBtn) {
   addBtn.addEventListener("click", () => {
     const shortcutInput = document.getElementById("shortcutInput");
@@ -883,6 +886,7 @@ if (addBtn) {
           replacementInput.value = "";
           if (sectionInput) sectionInput.value = "";
           loadShortcuts();
+          updateStorageIndicator();
           // 🎵 Sound: Add
           if (typeof SoundPlayer !== "undefined" && SoundPlayer.enabled) {
             SoundPlayer.playAddSound();
@@ -1003,6 +1007,7 @@ function performSave(
       TypiUtils.showNotification("Theme saved successfully!", "success", "✅");
       postSaveFocusShortcut = newShortcut;
       exitEditMode();
+      updateStorageIndicator();
       if (typeof SoundPlayer !== "undefined" && SoundPlayer.enabled) {
         SoundPlayer.playEditSound();
       }
@@ -1220,13 +1225,13 @@ if (importBtn && importFile) {
         incomingShortcutKeys.forEach((key) => {
           let finalKey = key;
           if (existingKeySet.has(key)) {
-            let attempt = key + " (Reprise)";
+            let attempt = key + "(Reprise)";
             let counter = 2;
             while (
               existingKeySet.has(attempt) ||
               incomingShortcutKeys.includes(attempt)
             ) {
-              attempt = `${key} (Reprise ${counter})`;
+              attempt = `${key}(Reprise${counter})`;
               counter++;
             }
             finalKey = attempt;
@@ -1279,6 +1284,7 @@ if (importBtn && importFile) {
           );
         }
         loadShortcuts();
+        updateStorageIndicator();
       } catch (err) {
         TypiUtils.showNotification("Invalid score file.", "error", "⚠️");
         console.error("Import error:", err);
@@ -1321,4 +1327,175 @@ if (soundToggle) {
       enabled ? "🎵" : "🔇",
     );
   });
+}
+
+// ==========================================
+// STORAGE INDICATOR FUNCTIONS
+// ==========================================
+
+// Get total size of all items in storage
+function getStorageSize(storageType, callback) {
+  storageType.get(null, function (items) {
+    const json = JSON.stringify(items);
+    const sizeInBytes = new Blob([json]).size;
+    callback(sizeInBytes);
+  });
+}
+
+// Update the storage indicator UI
+function updateStorageIndicator() {
+  // Count all keys in sync storage (each key = 1 template)
+  chrome.storage.sync.get(null, function (result) {
+    // Count all keys, excluding chrome internal keys (like 'sync' etc.)
+    const allKeys = Object.keys(result);
+    // Filter out any keys that start with '_' or are chrome internal
+    const templateKeys = allKeys.filter((key) => !key.startsWith("_"));
+    const templateCount = templateKeys.length;
+
+    // Get sync storage size
+    getStorageSize(chrome.storage.sync, function (syncSize) {
+      const maxSyncSize = 102400; // 100 KB in bytes
+      const percentageUsed = Math.round((syncSize / maxSyncSize) * 100);
+
+      // Determine status
+      let statusText = "";
+      let statusClass = "";
+
+      if (percentageUsed < 60) {
+        statusText = `💾 Sync: ${percentageUsed}% used`;
+        statusClass = "safe";
+      } else if (percentageUsed >= 60 && percentageUsed < 85) {
+        statusText = `💾 Sync: ${percentageUsed}% used`;
+        statusClass = "warning";
+      } else {
+        statusText = "💾 Local (Sync full)";
+        statusClass = "full";
+      }
+
+      // Update UI
+      const countEl = document.getElementById("templateCount");
+      const statusEl = document.getElementById("storageStatus");
+
+      if (countEl) countEl.textContent = templateCount;
+      if (statusEl) {
+        statusEl.textContent = statusText;
+        statusEl.className = "storage-status " + statusClass;
+      }
+
+      // Store for tooltip
+      window._storageData = {
+        syncSize,
+        maxSyncSize,
+        percentageUsed,
+        templateCount,
+      };
+    });
+  });
+}
+
+// Show tooltip with storage details
+function showStorageDetails(event) {
+  // Remove existing tooltip
+  const existingTooltip = document.querySelector(".storage-tooltip");
+  if (existingTooltip) {
+    existingTooltip.remove();
+    return;
+  }
+
+  // Create tooltip
+  const tooltip = document.createElement("div");
+  tooltip.className = "storage-tooltip show";
+
+  const data = window._storageData || {
+    syncSize: 0,
+    maxSyncSize: 102400,
+    percentageUsed: 0,
+    templateCount: 0,
+  };
+
+  const syncKB = (data.syncSize / 1024).toFixed(1);
+  const maxKB = (data.maxSyncSize / 1024).toFixed(0);
+  const remainingKB = ((data.maxSyncSize - data.syncSize) / 1024).toFixed(1);
+
+  // Get local storage size
+  getStorageSize(chrome.storage.local, function (localSize) {
+    const localKB = (localSize / 1024).toFixed(1);
+    const maxLocalKB = (5120).toFixed(0);
+
+    // Get current template count
+    chrome.storage.sync.get(null, function (result) {
+      const allKeys = Object.keys(result).filter((key) => !key.startsWith("_"));
+      const templateCount = allKeys.length;
+
+      tooltip.innerHTML = `
+        <div class="storage-tooltip-row">
+          <span class="storage-tooltip-label">📝 Templates</span>
+          <span class="storage-tooltip-value">${templateCount}</span>
+        </div>
+        <div class="storage-tooltip-row">
+          <span class="storage-tooltip-label">💾 Sync Storage</span>
+          <span class="storage-tooltip-value">${syncKB} KB / ${maxKB} KB</span>
+        </div>
+        <div class="storage-tooltip-row">
+          <span class="storage-tooltip-label">📦 Local Storage</span>
+          <span class="storage-tooltip-value">${localKB} KB / ${maxLocalKB} KB</span>
+        </div>
+        <div class="storage-tooltip-row">
+          <span class="storage-tooltip-label">📊 Usage</span>
+          <span class="storage-tooltip-value" style="color: ${data.percentageUsed < 60 ? "#7BC8A4" : data.percentageUsed < 85 ? "#E8C97A" : "#D4858A"}">
+            ${data.percentageUsed}% used
+            ${data.percentageUsed < 60 ? "✅" : data.percentageUsed < 85 ? "⚠️" : "🔴"}
+          </span>
+        </div>
+        ${
+          data.percentageUsed >= 85
+            ? `
+        <div class="storage-tooltip-row" style="color: #D4858A; font-style: italic; margin-top: 4px;">
+          <span>⚠️ Sync full. Using local storage.</span>
+        </div>
+        `
+            : `
+        <div class="storage-tooltip-row" style="color: #7BC8A4; margin-top: 4px;">
+          <span>✅ ${remainingKB} KB remaining</span>
+        </div>
+        `
+        }
+      `;
+
+      const wrapper = document.querySelector(".storage-indicator-wrapper");
+      if (wrapper) {
+        wrapper.appendChild(tooltip);
+
+        // Close tooltip when clicking elsewhere
+        document.addEventListener("click", function closeTooltip(e) {
+          if (!wrapper.contains(e.target)) {
+            const tip = document.querySelector(".storage-tooltip");
+            if (tip) tip.remove();
+            document.removeEventListener("click", closeTooltip);
+          }
+        });
+      }
+    });
+  });
+}
+
+// ==========================================
+// INITIALIZATION
+// ==========================================
+
+// Update storage indicator on load
+document.addEventListener("DOMContentLoaded", function () {
+  setTimeout(updateStorageIndicator, 500);
+
+  // Setup click handler for storage indicator
+  const indicator = document.getElementById("storageIndicator");
+  if (indicator) {
+    indicator.addEventListener("click", showStorageDetails);
+  }
+});
+
+// Update after adding/deleting templates
+function refreshStorageIndicator() {
+  // Wait for storage to update
+  setTimeout(updateStorageIndicator, 300);
 }
