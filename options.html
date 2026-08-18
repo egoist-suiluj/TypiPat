@@ -1188,6 +1188,137 @@
         z-index: 1;
       }
 
+      /* ==========================================
+   TEXTAREA WITH LINE NUMBERS
+   ========================================== */
+
+      .textarea-wrapper {
+        position: relative;
+        display: flex;
+        gap: 0;
+        background: rgba(255, 255, 255, 0.75);
+        border-radius: 8px;
+        border: 1px solid rgba(156, 39, 176, 0.15);
+        transition: all 0.3s;
+        overflow: hidden;
+      }
+
+      .textarea-wrapper:focus-within {
+        border-color: #9c27b0;
+        box-shadow: 0 0 0 3px rgba(156, 39, 176, 0.08);
+        background: rgba(255, 255, 255, 0.7);
+      }
+
+      /* Line Numbers */
+      .line-numbers {
+        padding: 15px 10px 15px 14px;
+        min-width: 40px;
+        text-align: right;
+        font-family: "Georgia", serif;
+        font-size: 15px;
+        line-height: 1.4;
+        color: rgba(156, 39, 176, 0.3);
+        user-select: none;
+        pointer-events: none;
+        background: rgba(255, 255, 255, 0.3);
+        border-right: 1px solid rgba(156, 39, 176, 0.08);
+        flex-shrink: 0;
+        overflow: hidden;
+        padding-bottom: 15px;
+        box-sizing: border-box;
+        height: auto;
+        min-height: 100%;
+      }
+
+      .line-numbers span {
+        display: block;
+        font-size: 14px;
+        font-weight: 400;
+        color: rgba(156, 39, 176, 0.25);
+        font-feature-settings: "tnum";
+        transition: color 0.2s ease;
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .line-numbers span.active-line {
+        color: rgba(156, 39, 176, 0.6);
+        font-weight: 500;
+      }
+
+      /* Textarea */
+      .textarea-wrapper textarea {
+        flex: 1;
+        padding: 15px 18px 15px 16px;
+        border: none;
+        border-radius: 0 8px 8px 0;
+        font-size: 15px;
+        min-height: 200px;
+        width: 100%;
+        resize: vertical;
+        line-height: 1.4;
+        white-space: pre-wrap;
+        font-family: "Georgia", serif;
+        transition: all 0.3s;
+        box-sizing: border-box;
+        background: transparent;
+        color: #4a148c;
+        overflow: auto;
+      }
+
+      .textarea-wrapper textarea:focus {
+        outline: none;
+      }
+
+      .textarea-wrapper textarea::placeholder {
+        color: rgba(74, 20, 140, 0.25);
+        font-style: italic;
+      }
+
+      /* Textarea Stats */
+      .textarea-stats {
+        display: flex;
+        gap: 24px; /* Dagdagan ang gap para mas malinaw */
+        padding: 6px 16px 6px 16px;
+        font-size: 12px;
+        color: rgba(106, 27, 154, 0.5);
+        font-family: "Georgia", serif;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 0 0 8px 8px;
+        border-left: 1px solid rgba(156, 39, 176, 0.05);
+        border-right: 1px solid rgba(156, 39, 176, 0.05);
+        border-bottom: 1px solid rgba(156, 39, 176, 0.05);
+        margin-top: -1px;
+      }
+
+      .textarea-stats .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+        color: rgba(106, 27, 154, 0.5);
+        min-width: 100px; /* ✅ IDAGDAG ITO — para pantay ang width */
+      }
+
+      .textarea-stats .stat-item span {
+        font-weight: 600;
+        color: rgba(106, 27, 154, 0.7);
+        min-width: 30px; /* ✅ PALITAN — para pantay ang numbers */
+        text-align: center;
+      }
+
+      /* Responsive: Hide line numbers on small screens */
+      @media (max-width: 600px) {
+        .line-numbers {
+          display: none;
+        }
+
+        .textarea-wrapper textarea {
+          border-radius: 8px;
+          padding-left: 16px;
+        }
+      }
+
       .composer-textarea {
         flex: 1;
         padding: 15px;
@@ -1816,7 +1947,9 @@
               id="composerKeyField"
               style="max-width: 200px"
             >
-              <label class="composer-label" for="composerKey">Key (Rhythm)</label>
+              <label class="composer-label" for="composerKey"
+                >Key (Rhythm)</label
+              >
               <input
                 type="text"
                 class="composer-input"
@@ -1826,7 +1959,9 @@
             </div>
 
             <div class="composer-field" style="max-width: 200px">
-              <label class="composer-label" for="composerSection">Section (Optional)</label>
+              <label class="composer-label" for="composerSection"
+                >Section (Optional)</label
+              >
               <input
                 type="text"
                 class="composer-input"
@@ -1836,7 +1971,9 @@
             </div>
 
             <div class="composer-field">
-              <label class="composer-label" for="composerAnnotation">Annotation (Optional)</label>
+              <label class="composer-label" for="composerAnnotation"
+                >Annotation (Optional)</label
+              >
               <input
                 type="text"
                 class="composer-input"
@@ -1853,7 +1990,9 @@
           >
             <div style="display: flex; gap: 12px">
               <div style="flex: 1">
-                <label class="composer-label" for="composerAnnotationArrange">Annotation (Arrange Notes)</label>
+                <label class="composer-label" for="composerAnnotationArrange"
+                  >Annotation (Arrange Notes)</label
+                >
                 <input
                   type="text"
                   class="composer-input"
@@ -1862,7 +2001,9 @@
                 />
               </div>
               <div style="flex: 1">
-                <label class="composer-label" for="composerSectionArrange">Section (Optional)</label>
+                <label class="composer-label" for="composerSectionArrange"
+                  >Section (Optional)</label
+                >
                 <input
                   type="text"
                   class="composer-input"
@@ -1882,7 +2023,9 @@
           </div>
 
           <div class="composer-textarea-wrapper">
-            <label class="composer-label" for="composerTextarea">Manuscript</label>
+            <label class="composer-label" for="composerTextarea"
+              >Manuscript</label
+            >
             <textarea
               class="composer-textarea"
               id="composerTextarea"
@@ -1979,12 +2122,28 @@
             style="grid-column: 2; grid-row: 2 / 4"
           >
             <div class="form-label">Manuscript</div>
-            <textarea
-              id="replacementInput"
-              spellcheck="true"
-              placeholder="e.g., 'I who lives in harmony with myself lives in harmony'"
-              rows="6"
-            ></textarea>
+            <div class="textarea-wrapper">
+              <div class="line-numbers" id="lineNumbers" aria-hidden="true">
+                <span>1</span>
+              </div>
+              <textarea
+                id="replacementInput"
+                spellcheck="true"
+                placeholder="e.g., 'I who lives in harmony with myself lives in harmony'"
+                rows="6"
+              ></textarea>
+            </div>
+            <div class="textarea-stats">
+              <span class="stat-item"
+                >📝 <span id="charCount">0</span> characters</span
+              >
+              <span class="stat-item"
+                >📏 <span id="lineCount">0</span> lines</span
+              >
+              <span class="stat-item"
+                >📊 <span id="wordCount">0</span> words</span
+              >
+            </div>
             <button
               class="orchestrate-btn"
               id="orchestrateBtn"
