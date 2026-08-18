@@ -581,3 +581,27 @@ chrome.storage.onChanged.addListener((changes) => {
     }
   }
 });
+
+// ==========================================
+// BANNER SCROLL BEHAVIOR
+// ==========================================
+
+const notesList = document.getElementById('notesList');
+const bannerSection = document.getElementById('bannerSection');
+const scrollIndicator = document.getElementById('scrollIndicator');
+
+if (notesList && bannerSection) {
+  notesList.addEventListener('scroll', function() {
+    const scrollY = this.scrollTop;
+    
+    // Kapag nag-scroll pababa > 30px, i-hide ang banner
+    if (scrollY > 30) {
+      bannerSection.classList.add('hidden');
+      if (scrollIndicator) scrollIndicator.classList.add('hidden');
+    } else {
+      // Kapag nasa itaas, i-show ang banner
+      bannerSection.classList.remove('hidden');
+      if (scrollIndicator) scrollIndicator.classList.remove('hidden');
+    }
+  });
+}

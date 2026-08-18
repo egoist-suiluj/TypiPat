@@ -37,13 +37,22 @@
         overflow: hidden;
       }
 
-      /* Header */
-      .header {
+      .banner-section {
         padding: 14px 20px 12px 20px;
         border-bottom: 1px solid rgba(255, 255, 255, 0.15);
         background: rgba(255, 255, 255, 0.2);
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
+        flex-shrink: 0;
+        transition: all 0.3s ease;
+        overflow: hidden;
+      }
+
+      .banner-section.hidden {
+        padding: 0;
+        max-height: 0;
+        opacity: 0;
+        border-bottom: none;
       }
 
       .header-tagline {
@@ -316,6 +325,21 @@
         background: rgba(156, 39, 176, 0.3);
       }
 
+      .scroll-indicator {
+        text-align: center;
+        padding: 4px 0 2px 0;
+        font-size: 10px;
+        color: rgba(106, 27, 154, 0.3);
+        letter-spacing: 2px;
+        transition: opacity 0.3s ease;
+      }
+
+      .scroll-indicator.hidden {
+        opacity: 0;
+        max-height: 0;
+        padding: 0;
+      }
+
       /* Notification Toast */
       .notification-toast {
         position: fixed;
@@ -373,9 +397,10 @@
 
     <div class="container">
       <!-- Header -->
-      <div class="header">
+      <div class="banner-section" id="bannerSection">
         <div class="header-tagline">"Orchestrate your day into Harmony."</div>
         <div class="title">🎼 TypiPat — Motif</div>
+        <div class="scroll-indicator" id="scrollIndicator">▼ scroll ▼</div>
       </div>
 
       <!-- Search Section -->
