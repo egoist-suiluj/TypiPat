@@ -587,6 +587,16 @@ async function loadShortcuts() {
     caesuraSpan.className = "stat-item";
     caesuraSpan.textContent = "📏 Caesura: " + stats.caesura;
     statsDiv.appendChild(caesuraSpan);
+    // ✅ IDAGDAG ITO — Motif Count (Word Count)
+    const motifSpan = document.createElement("span");
+    motifSpan.className = "stat-item";
+    // Kunin ang word count mula sa text
+    const wordCount =
+      shortcuts[shortcut].trim() === ""
+        ? 0
+        : shortcuts[shortcut].trim().split(/\s+/).length;
+    motifSpan.textContent = "🎶 Motif Count: " + wordCount;
+    statsDiv.appendChild(motifSpan);
     td2.appendChild(statsDiv);
 
     const buttonGroup = document.createElement("div");
@@ -704,11 +714,11 @@ function addActionListeners() {
       setTimeout(() => {
         updateTextareaStats();
         autoResizeTextarea();
-      }, 5);
+      }, 50);
 
       setTimeout(() => {
         updateTextareaStats();
-      }, 150);
+      }, 200);
 
       if (addBtn) addBtn.style.display = "none";
       if (saveBtn) {
@@ -1527,7 +1537,6 @@ function refreshStorageIndicator() {
 // ==========================================
 
 const replacementInput = document.getElementById("replacementInput");
-const lineNumbers = document.getElementById("lineNumbers");
 const charCount = document.getElementById("charCount");
 const lineCount = document.getElementById("lineCount");
 const wordCount = document.getElementById("wordCount");
@@ -1537,85 +1546,42 @@ function updateTextareaStats() {
 
   const text = replacementInput.value;
 
-  // ✅ TAMANG PAGBILANG NG LINES
+  // ✅ BILANGIN ANG MGA LINES
   const lines = text.split("\n");
-  let lineCountValue = lines.length;
+  let lineCountValue = lines.length; // ✅ GAMITIN ITO SA LOOB
 
-  // Remove trailing empty line if exists
-  if (lines.length > 0 && lines[lines.length - 1] === "") {
-    lineCountValue = lines.length - 1;
-  }
-  // If text is empty, line count is 1
+  // Kung ang text ay walang laman, line count = 1
   if (text === "") {
     lineCountValue = 1;
   }
 
-  // ✅ I-LOG PARA MAKITA KUNG GUMAGANA
   console.log(
-    "📊 updateTextareaStats - lineCount:",
-    lineCountValue,
-    "text length:",
+    "📊 updateTextareaStats - chars:",
     text.length,
+    "lines:",
+    lineCountValue,
   );
-
-  // Update line numbers
-  if (lineNumbers) {
-    if (text.trim() === "") {
-      // Empty state - show just "1"
-      lineNumbers.innerHTML = '<span class="active-line">1</span>';
-    } else {
-      let lineNumbersHTML = "";
-      const currentLine = getCurrentLine();
-      // ✅ SIGURADUHIN NA TAMA ANG RANGE
-      const displayLines = Math.max(lineCountValue, 1);
-      for (let i = 1; i <= displayLines; i++) {
-        const isActive = i === currentLine + 1;
-        lineNumbersHTML += `<span class="${isActive ? "active-line" : ""}">${i}</span>`;
-      }
-      lineNumbers.innerHTML = lineNumbersHTML;
-    }
-
-    // I-sync ang scroll
-    lineNumbers.scrollTop = replacementInput.scrollTop;
-  }
 
   // Update stats
   const charCountValue = text.length;
   if (charCount) charCount.textContent = charCountValue;
-  if (lineCount) lineCount.textContent = lineCountValue;
+  if (lineCount) lineCount.textContent = lineCountValue; // ✅ GAMITIN ANG lineCountValue
   const wordCountValue =
     text.trim() === "" ? 0 : text.trim().split(/\s+/).length;
   if (wordCount) wordCount.textContent = wordCountValue;
 }
 
-function getCurrentLine() {
-  if (!replacementInput) return 0;
-  const text = replacementInput.value;
-  const cursorPos = replacementInput.selectionStart;
-  const beforeCursor = text.substring(0, cursorPos);
-  const lines = beforeCursor.split("\n");
-  // Kung may trailing newline, i-adjust
-  if (
-    lines.length > 0 &&
-    lines[lines.length - 1] === "" &&
-    cursorPos === text.length
-  ) {
-    return lines.length - 2; // Last line
-  }
-  return lines.length - 1;
-}
-
 // Event listeners
 if (replacementInput) {
   // Update on input
-  replacementInput.addEventListener("input", updateTextareaStats);
+  replacementInput.addEventListener("input", function () {
+    autoResizeTextarea();
+    updateTextareaStats();
+  });
 
-  // Update on scroll (for line numbers sync)
+  // Update on scroll
   replacementInput.addEventListener("scroll", function () {
-    if (lineNumbers) {
-      lineNumbers.scrollTop = this.scrollTop;
-      updateTextareaStats();
-    }
+    updateTextareaStats();
   });
 
   // Update on cursor position change (for active line highlight)
@@ -1632,12 +1598,6 @@ function autoResizeTextarea() {
   replacementInput.style.height = "auto";
   replacementInput.style.height = replacementInput.scrollHeight + "px";
 }
-
-// Idagdag sa event listeners
-replacementInput.addEventListener("input", function () {
-  autoResizeTextarea();
-  updateTextareaStats();
-});
 
 // ==========================================
 // RESET TEXTAREA TO DEFAULT STATE
@@ -1658,10 +1618,4 @@ function resetTextareaState() {
 
   // I-update ang stats (magiging 0 lahat)
   updateTextareaStats();
-
-  // I-reset ang line numbers scroll
-  if (lineNumbers) {
-    lineNumbers.scrollTop = 0;
-    lineNumbers.innerHTML = "<span>1</span>"; // Reset to default
-  }
 }
