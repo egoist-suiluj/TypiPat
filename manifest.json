@@ -54,7 +54,7 @@
         "utils.js",
         "storage-helper.js",
         "popup.js",
-        "images/music-overlay.png"
+        "music-overlay.png"
       ],
       "matches": ["<all_urls>"]
     }
