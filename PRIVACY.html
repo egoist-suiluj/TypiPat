@@ -59,74 +59,72 @@
         h3 {
             color: #7B1FA2;
             font-size: 18px;
-            font-weight: 500;
-            margin-top: 25px;
-            margin-bottom: 12px;
+            font-weight: 600;
+            margin-top: 22px;
+            margin-bottom: 10px;
         }
 
         p {
-            margin-bottom: 15px;
-            color: #424242;
-            font-size: 16px;
+            margin-bottom: 14px;
+            font-size: 15px;
         }
 
-        ul,
-        ol {
-            margin-left: 30px;
-            margin-bottom: 15px;
+        ul, ol {
+            margin: 0 0 14px 24px;
+            font-size: 15px;
         }
 
         li {
-            margin-bottom: 8px;
-            color: #424242;
+            margin-bottom: 6px;
         }
 
-        strong {
-            color: #6A1B9A;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 14px 0 20px 0;
+            font-size: 14px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 10px 14px;
+            border-bottom: 1px solid #e1bee7;
+        }
+
+        th {
+            background: #f3e5f5;
+            color: #4A148C;
             font-weight: 600;
         }
 
-        .highlight-box {
-            background: linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%);
-            border-left: 4px solid #9C27B0;
-            padding: 20px;
-            margin: 25px 0;
+        .summary-box {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            border-left: 4px solid #9c27b0;
+            padding: 20px 24px;
             border-radius: 8px;
+            margin-top: 30px;
         }
 
-        .summary {
-            background: linear-gradient(135deg, #FFF9C4 0%, #FFF59D 100%);
-            border-left: 4px solid #F57F17;
-            padding: 20px;
-            margin: 30px 0;
-            border-radius: 8px;
-            font-size: 17px;
-            font-weight: 500;
+        .summary-box p {
+            margin: 0;
+            color: #4A148C;
         }
 
         a {
             color: #7B1FA2;
             text-decoration: none;
-            font-weight: 500;
-            border-bottom: 1px solid transparent;
-            transition: border-color 0.3s;
         }
 
         a:hover {
-            border-bottom-color: #7B1FA2;
+            text-decoration: underline;
         }
 
-        .footer {
-            margin-top: 50px;
-            padding-top: 30px;
-            border-top: 2px solid #E1BEE7;
+        .footer-note {
             text-align: center;
-            color: #6A1B9A;
+            color: #9c27b0;
             font-style: italic;
-        }
-
-        .section {
-            margin-bottom: 30px;
+            margin-top: 40px;
+            font-size: 14px;
         }
     </style>
 </head>
@@ -134,139 +132,92 @@
 <body>
     <div class="container">
         <h1>🎼 Privacy Policy for TypiPat</h1>
-        <p class="last-updated"><strong>Last Updated:</strong> November 28, 2024</p>
+        <p class="last-updated">Last Updated: August 22, 2026</p>
 
-        <li><strong>Labels/Annotations:</strong> Optional descriptive labels you assign to shortcuts</li>
-        <li><strong>Metadata:</strong> Timestamps used for synchronization conflict resolution</li>
+        <h2>Introduction</h2>
+        <p>TypiPat ("we", "our", or "the extension") is a Manifest V3 Chrome extension that helps you create and use custom text shortcuts. This policy explains exactly what data TypiPat handles, why each permission is needed, and what we do — and do not do — with your information.</p>
+
+        <h2>Permissions &amp; Why They're Needed</h2>
+        <p>TypiPat requests the following permissions in its manifest:</p>
+        <table>
+            <tr><th>Permission</th><th>Purpose</th></tr>
+            <tr><td><code>storage</code></td><td>Save your shortcuts, labels, and sections using <code>chrome.storage.local</code> and, optionally, <code>chrome.storage.sync</code>.</td></tr>
+            <tr><td><code>clipboardRead</code> / <code>clipboardWrite</code></td><td>Power the "Perform" (copy) feature, and preserve your existing clipboard contents when TypiPat briefly needs the clipboard internally.</td></tr>
+            <tr><td><code>offscreen</code></td><td>Required by Manifest V3 to perform certain clipboard operations from a background context.</td></tr>
+            <tr><td><code>contextMenus</code></td><td>Adds a right-click menu option to open TypiPat's Composer / options page.</td></tr>
+            <tr><td>Host permission: <code>&lt;all_urls&gt;</code></td><td>Lets the content script detect your shortcut keys as you type, on any website — including inside iframes, Shadow DOM, and rich text editors. This is a <strong>functional requirement only</strong>; it is not used to read, log, or transmit page content.</td></tr>
+        </table>
+
+        <h2>What TypiPat Does NOT Do</h2>
+        <ul>
+            <li>Monitor, read, log, or collect the content of the websites you visit</li>
+            <li>Track your browsing history</li>
+            <li>Read or store form data other than the shortcut key you type</li>
+            <li>Transmit any data to an external server — there is no TypiPat backend</li>
+            <li>Use analytics, telemetry, tracking pixels, or third-party cookies</li>
+            <li>Sell or share any data with third parties</li>
+        </ul>
+
+        <h2>What TypiPat DOES Do</h2>
+        <ol>
+            <li>Watches for typing in text inputs, textareas, and content-editable elements (including Shadow DOM and supported rich text editors)</li>
+            <li>Detects when what you've typed matches one of <em>your own</em> saved shortcut keys</li>
+            <li>Replaces that shortcut with the replacement text you defined</li>
+            <li>Stores the shortcuts, labels, sections, and pin order you create</li>
         </ol>
+        <p>All of this happens entirely on your device.</p>
 
-        <h3>What We DO NOT Collect</h3>
-        <div class="highlight-box">
-            <p>TypiPat does <strong>NOT</strong> collect, store, or transmit:</p>
-            <ul>
-                <li>Is not transmitted to any external servers</li>
-                <li>Is not accessible to the extension developers</li>
-                <li>Is controlled entirely by you</li>
-            </ul>
+        <h2>Data We Store</h2>
+        <p>Only user-generated content, specifically:</p>
+        <ol>
+            <li><strong>Shortcut keys</strong> you create (e.g., <code>-brb</code>)</li>
+            <li><strong>Replacement text</strong> ("Manuscript") for each shortcut</li>
+            <li><strong>Labels and sections</strong> (optional organization you add)</li>
+            <li><strong>Pin order</strong> (which shortcuts you've marked as favorites)</li>
+            <li><strong>Timestamps</strong> used internally to resolve sync conflicts between devices</li>
+            <li><strong>A sound preference toggle</strong> (whether audio feedback is enabled)</li>
+        </ol>
+        <p>We do <strong>not</strong> collect: names, emails, passwords, location data, payment information, browsing history, or any content from the pages you visit.</p>
 
-            <h3>Chrome Sync (Optional)</h3>
-            <p>If you have Chrome Sync enabled in your browser, your shortcuts may be synchronized across your Chrome
-                browsers using <code>chrome.storage.sync</code>. This synchronization:</p>
-            <ul>
-                <li>Is handled entirely by Google Chrome</li>
-                <li>Uses Google's secure infrastructure</li>
-                <li>Follows Google's privacy policies</li>
-                <li>Can be disabled in your Chrome settings</li>
-                <li>Is optional and controlled by your Chrome sync preferences</li>
-            </ul>
-            <p><strong>Important:</strong> We do not have access to your synced data. All synchronization is managed by
-                Chrome itself.</p>
+        <h2>How Data Is Stored</h2>
+        <h3>Local Storage (chrome.storage.local)</h3>
+        <p>All of the above is stored locally on your device by default. This data never leaves your computer unless Chrome Sync (below) is enabled, and we — the developers — have no access to it.</p>
+
+        <h3>Chrome Sync (optional, chrome.storage.sync)</h3>
+        <p>If enabled, your shortcuts may also sync across your Chrome browsers via Google's own encrypted sync infrastructure. This is entirely managed by Chrome, not by TypiPat. Note that <code>chrome.storage.sync</code> has a small capacity (100KB / 512 items total, imposed by Chrome, not by us); if you exceed it, TypiPat will notify you and continue saving locally without any data loss.</p>
+
+        <h2>Your Rights &amp; Control</h2>
+        <ul>
+            <li><strong>View:</strong> See all your shortcuts on the Composer / options page.</li>
+            <li><strong>Edit:</strong> Modify any shortcut, label, or section at any time.</li>
+            <li><strong>Delete ("Abolish"):</strong> Remove individual shortcuts, or uninstall the extension to remove everything.</li>
+            <li><strong>Export ("Cadence"):</strong> Download your shortcuts (including labels and sections) as a JSON backup file.</li>
+            <li><strong>Import ("Entrata"):</strong> Restore from a backup file. If an imported shortcut shares a key with one you already have, the incoming one is automatically renamed with a "(Reprise)" suffix — your existing shortcut is never silently overwritten.</li>
+        </ul>
+
+        <h2>Third-Party Services</h2>
+        <p>TypiPat does not integrate with any third-party analytics, advertising, or tracking service. It uses only Chrome's built-in extension APIs.</p>
+
+        <h2>Children's Privacy</h2>
+        <p>TypiPat is a general-purpose productivity tool and is not directed at children. We do not knowingly collect data from children.</p>
+
+        <h2>Changes to This Policy</h2>
+        <p>Any updates to this policy will be reflected in the "Last Updated" date above. Continued use of the extension after a change constitutes acceptance of the updated policy.</p>
+
+        <h2>Open Source</h2>
+        <p>TypiPat's complete source code is publicly available for review at: <a href="https://github.com/egoist-suiluj/TypiPat" target="_blank">github.com/egoist-suiluj/TypiPat</a></p>
+
+        <h2>Contact</h2>
+        <ul>
+            <li><strong>GitHub Issues:</strong> <a href="https://github.com/egoist-suiluj/TypiPat/issues" target="_blank">github.com/egoist-suiluj/TypiPat/issues</a></li>
+            <li><strong>Repository:</strong> <a href="https://github.com/egoist-suiluj/TypiPat" target="_blank">github.com/egoist-suiluj/TypiPat</a></li>
+        </ul>
+
+        <div class="summary-box">
+            <p><strong>In plain terms:</strong> TypiPat only stores the shortcuts you create, keeps them on your device (optionally synced through your own Google account via Chrome Sync), and never reads, collects, or transmits anything else.</p>
         </div>
 
-        <div class="section">
-            <h2>Data Usage</h2>
-            <p>Your data is used exclusively for:</p>
-            <ol>
-                <li><strong>Text Expansion:</strong> Replacing shortcuts with their corresponding text as you type</li>
-                <li><strong>Storage and Retrieval:</strong> Saving and loading your shortcuts</li>
-                <li><strong>Synchronization:</strong> Syncing shortcuts across your devices (if Chrome Sync is enabled)
-                </li>
-            </ol>
-            <p>We do not:</p>
-            <ul>
-                <li>Share your data with third parties</li>
-                <li>Use your data for advertising</li>
-                <li>Analyze your data for any purpose</li>
-                <li>Transmit your data to external servers</li>
-            </ul>
-        </div>
-
-        <div class="section">
-            <h2>Data Control and Rights</h2>
-
-            <h3>Your Rights</h3>
-            <p>You have complete control over your data:</p>
-            <ul>
-                <li><strong>Access:</strong> View all your shortcuts in the extension's options page</li>
-                <li><strong>Modify:</strong> Edit or update any shortcut at any time</li>
-                <li><strong>Delete:</strong> Remove individual shortcuts or clear all data</li>
-                <li><strong>Export:</strong> Download your shortcuts as a JSON file</li>
-                <li><strong>Import:</strong> Upload previously exported shortcuts</li>
-            </ul>
-
-            <h3>Data Deletion</h3>
-            <p>To delete your data:</p>
-            <ol>
-                <li><strong>Individual Shortcuts:</strong> Click the "Abolish" button next to any shortcut in the
-                    options
-                    page</li>
-                <li><strong>All Data:</strong> Uninstall the extension from Chrome, which will remove all stored data
-                </li>
-                <li><strong>Export First:</strong> Use the "Export" feature to backup your data before deletion</li>
-            </ol>
-        </div>
-
-        <div class="section">
-            <h2>Third-Party Services</h2>
-            <p>TypiPat does not use any third-party services, analytics, or tracking tools. The extension operates
-                entirely
-                within your browser using only Chrome's built-in APIs.</p>
-        </div>
-
-        <div class="section">
-            <h2>Children's Privacy</h2>
-            <p>TypiPat does not knowingly collect any information from children. The extension is designed for general
-                use
-                and does not target children specifically.</p>
-        </div>
-
-        <div class="section">
-            <h2>Changes to This Privacy Policy</h2>
-            <p>We may update this privacy policy from time to time. Any changes will be reflected in the "Last Updated"
-                date
-                at the top of this document. Continued use of the extension after changes constitutes acceptance of the
-                updated policy.</p>
-        </div>
-
-        <div class="section">
-            <h2>Open Source</h2>
-            <p>TypiPat is open source. You can review the complete source code at:<br>
-                <a href="https://github.com/egoist-suiluj/TypiPat"
-                    target="_blank">https://github.com/egoist-suiluj/TypiPat</a>
-            </p>
-        </div>
-
-        <div class="section">
-            <h2>Contact Information</h2>
-            <p>If you have questions or concerns about this privacy policy or your data, please contact us:</p>
-            <ul>
-                <li><strong>GitHub Issues:</strong> <a href="https://github.com/egoist-suiluj/TypiPat/issues"
-                        target="_blank">https://github.com/egoist-suiluj/TypiPat/issues</a></li>
-                <li><strong>Repository:</strong> <a href="https://github.com/egoist-suiluj/TypiPat"
-                        target="_blank">https://github.com/egoist-suiluj/TypiPat</a></li>
-            </ul>
-        </div>
-
-        <div class="section">
-            <h2>Compliance</h2>
-            <p>This privacy policy complies with:</p>
-            <ul>
-                <li>Chrome Web Store Developer Program Policies</li>
-                <li>General Data Protection Regulation (GDPR) principles</li>
-                <li>California Consumer Privacy Act (CCPA) principles</li>
-            </ul>
-        </div>
-
-        <div class="summary">
-            <strong>Summary:</strong> In simple terms, TypiPat only stores the text shortcuts you create, keeps them on
-            your
-            device, and doesn't collect any personal information or share your data with anyone.
-        </div>
-
-        <div class="footer">
-            <p>"Orchestrate your day into harmony. Your quiet rhythm — composing peace with every keystroke."</p>
-            <p>🎼 TypiPat</p>
-        </div>
+        <p class="footer-note">"Orchestrate your day into harmony." 🎼</p>
     </div>
 </body>
 

@@ -1,0 +1,52 @@
+# Changelog
+
+## 3.0.0 — The Harmony Update
+
+### 🎯 New Features
+
+- **𝄐 Fermata (Pin) System** — Pin up to 12 shortcuts to the top of your list, each with a chromatic note badge.
+- **📂 Sections** — Group shortcuts into custom categories with search and sort support.
+- **🎵 Full Sound System Overhaul** — Real Web Audio API instrument sounds (piano, strings, flute, guitar, bell) replace the old simple beep, with a distinct "expansion melody" for each action.
+- **🔄 Realtime Sync** — Changes made in the Composer / options page now instantly reflect in the popup, no refresh needed.
+- **📊 Storage Indicator** — See your template count and Chrome Sync usage at a glance, with a full breakdown on click.
+- **🔁 Smarter Import** — Importing a shortcut that shares a key with an existing one no longer overwrites it; the incoming shortcut is automatically renamed with a `(Reprise)` suffix instead.
+- **🖊️ Spell Check** — Native, fully offline browser spell check enabled on the Manuscript and Composer Studio fields.
+- **📶 Extension Badge** — The toolbar icon now shows ON/OFF status.
+- **🧩 ServiceNow / modal compatibility** — `match_about_blank` support fixes injection into `about:blank` iframe modals.
+
+### 🐛 Bug Fixes
+
+- Fixed `SoundPlayer.resume is not a function` crash on pages like Gmail.
+- Fixed the `soundEnabled` setting leaking into the shortcut list as a fake "Untitled" entry.
+- Fixed `__section__` metadata keys leaking into the shortcut list as fake entries.
+- Fixed the popup scrolling the entire window instead of just the shortcut list.
+- Fixed a bug where saving after a key-conflict error would scroll to the top instead of the edited item, and where renaming a pinned shortcut would silently unpin it.
+- Fixed a broken `sound-player.js` script reference causing a 404 in the console.
+- Fixed the realtime-sync storage listener missing label/section-only edits.
+- Fixed a duplicated export-confirmation call that could trigger a double file download.
+- Fixed the shortcut-key validator blocking creative key names unnecessarily (only exact-duplicate keys are now rejected; special characters are no longer restricted).
+- Fixed silent Chrome Sync failures (e.g., quota exceeded) — these now surface a clear notification instead of failing invisibly.
+- Fixed the storage/template counter reading only from `chrome.storage.sync` (undercounting when sync was full) instead of the true combined local+sync total.
+- Fixed 6 form-accessibility issues in the Composer Studio (labels not associated with their input fields).
+- Fixed a click-blocking "invisible" notification toast overlapping the search bar when scrolled.
+
+### 🎨 UI/UX Improvements
+
+- Full glass/blur redesign of the popup.
+- Fixed-size, screen-proportional popup dimensions (via `clamp()`) so it scales sensibly across different monitor resolutions.
+- Section badges and chromatic pin badges throughout the interface.
+- Improved sorting: pinned shortcuts first, then grouped by section, then alphabetically — with "Untitled" always last.
+- Evened out card spacing in the popup shortcut list.
+
+### ⚙️ Housekeeping
+
+- Removed an unused legacy file (`ventify_colab.ipynb`).
+- Removed a stale `popup.css` reference from `web_accessible_resources`.
+- Fixed a manifest path typo (`images/music-overlay.png` → `music-overlay.png`).
+- Removed leftover debug `console.log` statements ahead of the Chrome Web Store release.
+
+---
+
+## 2.0.0
+
+- Initial public feature set: text expansion via shortcut keys, Composer Studio, labels, Import/Export, Chrome Sync support, and the musical-themed UI.

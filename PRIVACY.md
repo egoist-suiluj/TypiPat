@@ -1,228 +1,100 @@
 # Privacy Policy for TypiPat
 
-**Last Updated: January 29, 2026**
-
-## Introduction
-TypiPat ("we", "our", or "the extension") is a Manifest V3 Chrome extension designed to help users orchestrate their typing through rhythmic text shortcuts and motifs. This policy explains our commitment to zero-data collection.
-
-## Important Clarification: Permissions & Privacy
-
-### Why TypiPat Uses Specific Permissions in V2.0
-* **`<all_urls>`**: Used to enable text expansion functionality across any website, including specialized support for **ServiceNow instances (`*.service-now.com`)**. This is a functional requirement to detect your custom shortcuts; we do not read, store, or transmit any data from the pages you visit.
-* **`offscreen`**: Facilitates secure clipboard operations (copy/paste) within the Manifest V3 environment.
-* **`clipboardRead` & `clipboardWrite`**: Necessary for the "Perform" feature to save or copy your motifs.
-* **`storage`**: Used to sync your motifs via Google's encrypted sync service.
-
-### What TypiPat Does NOT Do (The Zero-Server Guarantee)
-TypiPat is built on the principle of **Local-First Harmony**. Specifically, TypiPat does **NOT**:
-- Monitor, read, or collect website content or form data.
-- Track or record your browsing history or website visits.
-- **Transmit any data to external servers.** There is no "TypiPat Server"; all processes occur locally.
-- Use analytics, tracking tools, or third-party cookies.
-
-### What TypiPat DOES Do
-1. **Deep Detection:** Detects shortcuts even within Shadow DOM and modern frameworks (React, Vue, etc.).
-2. **Composer Studio:** Provides a safe, local environment to draft long-form manuscripts with real-time stats.
-3. **Local Orchestration:** Replaces shortcuts using secured DOM APIs to ensure 100% XSS security compliance.
-
-## Data Collection and Storage
-We only store what you explicitly create:
-1. **Text Shortcuts & Motifs** 2. **Labels/Annotations**
-3. **Metadata** (Timestamps for sync)
-
-**Storage:** Data is stored locally (`chrome.storage.local`) or via your optional Chrome Sync (`chrome.storage.sync`). We have zero access to this data.
-
-## Data Control and Rights
-You are the Conductor of your data. You can:
-- **Export/Import:** Backup your collection as JSON.
-- **Abolish:** Permanently delete specific notes or clear all data.
-- **Uninstall:** Removing the extension automatically deletes all locally stored data.
-
-## Open Source & Transparency
-TypiPat's entire score (source code) is available for public audit at:
-https://github.com/egoist-suiluj/TypiPat
-
-## Contact Information
-- **GitHub Issues:** https://github.com/egoist-suiluj/TypiPat/issues
-
-==========================================================================================================================================
-
-
-# Privacy Policy for TypiPat
-
-**Last Updated: November 28, 2024**
+**Last Updated: August 22, 2026**
 
 ## Introduction
 
-TypiPat ("we", "our", or "the extension") is a Chrome browser extension designed to help users create and manage text shortcuts for faster typing. This privacy policy explains what data is collected, how it is used, and your rights regarding your data.
+TypiPat ("we", "our", or "the extension") is a Manifest V3 Chrome extension that helps you create and use custom text shortcuts. This policy explains exactly what data TypiPat handles, why each permission is needed, and what we do — and do not do — with your information.
 
-## Important Clarification: Website Access and Data Collection
+## Permissions & Why They're Needed
 
-### Why TypiPat Uses `<all_urls>` Permission
+TypiPat requests the following permissions in `manifest.json`:
 
-TypiPat requests access to all websites (`<all_urls>`) **solely** to enable text expansion functionality on any website you choose to use. This is a **functional requirement**, not a data collection mechanism.
+| Permission                         | Purpose                                                                                                                                                                                                                                                                                         |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `storage`                          | Save your shortcuts, labels, and sections using `chrome.storage.local` and, optionally, `chrome.storage.sync`.                                                                                                                                                                                  |
+| `clipboardRead` / `clipboardWrite` | Power the "Perform" (copy) feature, and preserve your existing clipboard contents when TypiPat needs to briefly use the clipboard internally.                                                                                                                                                   |
+| `offscreen`                        | Required by Manifest V3 to perform certain clipboard operations from a background context.                                                                                                                                                                                                      |
+| `contextMenus`                     | Adds a right-click menu option to open TypiPat's Composer / options page.                                                                                                                                                                                                                       |
+| Host permission: `<all_urls>`      | Lets the content script detect your shortcut keys as you type, on any website — including inside iframes, Shadow DOM, and rich text editors (e.g., ServiceNow, Gmail, TinyMCE-based editors). This is a **functional requirement only**; it is not used to read, log, or transmit page content. |
 
-**What this means:**
-- The extension needs to detect when you type in text fields across any website
-- It must be able to insert your custom replacement text when you type a shortcut
-- This requires the content script to run on the pages where you want to use shortcuts
+## What TypiPat Does NOT Do
 
-### What TypiPat Does NOT Do
+TypiPat does **not**:
 
-**TypiPat does not collect or process any data from the websites you visit.**
+- Monitor, read, log, or collect the content of the websites you visit
+- Track your browsing history
+- Read or store form data other than the shortcut key you type
+- Transmit any data to an external server — there is no TypiPat backend
+- Use analytics, telemetry, tracking pixels, or third-party cookies
+- Sell or share any data with third parties
 
-Specifically, TypiPat does **NOT**:
-- Monitor, read, or collect website content
-- Track which websites you visit
-- Record your browsing history
-- Access or store data from web pages
-- Read or collect form data (except the shortcuts you explicitly type)
-- Monitor your activity across websites
-- Send any website data to external servers
-- Collect any information about the pages you view
+## What TypiPat DOES Do
 
-### What TypiPat DOES Do
+TypiPat only:
 
-TypiPat **only**:
-1. Listens for your typing in text input fields (input, textarea, contentEditable elements)
-2. Detects when you type one of your own custom shortcuts
-3. Replaces that shortcut with your pre-defined replacement text
-4. Processes template variables like `{date}` and `{time}` in your shortcuts
+1. Watches for typing in text inputs, textareas, and content-editable elements (including Shadow DOM and supported rich text editors)
+2. Detects when what you've typed matches one of _your own_ saved shortcut keys
+3. Replaces that shortcut with the replacement text you defined
+4. Stores the shortcuts, labels, sections, and pin order you create
 
-**All of this happens locally on your device. No data leaves your computer.**
+All of this happens entirely on your device.
 
-### ServiceNow Integration
+## Data We Store
 
-TypiPat includes specific support for ServiceNow instances (`*.service-now.com`) to ensure optimal text expansion functionality on ServiceNow platforms.
+Only user-generated content, specifically:
 
-**What this means for ServiceNow users:**
-- The extension can inject content scripts on any ServiceNow instance you access
-- Text shortcuts work seamlessly in ServiceNow forms, fields, and text areas
-- All shortcut expansion happens locally on your device
+1. **Shortcut keys** you create (e.g., `-brb`)
+2. **Replacement text** ("Manuscript") for each shortcut
+3. **Labels and sections** (optional organization you add)
+4. **Pin order** (which shortcuts you've marked as favorites)
+5. **Timestamps** used internally to resolve sync conflicts between devices
+6. **A sound preference toggle** (whether audio feedback is enabled)
 
-**Important clarifications:**
-- TypiPat **only** interacts with ServiceNow pages for shortcut insertion
-- No personal, browsing, or sensitive data is collected from ServiceNow
-- No ServiceNow data is read, stored, or transmitted
-- All stored data stays local or synced via Chrome Storage only
-- No data is transmitted to external servers
+We do **not** collect: names, emails, passwords, location data, payment information, browsing history, or any content from the pages you visit.
 
-The ServiceNow permission is purely functional—it allows the extension to detect your typing and expand shortcuts, nothing more.
+## How Data Is Stored
 
-## Data Collection and Storage
+### Local Storage (`chrome.storage.local`)
 
-### What Data We Collect
+All of the above is stored locally on your device by default. This data never leaves your computer unless Chrome Sync (below) is enabled, and we — the developers — have no access to it.
 
-TypiPat collects and stores only the following user-generated content:
+### Chrome Sync (optional, `chrome.storage.sync`)
 
-1. **Text Shortcuts**: The shortcut keys you create (e.g., "brb", "addr")
-2. **Replacement Text**: The expanded text associated with each shortcut
-3. **Labels/Annotations**: Optional descriptive labels you assign to shortcuts
-4. **Metadata**: Timestamps used for synchronization conflict resolution
+If enabled, your shortcuts may also sync across your Chrome browsers via Google's own encrypted sync infrastructure. This is entirely managed by Chrome, not by TypiPat. Note that `chrome.storage.sync` has a small capacity (100KB / 512 items total, imposed by Chrome, not by us); if you exceed it, TypiPat will notify you and continue saving locally without any data loss.
 
-### What We DO NOT Collect
+## Your Rights & Control
 
-TypiPat does **NOT** collect, store, or transmit:
+You are always in control of your data:
 
-- Personal information (name, email, phone number, address)
-- Browsing history or website visits
-- Passwords or credentials
-- Location data
-- Payment information
-- Any data from websites you visit
-- Analytics or usage statistics
-- Cookies or tracking data
-
-## How Data is Stored
-
-### Local Storage
-
-All your shortcuts and data are stored locally on your device using Chrome's built-in storage API (`chrome.storage.local`). This data:
-
-- Remains on your device
-- Is not transmitted to any external servers
-- Is not accessible to the extension developers
-- Is controlled entirely by you
-
-### Chrome Sync (Optional)
-
-If you have Chrome Sync enabled in your browser, your shortcuts may be synchronized across your Chrome browsers using `chrome.storage.sync`. This synchronization:
-
-- Is handled entirely by Google Chrome
-- Uses Google's secure infrastructure
-- Follows Google's privacy policies
-- Can be disabled in your Chrome settings
-- Is optional and controlled by your Chrome sync preferences
-
-**Important**: We do not have access to your synced data. All synchronization is managed by Chrome itself.
-
-## Data Usage
-
-Your data is used exclusively for:
-
-1. **Text Expansion**: Replacing shortcuts with their corresponding text as you type
-2. **Storage and Retrieval**: Saving and loading your shortcuts
-3. **Synchronization**: Syncing shortcuts across your devices (if Chrome Sync is enabled)
-
-We do not:
-
-- Share your data with third parties
-- Use your data for advertising
-- Analyze your data for any purpose
-- Transmit your data to external servers
-
-## Data Control and Rights
-
-### Your Rights
-
-You have complete control over your data:
-
-- **Access**: View all your shortcuts in the extension's options page
-- **Modify**: Edit or update any shortcut at any time
-- **Delete**: Remove individual shortcuts or clear all data
-- **Export**: Download your shortcuts as a JSON file
-- **Import**: Upload previously exported shortcuts
-
-### Data Deletion
-
-To delete your data:
-
-1. **Individual Shortcuts**: Click the "Abolish" button next to any shortcut in the options page
-2. **All Data**: Uninstall the extension from Chrome, which will remove all stored data
-3. **Export First**: Use the "Export" feature to backup your data before deletion
+- **View:** See all your shortcuts on the Composer / options page.
+- **Edit:** Modify any shortcut, label, or section at any time.
+- **Delete ("Abolish"):** Remove individual shortcuts, or uninstall the extension to remove everything.
+- **Export ("Cadence"):** Download your shortcuts (including labels and sections) as a JSON backup file.
+- **Import ("Entrata"):** Restore from a backup file. If an imported shortcut shares a key with one you already have, the incoming one is automatically renamed with a `(Reprise)` suffix — your existing shortcut is never silently overwritten.
 
 ## Third-Party Services
 
-TypiPat does not use any third-party services, analytics, or tracking tools. The extension operates entirely within your browser using only Chrome's built-in APIs.
+TypiPat does not integrate with any third-party analytics, advertising, or tracking service. It uses only Chrome's built-in extension APIs.
 
 ## Children's Privacy
 
-TypiPat does not knowingly collect any information from children. The extension is designed for general use and does not target children specifically.
+TypiPat is a general-purpose productivity tool and is not directed at children. We do not knowingly collect data from children.
 
-## Changes to This Privacy Policy
+## Changes to This Policy
 
-We may update this privacy policy from time to time. Any changes will be reflected in the "Last Updated" date at the top of this document. Continued use of the extension after changes constitutes acceptance of the updated policy.
+Any updates to this policy will be reflected in the "Last Updated" date above. Continued use of the extension after a change constitutes acceptance of the updated policy.
 
 ## Open Source
 
-TypiPat is open source. You can review the complete source code at:
+TypiPat's complete source code is publicly available for review at:
 https://github.com/egoist-suiluj/TypiPat
 
-## Contact Information
+## Contact
 
-If you have questions or concerns about this privacy policy or your data, please contact us:
-
-- **GitHub Issues**: https://github.com/egoist-suiluj/TypiPat/issues
-- **Repository**: https://github.com/egoist-suiluj/TypiPat
-
-## Compliance
-
-This privacy policy complies with:
-
-- Chrome Web Store Developer Program Policies
-- General Data Protection Regulation (GDPR) principles
-- California Consumer Privacy Act (CCPA) principles
+- **GitHub Issues:** https://github.com/egoist-suiluj/TypiPat/issues
+- **Repository:** https://github.com/egoist-suiluj/TypiPat
 
 ## Summary
 
-**In simple terms**: TypiPat only stores the text shortcuts you create, keeps them on your device, and doesn't collect any personal information or share your data with anyone.
+**In plain terms:** TypiPat only stores the shortcuts you create, keeps them on your device (optionally synced through your own Google account via Chrome Sync), and never reads, collects, or transmits anything else.
