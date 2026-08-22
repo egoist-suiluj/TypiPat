@@ -12,7 +12,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     handleSaveClipboard()
       .then(sendResponse)
       .catch((error) => {
-        console.error('saveClipboard failed:', error);
         sendResponse({ success: false, error: error.message, data: '' });
       });
     return true; // Keep channel open for async response
@@ -23,7 +22,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     handleRestoreClipboard(request.data)
       .then(sendResponse)
       .catch((error) => {
-        console.error('restoreClipboard failed:', error);
         sendResponse({ success: false, error: error.message });
       });
     return true; // Keep channel open for async response

@@ -31,7 +31,6 @@ async function setupOffscreenDocument(path) {
     try {
       await creating;
     } catch (err) {
-      console.warn("Offscreen document creation failed:", err);
     }
     creating = null;
   }
@@ -52,14 +51,12 @@ chrome.action.onClicked.addListener((tab) => {
 // 3. MESSAGE LISTENER (CONSOLIDATED)
 // ==========================================
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  console.log('📨 Message received:', request.action);
 
   // Clipboard Actions
   if (request.action === "saveClipboard" || request.action === "restoreClipboard") {
     handleClipboardAction(request)
       .then(sendResponse)
       .catch((error) => {
-        console.error("Clipboard action failed:", error);
         sendResponse(null);
       });
     return true;
@@ -71,7 +68,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       chrome.runtime.openOptionsPage();
       sendResponse({ success: true });
     } catch (err) {
-      console.error('Failed to open options:', err);
       sendResponse({ success: false, error: err.message });
     }
     return true;
@@ -143,7 +139,6 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
 // 5. KEYBOARD SHORTCUTS
 // ==========================================
 chrome.commands.onCommand.addListener((command) => {
-  console.log('⌨️ Command received:', command);
   
   if (command === "open_options") {
     chrome.runtime.openOptionsPage();
@@ -162,7 +157,6 @@ chrome.commands.onCommand.addListener((command) => {
 // 6. CONTEXT MENU
 // ==========================================
 chrome.runtime.onInstalled.addListener(() => {
-  console.log('🎵 TypiPat installed/updated');
   
   // I-set ang default values
   chrome.storage.local.get(['enabled', 'soundEnabled'], (result) => {
@@ -211,8 +205,6 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 // ==========================================
 chrome.storage.onChanged.addListener((changes, namespace) => {
   if (namespace === 'local') {
-    console.log('💾 Storage changed:', Object.keys(changes));
   }
 });
 
-console.log('🎵 TypiPat background service worker loaded!');

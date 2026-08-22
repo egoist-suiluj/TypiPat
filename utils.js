@@ -22,7 +22,6 @@ const TypiUtils = {
     }
 
     if (!toast || !iconEl || !msgEl) {
-      console.warn("[TypiPat] Notification elements not found");
       return;
     }
 
@@ -154,7 +153,6 @@ const SoundPlayer = {
       this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
       this.isInitialized = true;
     } catch (e) {
-      console.warn('Failed to create AudioContext:', e);
     }
   },
 
@@ -189,7 +187,6 @@ const SoundPlayer = {
     }
     if (this.audioContext && this.audioContext.state === 'suspended') {
       if (!this._resumed) {
-        console.log('🔇 AudioContext suspended. Click on the page first to enable sound.');
         return false;
       }
       this.audioContext.resume().catch(() => {});
@@ -200,7 +197,6 @@ const SoundPlayer = {
   playInstrumentNote(freq, duration = 0.2, volume = 0.1, instrument = 'piano') {
     if (!this.enabled) return;
     if (!this._ensureAudioContext()) {
-      console.log('AudioContext not running, sound will play on next user interaction.');
       return;
     }
     try {
@@ -472,7 +468,6 @@ function playPinSound(isPinning, isFull, wasFull) {
     }
   } catch (err) {
     // Silent fail - huwag sirain ang UI
-    console.warn('Sound play failed:', err);
   }
 }
 

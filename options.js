@@ -635,7 +635,6 @@ async function loadShortcuts() {
   // Post-save focus
   if (postSaveFocusShortcut) {
     const seek = postSaveFocusShortcut.toLowerCase();
-    console.log("🔍 Looking for:", seek);
     setTimeout(() => {
       const rows = container.querySelectorAll("tbody tr");
       let target = null;
@@ -646,7 +645,6 @@ async function loadShortcuts() {
         }
       });
       if (target) {
-        console.log("✅ Found target:", seek);
         target.scrollIntoView({ behavior: "smooth", block: "center" });
         const cls = UI_CONFIG.focusHighlightClass;
         target.classList.add(cls);
@@ -655,7 +653,6 @@ async function loadShortcuts() {
           UI_CONFIG.focusHighlightDuration,
         );
       } else {
-        console.log("⚠️ Target not found:", seek);
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
     }, 100);
@@ -914,7 +911,6 @@ if (addBtn) {
           }
         })
         .catch((error) => {
-          console.error("Add error:", error);
           TypiUtils.showNotification(
             `Save failed: ${error.message || "Unknown error"}`,
             "error",
@@ -1035,7 +1031,6 @@ function performSave(
       }
     })
     .catch((error) => {
-      console.error("Save error:", error);
       TypiUtils.showNotification(
         `Save failed: ${error.message || "Unknown error"}`,
         "error",
@@ -1310,7 +1305,6 @@ if (importBtn && importFile) {
         updateStorageIndicator();
       } catch (err) {
         TypiUtils.showNotification("Invalid score file.", "error", "⚠️");
-        console.error("Import error:", err);
       }
     };
     reader.readAsText(file);
@@ -1555,12 +1549,6 @@ function updateTextareaStats() {
     lineCountValue = 1;
   }
 
-  console.log(
-    "📊 updateTextareaStats - chars:",
-    text.length,
-    "lines:",
-    lineCountValue,
-  );
 
   // Update stats
   const charCountValue = text.length;

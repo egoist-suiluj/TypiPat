@@ -203,7 +203,6 @@ const SnippetExpander = {
   isTinyMCE() {
     // 🔥 DIREKTA SA PAGE
     if (window.tinymce && window.tinymce.activeEditor) {
-      console.log('✅ TinyMCE found directly on page');
       return true;
     }
 
@@ -211,7 +210,6 @@ const SnippetExpander = {
     if (window.parent && window.parent !== window) {
       try {
         if (window.parent.tinymce && window.parent.tinymce.activeEditor) {
-          console.log('✅ TinyMCE found in parent window');
           return true;
         }
       } catch (e) {
@@ -224,7 +222,6 @@ const SnippetExpander = {
     for (const iframe of iframes) {
       try {
         if (iframe.contentWindow && iframe.contentWindow.tinymce && iframe.contentWindow.tinymce.activeEditor) {
-          console.log('✅ TinyMCE found in iframe');
           return true;
         }
       } catch (e) { }
@@ -237,7 +234,6 @@ const SnippetExpander = {
   // 🆕 INSERT IN TINYMCE - DEDICATED
   // ==========================================
   insertInTinyMCE(element, shortcut, replacement) {
-    console.log('🔧 TinyMCE specific insert');
 
     try {
       let editor = null;
@@ -259,7 +255,6 @@ const SnippetExpander = {
       }
 
       if (!editor) {
-        console.warn('⚠️ TinyMCE editor not found');
         return false;
       }
 
@@ -276,7 +271,6 @@ const SnippetExpander = {
         textBefore = editor.getContent({ format: 'text' });
       }
 
-      console.log('📝 Text before cursor:', textBefore.substring(Math.max(0, textBefore.length - 20)));
 
       if (textBefore.endsWith(shortcut)) {
         const startPos = textBefore.length - shortcut.length;
@@ -292,29 +286,24 @@ const SnippetExpander = {
           editor.fire('input');
           editor.fire('change');
           editor.fire('UpdateContent');
-          console.log('✅ TinyMCE insert successful!');
           return true;
         }
       }
 
       return false;
     } catch (err) {
-      console.warn('TinyMCE insert error:', err);
       return false;
     }
   },
 
   async insertViaClipboard(shortcut, replacement) {
-    console.log('📋 Clipboard fallback called');
 
     try {
       // 1. I-save ang current clipboard
       let originalClipboard = '';
       try {
         originalClipboard = await navigator.clipboard.readText();
-        console.log('✅ Original clipboard saved');
       } catch (err) {
-        console.log('⚠️ Cannot read clipboard, continuing anyway');
       }
 
       // 2. I-delete ang shortcut
@@ -322,33 +311,27 @@ const SnippetExpander = {
       if (el) {
         if (this.selectTextBackwards(el, shortcut.length)) {
           document.execCommand("delete");
-          console.log('✅ Shortcut deleted');
         }
       }
 
       // 3. Write replacement sa clipboard
       await navigator.clipboard.writeText(replacement);
-      console.log('✅ Replacement written to clipboard');
 
       // 4. Paste
       document.execCommand("paste");
-      console.log('✅ Paste executed');
 
       // 5. I-restore ang original clipboard (kung meron)
       if (originalClipboard) {
         setTimeout(async () => {
           try {
             await navigator.clipboard.writeText(originalClipboard);
-            console.log('✅ Original clipboard restored');
           } catch (err) {
-            console.warn('⚠️ Cannot restore clipboard:', err);
           }
         }, 200);
       }
 
       return true;
     } catch (err) {
-      console.warn('❌ Clipboard fallback failed:', err);
       return false;
     }
   },
@@ -414,14 +397,12 @@ const TypiPat = {
 
     // 🔥 PARA SA GMAIL (SPA)
     if (window.location.hostname.includes('mail.google.com')) {
-      console.log('📧 Gmail detected, setting up SPA listeners...');
 
       let lastUrl = location.href;
       new MutationObserver(() => {
         const url = location.href;
         if (url !== lastUrl) {
           lastUrl = url;
-          console.log('🔄 Gmail navigation detected, re-attaching listeners...');
           this.setupListeners();
         }
       }).observe(document, { subtree: true, childList: true });
@@ -435,11 +416,9 @@ const TypiPat = {
   // SETUP LISTENERS
   // ==========================================
   setupListeners() {
-    console.log('🎵 Setting up TypiPat listeners...');
 
     // 🔥 I-SKIP ANG MGA CHROME PAGES
     if (window.location.protocol === 'chrome:') {
-      console.log('⏭️ Skipping setup on chrome:// page');
       return;
     }
 
@@ -471,11 +450,9 @@ const TypiPat = {
   attachToTinyMCE() {
     // 🔥 I-SKIP ANG MGA CHROME PAGES (newtab, settings, etc.)
     if (window.location.protocol === 'chrome:') {
-      console.log('⏭️ Skipping TinyMCE on chrome:// page');
       return;
     }
 
-    console.log('🔍 Looking for TinyMCE...');
 
     setTimeout(() => {
       try {
@@ -491,12 +468,10 @@ const TypiPat = {
             }
           } catch (e) {
             // Cross-origin parent - i-skip lang
-            console.log('⏭️ Cannot access parent.tinymce (cross-origin)');
           }
         }
 
         if (editor) {
-          console.log('✅ TinyMCE editor found');
           const editorBody = editor.getBody();
           if (editorBody) {
             editorBody.addEventListener('input', this.handleInput.bind(this), true);
@@ -507,11 +482,9 @@ const TypiPat = {
               this.handleInput({ target: editorBody, type: 'input' });
             });
 
-            console.log('✅ TinyMCE listeners attached');
           }
         }
       } catch (err) {
-        console.warn('⚠️ TinyMCE error:', err.message || err);
       }
     }, 500);
   },
@@ -621,7 +594,6 @@ const TypiPat = {
           const doc = iframe.contentDocument || iframe.contentWindow?.document;
           if (!doc) return;
 
-          console.log('📄 Attaching to iframe:', iframe.src);
 
           const editableElements = doc.querySelectorAll(
             'input, textarea, [contenteditable="true"]'
@@ -629,7 +601,6 @@ const TypiPat = {
 
           editableElements.forEach((el) => {
             el.addEventListener('input', this.handleInput.bind(this), true);
-            console.log('✅ Attached listener to:', el.tagName);
           });
 
           doc.addEventListener('focusin', (e) => {
@@ -665,7 +636,6 @@ const TypiPat = {
           }
 
         } catch (err) {
-          console.log('⚠️ Cannot access iframe content (cross-origin):', iframe.src);
         }
       });
     } catch (err) {
@@ -810,13 +780,11 @@ const FloatingUI = {
 
             if (success) {
               inserted = true;
-              console.log('✅ Text inserted via execCommand (no clipboard touched)');
               sendResponse({ success: true });
               return true; // Tapos na, exit agad
             }
           } catch (execError) {
             // Kung nag-fail ang execCommand (hal. sa contenteditable na may restrictions)
-            console.warn('⚠️ execCommand failed, trying fallback...', execError);
           }
         }
 
@@ -827,7 +795,6 @@ const FloatingUI = {
             try {
               originalClipboard = await navigator.clipboard.readText();
             } catch (readError) {
-              console.log('No existing clipboard text to save.');
             }
 
             try {
@@ -870,7 +837,6 @@ const FloatingUI = {
               sendResponse({ success: true });
 
             } catch (clipError) {
-              console.error('❌ Clipboard method failed:', clipError);
               // Kung nag-fail, subukan ang execCommand ulit
               try {
                 if (activeEl) {
@@ -880,7 +846,6 @@ const FloatingUI = {
                   return;
                 }
               } catch (finalError) {
-                console.error('🔥 All methods failed:', finalError);
               }
               sendResponse({ success: false, error: clipError.message });
             }

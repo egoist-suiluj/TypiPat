@@ -347,11 +347,9 @@ function showFeedback(btnElement) {
 const openOptionsBtn = document.getElementById("openOptions");
 if (openOptionsBtn) {
   openOptionsBtn.addEventListener("click", async () => {
-    console.log('🎵 Orchestra Entrata clicked');
 
     // 🔥 CHECK EXTENSION CONTEXT MUNA (IDAGDAG ITO)
     if (!chrome.runtime?.id) {
-      console.warn('Extension context invalid, reloading popup...');
       TypiUtils.showNotification('Extension is refreshing. Please reopen popup.', 'error', '⚠️');
       return;
     }
@@ -362,7 +360,6 @@ if (openOptionsBtn) {
         SoundPlayer.playOrchestraEntrataSound();
       }
     } catch (err) {
-      console.warn('Sound play failed:', err);
     }
 
     function openOptionsDirect() {
@@ -370,21 +367,17 @@ if (openOptionsBtn) {
         try {
           // 🔥 DOUBLE CHECK BAGO TUMAWAG NG API (IDAGDAG ITO)
           if (!chrome.runtime?.id) {
-            console.warn('Context lost before openOptionsPage');
             resolve(false);
             return;
           }
           chrome.runtime.openOptionsPage(() => {
             if (chrome.runtime.lastError) {
-              console.warn('openOptionsPage error:', chrome.runtime.lastError.message);
               resolve(false);
             } else {
-              console.log('✅ Options page opened directly');
               resolve(true);
             }
           });
         } catch (err) {
-          console.warn('openOptionsPage exception:', err);
           resolve(false);
         }
       });
@@ -394,7 +387,6 @@ if (openOptionsBtn) {
       try {
         // 🔥 CHECK CONTEXT BAGO GUMAWA NG TAB (IDAGDAG ITO)
         if (!chrome.runtime?.id) {
-          console.warn('Context lost in fallback');
           showReloadMessage();
           return;
         }
@@ -402,14 +394,11 @@ if (openOptionsBtn) {
         const optionsUrl = chrome.runtime.getURL('options.html');
         chrome.tabs.create({ url: optionsUrl, active: true }, (tab) => {
           if (chrome.runtime.lastError) {
-            console.error('Fallback failed:', chrome.runtime.lastError);
             showReloadMessage();
           } else {
-            console.log('✅ Options opened via fallback tab');
           }
         });
       } catch (err) {
-        console.error('Fallback exception:', err);
         showReloadMessage();
       }
     }
@@ -435,14 +424,12 @@ if (openOptionsBtn) {
 function checkExtensionContext() {
   try {
     if (!chrome.runtime?.id) {
-      console.warn('Extension context invalid, reloading...');
       TypiUtils.showNotification('Refreshing extension connection...', 'info', '🔄');
       setTimeout(() => window.location.reload(), 1000);
       return false;
     }
     return true;
   } catch (err) {
-    console.warn('Context check failed:', err);
     return false;
   }
 }

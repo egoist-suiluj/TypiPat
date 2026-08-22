@@ -83,7 +83,6 @@ const TypiStorage = {
 
       chrome.storage.local.set(updates, () => {
         if (chrome.runtime.lastError) {
-          console.error("Local save failed:", chrome.runtime.lastError.message);
           resolve({
             success: false,
             syncFailed: false,
@@ -95,10 +94,6 @@ const TypiStorage = {
           try {
             chrome.storage.sync.set(updates, () => {
               if (chrome.runtime.lastError) {
-                console.warn(
-                  "Sync save failed (naka-save pa rin locally):",
-                  chrome.runtime.lastError.message,
-                );
                 resolve({
                   success: true,
                   syncFailed: true,
@@ -142,10 +137,6 @@ const TypiStorage = {
 
       chrome.storage.local.set(updates, () => {
         if (chrome.runtime.lastError) {
-          console.error(
-            "Local import failed:",
-            chrome.runtime.lastError.message,
-          );
           resolve({
             success: false,
             syncFailed: false,
@@ -157,10 +148,6 @@ const TypiStorage = {
           try {
             chrome.storage.sync.set(updates, () => {
               if (chrome.runtime.lastError) {
-                console.warn(
-                  "Sync import failed (naka-save pa rin locally):",
-                  chrome.runtime.lastError.message,
-                );
                 resolve({
                   success: true,
                   syncFailed: true,
@@ -195,10 +182,6 @@ const TypiStorage = {
 
       chrome.storage.local.remove(keysToRemove, () => {
         if (chrome.runtime.lastError) {
-          console.error(
-            "Local remove failed:",
-            chrome.runtime.lastError.message,
-          );
           resolve({ success: false, syncFailed: false });
           return;
         }
@@ -206,10 +189,6 @@ const TypiStorage = {
           try {
             chrome.storage.sync.remove(keysToRemove, () => {
               if (chrome.runtime.lastError) {
-                console.warn(
-                  "Sync remove failed:",
-                  chrome.runtime.lastError.message,
-                );
                 resolve({ success: true, syncFailed: true });
               } else {
                 resolve({ success: true, syncFailed: false });
@@ -297,16 +276,13 @@ const TypiStorage = {
         }
       }
       if (isSame) {
-        console.log("📊 No changes needed, skipping sync back");
         return; // ✅ WALANG PAGBABAGO - HUWAG MAG-SET
       }
     }
 
     // 🔥 MAY PAGKAKAIBA - Saka lang mag-set
-    console.log("📊 Syncing back changes...");
     chrome.storage.local.set(merged, () => {
       if (chrome.runtime.lastError) {
-        console.warn("Sync back failed:", chrome.runtime.lastError);
       }
     });
   },
